@@ -936,7 +936,7 @@ const Enquirers = () => {
     {
       name: "Source",
       selector: (row) => row.source,
-      width: "120px",
+      width: "150px",
     },
     {
       name: "Enquiry Lister",
@@ -1095,6 +1095,7 @@ const Enquirers = () => {
               <option value="Onsite">Onsite</option>
               <option value="Direct">Direct</option>
               <option value="CSV">CSV File</option>
+              <option value="Landing Page">Landing Page</option>
             </select>
           </div>
 

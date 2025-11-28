@@ -890,7 +890,7 @@ const DigitalBroker = () => {
     {
       name: "Source",
       selector: (row) => row.source,
-      width: "120px",
+      width: "150px",
     },
     {
       name: "Contact",
