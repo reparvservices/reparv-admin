@@ -641,7 +641,19 @@ const ProjectPartner = () => {
     },
     {
       name: "Contact",
-      selector: (row) => row.contact,
+      cell: (row) => (
+        <span
+          className="cursor-pointer"
+          onClick={() => {
+            window.open(
+              `https://www.reparv.in/project-partner/${row.contact}`,
+              "_blank"
+            );
+          }}
+        >
+          {row.contact}
+        </span>
+      ),
       sortable: true,
       width: "150px",
     },
