@@ -19,8 +19,8 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("adminUser");
   };
-  const URI = "http://localhost:3000";
-  //const URI = "https://api.reparv.in";
+  //const URI = "http://localhost:3000";
+  const URI = "https://api.reparv.in";
 
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("adminUser"))
