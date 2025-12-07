@@ -172,7 +172,7 @@ const AdsManager = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Ads Manager.");
       const data = await response.json();
-      console.log(data);
+      //console.log(data);
       setAdsManagers(data);
     } catch (err) {
       console.error("Error fetching :", err);
@@ -348,7 +348,7 @@ const AdsManager = () => {
 
   useEffect(() => {
     if (newAdsManager.projectPartnerId != "") {
-      fetchProjectPartnerData();
+      //fetchProjectPartnerData();
     }
   }, [newAdsManager.projectPartnerId]);
 
@@ -600,16 +600,17 @@ const AdsManager = () => {
     <div
       className={`sales Persons overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start`}
     >
-      <div className="sales-table w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
-        <div className="w-full flex items-center justify-between md:justify-end gap-1 sm:gap-3">
-          <p className="block md:hidden text-lg font-semibold">Ads Managers</p>
+      <div className="sales-table w-full h-[85vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
+        <div className="flex md:hidden w-full items-center justify-between md:justify-end gap-1 sm:gap-3">
+          <p className="text-lg font-semibold">Ads Managers</p>
           <div className="flex xl:hidden flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
             <DownloadCSV data={filteredData} filename={"Ads_Manager.csv"} />
           </div>
         </div>
         <div className="w-full flex items-center justify-center gap-1 sm:gap-3">
-          <FilterBar filters={filters} setFilters={setFilters}/>
+          <FilterBar filters={filters} setFilters={setFilters} />
         </div>
+
         <div className="searchBarContainer w-full flex flex-col lg:flex-row items-center justify-between gap-3">
           <div className="search-bar w-full lg:w-[30%] min-w-[150px] max:w-[289px] xl:w-[289px] h-[36px] flex gap-[10px] rounded-[12px] p-[10px] items-center justify-start lg:justify-between bg-[#0000000A]">
             <CiSearch />

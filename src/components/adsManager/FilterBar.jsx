@@ -1,147 +1,198 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../../store/auth";
 import axios from "axios";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
 export default function FilterBar({ onResults, filters, setFilters }) {
+  const { URI } = useAuth();
+
   const [cities, setCities] = useState([]);
   const [properties, setProperties] = useState([]);
-  const [partners, setPartners] = useState([]);
-  const [plans, setPlans] = useState([]);
+  const [projectPartners, setProjectPartners] = useState([]);
+  const [planNames, setPlanNames] = useState([]);
 
-  // Fetch dropdown options
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const res = await axios.get("/filter-options");
-        setCities(res.data.cities || []);
-        setProperties(res.data.properties || []);
-        setPartners(res.data.projectPartners || []);
-        setPlans(res.data.plans || []);
-      } catch (err) {
-        console.error("Error fetching filter options:", err);
-      }
-    };
-    fetchOptions();
-  }, []);
+  const [selectedProjectPartnerId, setSelectedProjectPartnerId] = useState("");
 
-  // Filter API call
-  const handleFilter = async () => {
+  // ----------------------------- FETCH SUBSCRIPTION PLANS -----------------------------
+  const fetchPlans = async () => {
     try {
-      const res = await axios.get("/filter-properties", {
-        params: filters,
+      const res = await fetch(`${URI}/admin/ads-manager/subscription-plans`, {
+        credentials: "include",
       });
-      onResults && onResults(res.data.data);
-    } catch (error) {
-      console.error("Filter Error:", error);
+
+      const data = await res.json();
+      console.log(data);
+
+      setPlanNames(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching plans:", err);
     }
   };
 
-  const handleClear = () => {
-    setFilters({
-      projectPartnerCity: "",
-      propertyName: "",
-      projectPartnerName: "",
-      planName: "",
-    });
-    onResults && onResults([]);
+  // ----------------------------- FETCH CITIES -----------------------------
+  const fetchCities = async () => {
+    try {
+      const res = await fetch(`${URI}/admin/ads-manager/cities`, {
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      setCities(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching cities:", err);
+    }
   };
 
-  // UI Dropdown reuse
-  const CustomSelect = ({ label, options, value, onChange }) => (
-    <div className="w-full relative inline-block">
-      <div className="flex gap-2 items-center justify-between bg-white border border-[#00000033] rounded-lg py-1.5 px-3 text-sm font-semibold text-black cursor-pointer">
-        <span>{value || label}</span>
-        <RiArrowDropDownLine className="w-6 h-6 text-[#000000B2]" />
+  // ----------------------------- FETCH PROJECT PARTNERS BASED ON CITY -----------------------------
+  const fetchProjectPartners = async () => {
+    try {
+      const city = filters?.projectPartnerCity || "All";
+
+      const res = await fetch(
+        `${URI}/admin/ads-manager/project-partner/${city}`,
+        {
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+      console.log(data);
+
+      setProjectPartners(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching project partners:", err);
+    }
+  };
+
+  // ----------------------------- FETCH PROPERTIES BASED ON PROJECT PARTNER -----------------------------
+  const fetchProperties = async () => {
+    try {
+      const partner = selectedProjectPartnerId || "All";
+      const city = filters?.projectPartnerCity || "All";
+
+      const res = await fetch(`${URI}/admin/ads-manager/properties`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectPartnerId: partner,
+          city: city,
+        }),
+      });
+
+      const data = await res.json();
+      console.log("Fetched Properties:", data);
+
+      setProperties(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching properties:", err);
+    }
+  };
+
+  // ----------------------------- LOAD ALL FILTER OPTIONS -----------------------------
+
+  useEffect(() => {
+    fetchPlans();
+    fetchCities();
+    fetchProjectPartners();
+    fetchProperties();
+  }, []);
+
+  useEffect(() => {
+    fetchPlans();
+    fetchCities();
+    fetchProjectPartners();
+    fetchProperties();
+  }, [filters?.projectPartnerCity, selectedProjectPartnerId]);
+
+  // ----------------------------- CUSTOM SELECT COMPONENT -----------------------------
+  const CustomSelect = ({
+    label,
+    options,
+    value,
+    onChange,
+    getLabel,
+    getValue,
+  }) => {
+    const safeOptions = Array.isArray(options) ? options : [];
+
+    return (
+      <div className="w-full relative inline-block">
+        <div className="flex gap-2 items-center justify-between bg-white border border-[#00000033] rounded-lg py-1 px-3 text-sm font-semibold text-black cursor-pointer">
+          <span>{value || label}</span>
+          <RiArrowDropDownLine className="w-6 h-6 text-[#000000B2]" />
+        </div>
+
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        >
+          <option value="">{label}</option>
+
+          {safeOptions.map((item, i) => (
+            <option key={i} value={getValue ? getValue(item) : item}>
+              {getLabel ? getLabel(item) : item}
+            </option>
+          ))}
+        </select>
       </div>
+    );
+  };
 
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-      >
-        <option value="">{label}</option>
-        {options.map((item, i) => (
-          <option key={i} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-
+  // ----------------------------- UI -----------------------------
   return (
     <div className="w-full bg-white rounded-xl">
-      <div className="hidden w-full sm:flex gap-2 items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Filter</h2>
-        <div className="flex justify-end gap-6">
-          <button
-            type="button"
-            onClick={handleClear}
-            className="px-4 sm:px-6 py-1.5 leading-4 text-sm sm:text-base text-[#ffffff] font-medium bg-[#000000B2] rounded-md active:scale-[0.98]"
-          >
-            Reset
-          </button>
-          <button
-            type="button"
-            onClick={handleFilter}
-            className="px-4 sm:px-6 py-1.5 leading-4 text-sm sm:text-base text-white bg-[#076300] font-medium rounded-md active:scale-[0.98]"
-          >
-            Apply Filter
-          </button>
-        </div>
-      </div>
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-4">
-        {/* City */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {/* CITY */}
         <CustomSelect
           label="Select City"
           options={cities}
-          value={filters?.projectPartnerCity}
+          value={filters.projectPartnerCity}
           onChange={(val) =>
-            setFilters({ ...filters, projectPartnerCity: val })
+            setFilters({ ...filters, projectPartnerCity: val,  projectPartner: "", propertyName: "" })
           }
+          getLabel={(c) => c}
+          getValue={(c) => c}
         />
 
-        {/* Property Name */}
+        {/* PROJECT PARTNER */}
+        <CustomSelect
+          label="Select Project Partner"
+          options={projectPartners}
+          value={filters.projectPartner}
+          onChange={(val) => {
+            const selected = projectPartners.find((pp) => pp.fullname === val);
+            setSelectedProjectPartnerId(selected?.id || "");
+            setFilters({ ...filters, projectPartner: val, propertyName: "" });
+          }}
+          getLabel={(p) => p.fullname}
+          getValue={(p) => p.fullname}
+        />
+
+        {/* PROPERTY */}
         <CustomSelect
           label="Select Property"
           options={properties}
-          value={filters?.propertyName}
+          value={filters.propertyName}
           onChange={(val) => setFilters({ ...filters, propertyName: val })}
+          getLabel={(p) => p.propertyName}
+          getValue={(p) => p.propertyName}
         />
 
-        {/* Project Partner */}
-        <CustomSelect
-          label="Select Project Partner"
-          options={partners}
-          value={filters?.projectPartnerName}
-          onChange={(val) =>
-            setFilters({ ...filters, projectPartnerName: val })
-          }
-        />
-
-        {/* Plan */}
+        {/* PLAN */}
         <CustomSelect
           label="Select Plan"
-          options={plans}
-          value={filters?.planName}
+          options={planNames}
+          value={filters.planName}
           onChange={(val) => setFilters({ ...filters, planName: val })}
+          getLabel={(p) => p}
+          getValue={(p) => p}
         />
-      </div>
-      <div className="w-full flex sm:hidden gap-4 items-center justify-end mt-4">
-        <button
-          type="button"
-          onClick={handleClear}
-          className="px-4 sm:px-6 py-1.5 leading-4 text-sm sm:text-base text-[#ffffff] font-medium bg-[#000000B2] rounded-md active:scale-[0.98]"
-        >
-          Reset
-        </button>
-        <button
-          type="button"
-          onClick={handleFilter}
-          className="px-4 sm:px-6 py-1.5 leading-4 text-sm sm:text-base text-white bg-[#076300] font-medium rounded-md active:scale-[0.98]"
-        >
-          Apply Filter
-        </button>
       </div>
     </div>
   );
