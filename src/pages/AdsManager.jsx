@@ -15,6 +15,8 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import DownloadCSV from "../components/DownloadCSV";
 import Select from "react-select";
 import FilterBar from "../components/adsManager/filterBar";
+import { FaRegCopy } from "react-icons/fa";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 const AdsManager = () => {
   const {
@@ -537,6 +539,36 @@ const AdsManager = () => {
     },
     { name: "Start Date", selector: (row) => row.startDate, width: "200px" },
     { name: "End Date", selector: (row) => row.endDate, width: "200px" },
+    {
+      name: "Landing Page",
+      cell: (row) => {
+        return (
+          <div className="flex gap-4 items-center justify-center">
+            <div
+              onClick={() => {
+                navigator.clipboard.writeText(`https://www.reparv.in/project-partner/${row.projectPartnerContact}`);
+                alert("Landing Page Link Copied Successfully!");
+              }}
+              className="flex items-center justify-center w-8 h-8 p-2 text-white bg-blue-600 rounded-lg cursor-pointer active:scale-95"
+            >
+              <FaRegCopy size={15} />
+            </div>
+            <div
+              onClick={() => {
+                window.open(
+                  `https://www.reparv.in/project-partner/${row.projectPartnerContact}`,
+                  "_blank"
+                );
+              }}
+              className="flex items-center justify-center w-8 h-8 p-2 text-white bg-red-600 rounded-lg cursor-pointer active:scale-95"
+            >
+              <FaExternalLinkAlt size={14} />
+            </div>
+          </div>
+        );
+      },
+      minWidth: "200px",
+    },
   ];
 
   {
