@@ -174,7 +174,7 @@ const AdsManager = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Ads Manager.");
       const data = await response.json();
-      //console.log(data);
+      console.log(data);
       setAdsManagers(data);
     } catch (err) {
       console.error("Error fetching :", err);
@@ -336,24 +336,6 @@ const AdsManager = () => {
     fetchStates();
   }, []);
 
-  useEffect(() => {
-    if (newAdsManager.state != "") {
-      fetchCities();
-    }
-  }, [newAdsManager.state]);
-
-  useEffect(() => {
-    if (newAdsManager.city != "") {
-      fetchProjectPartnerList();
-    }
-  }, [newAdsManager.city]);
-
-  useEffect(() => {
-    if (newAdsManager.projectPartnerId != "") {
-      //fetchProjectPartnerData();
-    }
-  }, [newAdsManager.projectPartnerId]);
-
   const [range, setRange] = useState([
     {
       startDate: null,
@@ -363,7 +345,7 @@ const AdsManager = () => {
   ]);
 
   const [filters, setFilters] = useState({
-    projectPartnerCity: "",
+    city: "",
     propertyName: "",
     projectPartner: "",
     planName: "",
@@ -376,7 +358,7 @@ const AdsManager = () => {
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       item.propertyCityId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.projectPartnerCity
+      item.city
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       item.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -385,9 +367,9 @@ const AdsManager = () => {
 
     // NEW: Matched City Filter
     const matchesCity =
-      !filters.projectPartnerCity ||
-      item.projectPartnerCity?.toLowerCase() ===
-        filters.projectPartnerCity.toLowerCase();
+      !filters.city ||
+      item.city?.toLowerCase() ===
+        filters.city.toLowerCase();
 
     // NEW: Matched Property Filter
     const matchesProperty =
@@ -488,7 +470,7 @@ const AdsManager = () => {
       cell: (row, index) => (
         <span
           onClick={() => {
-            //view(row.id);
+            view(row.id);
           }}
           className={`px-2 py-1 rounded-md cursor-pointer ${
             row.status === "Active"
@@ -498,11 +480,11 @@ const AdsManager = () => {
               : "text-[#000000]"
           }`}
         >
-          {row.propertyCityId}
+          {row.propertycityid || row.propertyCityId}
         </span>
       ),
       sortable: false,
-      width: "120px",
+      width: "150px",
     },
     {
       name: "Property Name",
@@ -529,7 +511,7 @@ const AdsManager = () => {
     },
     {
       name: "City",
-      selector: (row) => row.projectPartnerCity,
+      selector: (row) => row.city,
       width: "150px",
     },
     {

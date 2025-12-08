@@ -21,7 +21,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
       });
 
       const data = await res.json();
-      console.log(data);
+      //console.log(data);
 
       setPlanNames(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -37,7 +37,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
       });
 
       const data = await res.json();
-      console.log(data);
+      //console.log(data);
 
       setCities(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -58,7 +58,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
       );
 
       const data = await res.json();
-      console.log(data);
+      //console.log(data);
 
       setProjectPartners(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -70,7 +70,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
   const fetchProperties = async () => {
     try {
       const partner = selectedProjectPartnerId || "All";
-      const city = filters?.projectPartnerCity || "All";
+      const city = filters?.city || "All";
 
       const res = await fetch(`${URI}/admin/ads-manager/properties`, {
         method: "POST",
@@ -85,7 +85,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
       });
 
       const data = await res.json();
-      console.log("Fetched Properties:", data);
+      //console.log("Fetched Properties:", data);
 
       setProperties(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -107,7 +107,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
     fetchCities();
     fetchProjectPartners();
     fetchProperties();
-  }, [filters?.projectPartnerCity, selectedProjectPartnerId]);
+  }, [filters?.city, selectedProjectPartnerId]);
 
   // ----------------------------- CUSTOM SELECT COMPONENT -----------------------------
   const CustomSelect = ({
@@ -152,9 +152,9 @@ export default function FilterBar({ onResults, filters, setFilters }) {
         <CustomSelect
           label="Select City"
           options={cities}
-          value={filters.projectPartnerCity}
+          value={filters.city}
           onChange={(val) =>
-            setFilters({ ...filters, projectPartnerCity: val,  projectPartner: "", propertyName: "" })
+            setFilters({ ...filters, city: val,  projectPartner: "", propertyName: "" })
           }
           getLabel={(c) => c}
           getValue={(c) => c}
