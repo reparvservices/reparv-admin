@@ -48,7 +48,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
   // ----------------------------- FETCH PROJECT PARTNERS BASED ON CITY -----------------------------
   const fetchProjectPartners = async () => {
     try {
-      const city = filters?.projectPartnerCity || "All";
+      const city = filters?.city || "All";
 
       const res = await fetch(
         `${URI}/admin/ads-manager/project-partner/${city}`,
