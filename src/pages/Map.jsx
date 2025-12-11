@@ -232,7 +232,7 @@ const Map = () => {
           {/* Mobile City Selector */}
           <div className="selectCity w-full relative inline-block">
             <Select
-              className="w-full max-w-[200px] text-xs font-medium p-0 cursor-pointer z-[1001]"
+              className="w-full max-w-[200px] text-xs font-medium p-0 cursor-pointer !z-[54]"
               styles={customStyles}
               options={cityOptions}
               value={
@@ -274,7 +274,7 @@ const Map = () => {
         <div
           className={`mapContainer  overflow-scroll scrollbar-hide w-full h-[70vh] flex flex-col lg:flex-row bg-cover rounded-[8px]`}
         >
-          <div className="w-full lg:w-1/2 h-[100%]">
+          <div className="w-full lg:w-1/2 h-[100%] !z-[50]">
             <LeafletCityMap
               properties={properties}
               selectedCity={selectedCity}

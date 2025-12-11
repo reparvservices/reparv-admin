@@ -157,7 +157,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
               })
             }
           >
-            <option disabled value="">
+            <option value="">
               Select Parking Availability
             </option>
             <option value="Yes">YES</option>
@@ -228,7 +228,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
               })
             }
           >
-            <option disabled value="">
+            <option value="">
               Select Loan Availability
             </option>
             <option value="Yes">YES</option>
@@ -324,7 +324,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
               setPropertyData({ ...newProperty, furnishing: e.target.value });
             }}
           >
-            <option value="" disabled>
+            <option value="">
               Select Furnishing
             </option>
             <option value="Unfurnished">Unfurnished</option>
