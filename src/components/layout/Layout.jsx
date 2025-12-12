@@ -99,7 +99,6 @@ const menuItems = [
       { label: "Project Partner", to: "/projectpartner" },
       { label: "Sales Partner", to: "/salespersons" },
       { label: "Territory Partner", to: "/territorypartner" },
-      { label: "Onboarding Partner", to: "/onboardingpartner" },
       { label: "Guest Users", to: "/guest-users" },
       { label: "Calendar", to: "/calender" },
     ],
@@ -113,14 +112,14 @@ const menuItems = [
   },
 
   // Subscription Plan Dopdown
-    {
-      label: "Subscription Plans",
-      icon: <BiSolidDiamond size={21} />,
-      dropdown: [
-        { label: "Subscription Pricing", to: "/subscription-pricing" },
-        { label: "Subscription Discount", to: "/subscription-discount" },
-      ],
-    },
+  {
+    label: "Subscription Plans",
+    icon: <BiSolidDiamond size={21} />,
+    dropdown: [
+      { label: "Subscription Pricing", to: "/subscription-pricing" },
+      { label: "Subscription Discount", to: "/subscription-discount" },
+    ],
+  },
 
   // Manage Reparv Dopdown
   {
@@ -268,6 +267,8 @@ function Layout() {
     setShowAdsManager,
     showAdsManagerForm,
     setShowAdsManagerForm,
+    showChangeProjectPartnerForm,
+    setShowChangeProjectPartnerForm,
     isLoggedIn,
   } = useAuth();
 
@@ -340,6 +341,10 @@ function Layout() {
     { state: showNotePopup, setter: setShowNotePopup },
     { state: showAdsManager, setter: setShowAdsManager },
     { state: showAdsManagerForm, setter: setShowAdsManagerForm },
+    {
+      state: showChangeProjectPartnerForm,
+      setter: setShowChangeProjectPartnerForm,
+    },
   ];
 
   const [openLeads, setOpenLeads] = useState(false);
@@ -402,7 +407,7 @@ function Layout() {
           <div className="left-heading h-8 flex gap-4 items-center justify-between text-[20px] leading-[19.36px] text-black">
             <IoMenu
               onClick={() => {
-                //setIsShortbar(!isShortBar);
+                setIsShortbar(!isShortBar);
               }}
               className="w-8 h-8 cursor-pointer active:scale-95"
             />{" "}
@@ -424,7 +429,7 @@ function Layout() {
       <div className="flex overflow-y-scroll scrollbar-hide">
         <div
           className={`w-64 ${
-            isShortBar ? "md:w-[95px]" : "md:w-60"
+            isShortBar ? "md:w-[16px] " : "md:w-60"
           } h-full fixed overflow-y-scroll scrollbar-hide bg-white shadow-md md:shadow-none md:static top-0 left-0 z-[55] md:bg-[#F5F5F6] transition-transform duration-300 transform ${
             isSidebarOpen
               ? "translate-x-0"
@@ -473,7 +478,7 @@ function Layout() {
                   </div>
 
                   <span
-                    className={`text-sm md:text-base ${
+                    className={`text-sm md:text-base max-w-[80px] ${
                       isShortBar ? "md:hidden" : "block"
                     }`}
                   >
@@ -481,7 +486,7 @@ function Layout() {
                   </span>
 
                   {item.dropdown && (
-                    <span className="text-xs">
+                    <div className="w-full flex items-end justify-end text-xs">
                       {(item.label === "Leads" && openLeads) ||
                       (item.label === "Visitors" && openVisitors) ||
                       (item.label === "Projects" && openProjects) ||
@@ -501,13 +506,14 @@ function Layout() {
                           className="min-w-[30px]"
                         />
                       )}
-                    </span>
+                    </div>
                   )}
                 </NavLink>
 
                 {/* Dropdown items */}
                 {item.dropdown && (
-                  <div className={`flex ${
+                  <div
+                    className={`flex ${
                       (item.label === "Leads" && openLeads) ||
                       (item.label === "Visitors" && openVisitors) ||
                       (item.label === "Projects" && openProjects) ||
@@ -519,14 +525,15 @@ function Layout() {
                       (item.label === "Manage Reparv" && openManageReparv)
                         ? "max-h-96 opacity-100"
                         : "max-h-0 opacity-0 overflow-hidden"
-                    }`}>
-                      <div className="w-14 flex items-start justify-end">
-                        <PiArrowElbowDownRightBold size={20} className="mr-2 mt-1"/>
-                      </div>
-                  <div
-                    className={`flex flex-col gap-2 transition-all`}
+                    }`}
                   >
-                    
+                    <div className="w-14 flex items-start justify-end">
+                      <PiArrowElbowDownRightBold
+                        size={20}
+                        className="mr-2 mt-1"
+                      />
+                    </div>
+                    <div className={`flex flex-col gap-1 transition-all`}>
                       {item.dropdown.map((sub, i) => (
                         <NavLink
                           key={i}

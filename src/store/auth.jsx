@@ -108,6 +108,8 @@ export const AuthProvider = ({ children }) => {
 
   const [showAdsManager, setShowAdsManager] = useState(false);
   const [showAdsManagerForm, setShowAdsManagerForm] = useState(false);
+  const [showChangeProjectPartnerForm, setShowChangeProjectPartnerForm] =
+    useState(false);
 
   return (
     <AuthContext.Provider
@@ -269,6 +271,8 @@ export const AuthProvider = ({ children }) => {
         setShowAdsManager,
         showAdsManagerForm,
         setShowAdsManagerForm,
+        showChangeProjectPartnerForm,
+        setShowChangeProjectPartnerForm,
       }}
     >
       {children}

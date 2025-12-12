@@ -22,6 +22,7 @@ import UpdateImagesForm from "../components/propertyForm/UpdateImagesForm";
 import PropertyFilter from "../components/propertyFilter";
 import FormatPrice from "../components/FormatPrice";
 import PropertyCommissionPopup from "../components/PropertyCommissionPopup";
+import Select from "react-select";
 
 const Properties = () => {
   const navigate = useNavigate();
@@ -51,6 +52,8 @@ const Properties = () => {
     setPropertyCommissionData,
     showPropertyCommissionPopup,
     setShowPropertyCommissionPopup,
+    showChangeProjectPartnerForm,
+    setShowChangeProjectPartnerForm,
     URI,
     loading,
     setLoading,
@@ -133,6 +136,15 @@ const Properties = () => {
     qualityBenefit: "",
     capitalAppreciationBenefit: "",
     ecofriendlyBenefit: "",
+  });
+
+  const [projectPartnerList, setProjectPartnerList] = useState([]);
+  const [projectPartnerChange, setProjectPartnerChange] = useState({
+    projectPartnerId: "",
+    projectPartner: "",
+    projectPartnerContact: "",
+    state: "",
+    city: "",
   });
 
   // For Update images
@@ -1142,6 +1154,81 @@ const Properties = () => {
     }
   };
 
+  //Fetch Project Partner List
+  const fetchProjectPartnerList = async () => {
+    try {
+      const response = await fetch(URI + "/admin/projectpartner/active", {
+        method: "GET",
+        credentials: "include", //  Ensures cookies are sent
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Failed to fetch Project Partner.");
+      const data = await response.json();
+      setProjectPartnerList(data);
+      //console.log(data);
+    } catch (err) {
+      console.error("Error fetching :", err);
+    }
+  };
+
+  const changeProjectPartner = async (e) => {
+    e.preventDefault();
+    if (
+      !window.confirm(
+        "Are you sure to Assign Property to " +
+          projectPartnerChange.projectPartner
+      )
+    )
+      return;
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        URI + `/admin/properties/assign/to/project-partner/${propertyKey}`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(projectPartnerChange),
+        }
+      );
+      const data = await response.json();
+      console.log(response);
+      if (response.ok) {
+        alert(`Success: ${data.message}`);
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+      setProjectPartnerChange({
+        projectPartnerId: "",
+        projectPartner: "",
+        projectPartnerContact: "",
+      });
+      setShowChangeProjectPartnerForm(false);
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting :", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const customStyle = {
+    menu: (provided) => ({
+      ...provided,
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: "200px", // Default is ~160px — increase as needed
+      paddingTop: 0,
+      paddingBottom: 0,
+    }),
+  };
+
   useEffect(() => {
     fetchData();
   }, [selectedPartner]);
@@ -1151,6 +1238,7 @@ const Properties = () => {
     fetchStates();
     fetchBuilder();
     fetchAuthorities();
+    fetchProjectPartnerList();
   }, []);
 
   useEffect(() => {
@@ -1460,6 +1548,10 @@ const Properties = () => {
           setPropertyKey(propertyid);
           fetchImages(propertyid);
           break;
+        case "changeProjectPartner":
+          setPropertyKey(propertyid);
+          setShowChangeProjectPartnerForm(true);
+          break;
         default:
           console.log("Invalid action");
       }
@@ -1515,6 +1607,7 @@ const Properties = () => {
           <option value="setCommission">Set Commission</option>
           <option value="videoUpload">Brochure & Video</option>
           <option value="updateLocation">Latitude & Longitude</option>
+          <option value="changeProjectPartner">Change Project Partner</option>
         </select>
       </div>
     );
@@ -1542,6 +1635,7 @@ const Properties = () => {
               </option>
               <option value="Reparv Employee">Reparv Employee</option>
               <option value="Project Partner">Project Partner</option>
+              <option value="Onboarding Partner">Onboarding Partner</option>
               <option value="Guest User">Guest User</option>
             </select>
           </div>
@@ -1874,6 +1968,103 @@ const Properties = () => {
                 Upload
               </button>
               <Loader />
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Change Project Partner */}
+      <div
+        className={` ${
+          !showChangeProjectPartnerForm && "hidden"
+        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto`}
+      >
+        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] min-h-[300px] max-h-[70vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[16px] font-semibold">
+              Change Project Partner
+            </h2>
+            <IoMdClose
+              onClick={() => {
+                setShowChangeProjectPartnerForm(false);
+              }}
+              className="w-6 h-6 cursor-pointer"
+            />
+          </div>
+          <form onSubmit={changeProjectPartner}>
+            <div className="w-full grid gap-4 place-items-center grid-cols-1">
+              <input
+                type="hidden"
+                value={propertyKey}
+                onChange={(e) => {
+                  setPropertyKey(e.target.value);
+                }}
+              />
+
+              {/* Project Partner */}
+              <div className="w-full">
+                <label className="block text-sm leading-4 text-[#00000066] font-medium mb-[10px]">
+                  Select Project Partner <span className="text-red-600">*</span>
+                </label>
+                <Select
+                  required
+                  styles={customStyle}
+                  className="text-[16px] font-medium"
+                  options={
+                    projectPartnerList
+                      ?.filter((pp) => pp.status === "Active")
+                      .map((pp) => ({
+                        value: {
+                          projectPartnerId: pp.id,
+                          projectPartner: pp.fullname,
+                          projectPartnerContact: pp.contact,
+                        },
+                        label: `${pp.fullname} | ${pp.contact}`,
+                      })) || []
+                  }
+                  placeholder="Select Project Partner"
+                  value={
+                    projectPartnerChange
+                      ? projectPartnerList
+                          ?.filter((pp) => pp.status === "Active")
+                          .map((pp) => ({
+                            value: {
+                              projectPartnerId: pp.id,
+                              projectPartner: pp.fullname,
+                              projectPartnerContact: pp.contact,
+                            },
+                            label: `${pp.fullname} | ${pp.contact}`,
+                          }))
+                          .find(
+                            (opt) =>
+                              opt.value.projectPartnerId ===
+                              projectPartnerChange.projectPartnerId
+                          ) || null
+                      : null
+                  }
+                  onChange={(selected) =>
+                    setProjectPartnerChange(selected?.value || null)
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex mt-8 md:mt-6 justify-end gap-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAssignSalesForm(false);
+                }}
+                className="px-4 py-2 leading-4 text-[#ffffff] bg-[#000000B2] rounded active:scale-[0.98]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
+              >
+                Assign Sales
+              </button>
+              <Loader></Loader>
             </div>
           </form>
         </div>
