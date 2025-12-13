@@ -1223,7 +1223,7 @@ const Properties = () => {
     }),
     menuList: (provided) => ({
       ...provided,
-      maxHeight: "200px", // Default is ~160px — increase as needed
+      maxHeight: "160px", // Default is ~160px — increase as needed
       paddingTop: 0,
       paddingBottom: 0,
     }),
@@ -1979,7 +1979,7 @@ const Properties = () => {
           !showChangeProjectPartnerForm && "hidden"
         } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] min-h-[300px] max-h-[70vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] min-h-[350px] max-h-[70vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">
               Change Project Partner
