@@ -56,9 +56,14 @@ const ProjectPartner = () => {
     intrest: "",
   });
 
+  // Twitter SEO
+  const [twitterSite, setTwitterSite] = useState("");
+  const [twitterDescription, setTwitterDescription] = useState("");
+  // SEO Details
   const [seoSlug, setSeoSlug] = useState("");
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
+  const [seoKeywords, setSeoKeywords] = useState("");
 
   const [payment, setPayment] = useState({
     amount: "",
@@ -294,6 +299,9 @@ const ProjectPartner = () => {
       setSeoSlug(data.seoSlug);
       setSeoTitle(data.seoTitle);
       setSeoDescription(data.seoDescription);
+      setSeoKeywords(data.seoKeywords);
+      setTwitterSite(data.twitterSite);
+      setTwitterDescription(data.twitterDescription);
       setShowSeoForm(true);
     } catch (err) {
       console.error("Error fetching :", err);
@@ -317,6 +325,9 @@ const ProjectPartner = () => {
             seoSlug,
             seoTitle,
             seoDescription,
+            seoKeywords,
+            twitterSite,
+            twitterDescription,
           }),
         }
       );
@@ -1095,12 +1106,15 @@ const ProjectPartner = () => {
                 setSeoSlug("");
                 setSeoTitle("");
                 setSeoDescription("");
+                setSeoKeywords("");
+                setTwitterSite("");
+                setTwitterDescription("");
               }}
               className="w-6 h-6 cursor-pointer"
             />
           </div>
           <form onSubmit={addSeoDetails}>
-            <div className="w-full grid gap-4 place-items-center grid-cols-1 lg:grid-cols-1">
+            <div className="w-full grid gap-2 place-items-center grid-cols-1 lg:grid-cols-1">
               <input
                 type="hidden"
                 value={partnerId || ""}
@@ -1124,32 +1138,75 @@ const ProjectPartner = () => {
                   }}
                 />
               </div>/*/}
+              <div className="w-full">
+                <label className="block text-xs ml-1 leading-4 text-[#00000066] font-medium ">
+                  Twitter Site
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Site"
+                  className="w-full mt-[4px] text-[16px] font-medium p-3 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={twitterSite}
+                  onChange={(e) => {
+                    setTwitterSite(e.target.value);
+                  }}
+                />
+              </div>
+
+              <div className="w-full">
+                <label className="block text-xs ml-1 leading-4 text-[#00000066] font-medium ">
+                  Twitter Description
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Twitter Description"
+                  className="w-full mt-[4px] text-[16px] font-medium p-3 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={twitterDescription}
+                  onChange={(e) => {
+                    setTwitterDescription(e.target.value);
+                  }}
+                />
+              </div>
               <div className={`w-full `}>
-                <label className="block text-sm leading-4 text-[#00000066] font-medium ">
-                  Seo Title
+                <label className="block text-xs ml-1 leading-4 text-[#00000066] font-medium ">
+                  Seo Title <span className="text-red-600">*</span>
                 </label>
                 <textarea
                   rows={2}
                   cols={40}
                   placeholder="Enter SEO Title"
                   required
-                  className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full mt-[4px] text-[16px] font-medium p-3 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
                 />
               </div>
               <div className={`w-full `}>
-                <label className="block text-sm leading-4 text-[#00000066] font-medium ">
-                  Seo Description
+                <label className="block text-xs ml-1 leading-4 text-[#00000066] font-medium ">
+                  Seo Description <span className="text-red-600">*</span>
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   cols={40}
                   placeholder="Enter SEO Description"
                   required
-                  className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full mt-[4px] text-[16px] font-medium p-3 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={seoDescription}
                   onChange={(e) => setSeoDescription(e.target.value)}
+                />
+              </div>
+              <div className={`w-full `}>
+                <label className="block text-xs ml-1 leading-4 text-[#00000066] font-medium ">
+                  Seo Keywords <span className="text-red-600">*</span>
+                </label>
+                <textarea
+                  rows={3}
+                  cols={40}
+                  required
+                  placeholder="Enter SEO Keywords"
+                  className="w-full mt-[4px] text-[16px] font-medium p-3 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={seoKeywords}
+                  onChange={(e) => setSeoKeywords(e.target.value)}
                 />
               </div>
             </div>
@@ -1161,6 +1218,9 @@ const ProjectPartner = () => {
                   setSeoSlug("");
                   setSeoTitle("");
                   setSeoDescription("");
+                  setSeoKeywords("");
+                  setTwitterSite("");
+                  setTwitterDescription("");
                 }}
                 className="px-4 py-2 leading-4 text-[#ffffff] bg-[#000000B2] rounded active:scale-[0.98]"
               >
