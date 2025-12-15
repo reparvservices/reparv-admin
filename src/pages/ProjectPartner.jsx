@@ -342,6 +342,8 @@ const ProjectPartner = () => {
       setSeoSlug("");
       setSeoTitle("");
       setSeoDescription("");
+      setTwitterSite("");
+      setTwitterDescription("");
       await fetchData();
     } catch (error) {
       console.error("Error adding Seo Details reason:", error);

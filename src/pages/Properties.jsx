@@ -2052,7 +2052,7 @@ const Properties = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setShowAssignSalesForm(false);
+                  setShowChangeProjectPartnerForm(false);
                 }}
                 className="px-4 py-2 leading-4 text-[#ffffff] bg-[#000000B2] rounded active:scale-[0.98]"
               >
@@ -2062,7 +2062,7 @@ const Properties = () => {
                 type="submit"
                 className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
               >
-                Assign Sales
+                Assign
               </button>
               <Loader></Loader>
             </div>
