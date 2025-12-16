@@ -79,48 +79,6 @@ const StepOne = ({
           </select>
         </div>
 
-        <div className="w-full ">
-          <label
-            className={`text-green-600 block text-sm leading-4 font-medium`}
-          >
-            Project By
-          </label>
-          <input
-            type="text"
-            placeholder="Enter Project By"
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 placeholder:text-black"
-            value={newProperty.projectBy}
-            onChange={(e) =>
-              setPropertyData({ ...newProperty, projectBy: e.target.value })
-            }
-          />
-        </div>
-
-        <div className="w-full ">
-          <label className="text-green-600 block text-sm leading-4 font-medium">
-            Possession Date
-          </label>
-          <input
-            type="date"
-            placeholder="Enter Possession Date"
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 placeholder:text-black"
-            value={
-              newProperty.possessionDate
-                ? new Date(newProperty.possessionDate)
-                    .toISOString()
-                    .split("T")[0]
-                : ""
-            }
-            onChange={(e) => {
-              const selectedDate = e.target.value;
-              setPropertyData({
-                ...newProperty,
-                possessionDate: selectedDate === "" ? null : selectedDate,
-              });
-            }}
-          />
-        </div>
-
         <div className="w-full">
           <label
             className={`${
@@ -158,6 +116,64 @@ const StepOne = ({
             <option value="CommercialPlot">Commercial Plot</option>
             <option value="IndustrialSpace">Industrial Space</option>
           </select>
+        </div>
+
+        <div
+          className={`${
+            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
+              newProperty.propertyCategory
+            )
+              ? "hidden"
+              : "block"
+          } w-full`}
+        >
+          <label
+            className={`text-green-600 block text-sm leading-4 font-medium`}
+          >
+            Project By
+          </label>
+          <input
+            type="text"
+            placeholder="Enter Project By"
+            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 placeholder:text-black"
+            value={newProperty.projectBy}
+            onChange={(e) =>
+              setPropertyData({ ...newProperty, projectBy: e.target.value })
+            }
+          />
+        </div>
+
+        <div
+          className={`${
+            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
+              newProperty.propertyCategory
+            )
+              ? "hidden"
+              : "block"
+          } w-full`}
+        >
+          <label className="text-green-600 block text-sm leading-4 font-medium">
+            Possession Date
+          </label>
+          <input
+            type="date"
+            placeholder="Enter Possession Date"
+            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 placeholder:text-black"
+            value={
+              newProperty.possessionDate
+                ? new Date(newProperty.possessionDate)
+                    .toISOString()
+                    .split("T")[0]
+                : ""
+            }
+            onChange={(e) => {
+              const selectedDate = e.target.value;
+              setPropertyData({
+                ...newProperty,
+                possessionDate: selectedDate === "" ? null : selectedDate,
+              });
+            }}
+          />
         </div>
 
         <div
@@ -520,7 +536,8 @@ const StepOne = ({
           >
             {newProperty.registrationFee && newProperty.registrationFee != 30000
               ? "Registration Percentage " +
-                parseFloat(newProperty.registrationFee) + "%"
+                parseFloat(newProperty.registrationFee) +
+                "%"
               : "Registration Fee or Percentage "}
 
             <span className="text-red-600">*</span>

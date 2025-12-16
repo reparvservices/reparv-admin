@@ -11,6 +11,12 @@
   font-family: "Poppins", sans-serif;
 }
 
+.rdt_TableHead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .react-calendar__tile--now {
   border: 2px solid green !important;
   border-radius: 100%;

@@ -93,6 +93,9 @@ const Map = () => {
     },
     headCells: {
       style: {
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
@@ -287,6 +290,8 @@ const Map = () => {
                 customStyles={customDesign}
                 columns={columns}
                 data={properties}
+                fixedHeader
+            fixedHeaderScrollHeight="60vh"
                 pagination
                 paginationPerPage={10}
                 paginationComponentOptions={{

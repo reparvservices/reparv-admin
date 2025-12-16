@@ -154,6 +154,9 @@ const Role = () => {
     },
     headCells: {
       style: {
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
@@ -243,6 +246,8 @@ const Role = () => {
             customStyles={customStyles}
             columns={columns}
             data={filteredData}
+            fixedHeader
+            fixedHeaderScrollHeight="60vh"
             pagination
             paginationPerPage={15}
             paginationComponentOptions={{
