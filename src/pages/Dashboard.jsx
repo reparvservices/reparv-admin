@@ -496,6 +496,8 @@ function Dashboard() {
             customStyles={customStyles}
             columns={columns}
             data={filteredData}
+            fixedHeader
+            fixedHeaderScrollHeight="50vh"
             pagination
             paginationPerPage={10}
             paginationComponentOptions={{
