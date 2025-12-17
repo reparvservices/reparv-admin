@@ -190,20 +190,15 @@ const MultiStepForm = ({
       setNextButton(allFilled);
     } else if (step === 2) {
       const requiredFieldsStep2 = [
-        "builtYear", // number
-        "ownershipType",
         "carpetArea", // number
         "parkingAvailability",
         "loanAvailability",
         "propertyFacing",
         "waterSupply",
         "powerBackup",
-        "locationFeature",
         "sizeAreaFeature",
         "parkingFeature",
-        "ageOfPropertyFeature",
         "amenitiesFeature",
-        "propertyStatusFeature",
         "securityBenefit",
         "primeLocationBenefit",
         "rentalIncomeBenefit",
