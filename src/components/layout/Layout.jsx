@@ -100,6 +100,7 @@ const menuItems = [
       { label: "Sales Partner", to: "/salespersons" },
       { label: "Territory Partner", to: "/territorypartner" },
       { label: "Guest Users", to: "/guest-users" },
+      { label: "Messages", to: "/messages" },
       { label: "Calendar", to: "/calender" },
     ],
   },

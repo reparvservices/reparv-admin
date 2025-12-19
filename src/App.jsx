@@ -19,7 +19,6 @@ import ProjectPartner from "./pages/ProjectPartner.jsx";
 import TerritoryPartner from "./pages/TerritoryPartner.jsx";
 import GuestUser from "./pages/guestUser.jsx";
 import Subscription from "./pages/Subscription.jsx";
-import AuctionMembers from "./pages/AuctionMembers.jsx";
 import Properties from "./pages/Properties.jsx";
 import Role from "./pages/Role.jsx";
 import Department from "./pages/Department.jsx";
@@ -37,6 +36,7 @@ import PropertyAuthority from "./pages/PropertyAuthority.jsx";
 import SubscriptionDiscount from "./pages/SubscriptionDiscount.jsx";
 import PropertiesFlatAndPlotInfo from "./pages/PropertiesFlatAndPlotInfo.jsx";
 import AdsManager from "./pages/AdsManager.jsx";
+import Messages from "./pages/Messages.jsx";
 
 
 const App = () => {
@@ -64,6 +64,7 @@ const App = () => {
           <Route path="/onboardingpartner" element={<OnBoardingPartner />} />
           <Route path="/projectpartner" element={<ProjectPartner />} />
           <Route path="/territorypartner" element={<TerritoryPartner />} />
+          <Route path="/messages" element={<Messages />} />
           <Route path="/subscription-pricing" element={<Subscription />} />
           <Route path="/subscription-discount" element={<SubscriptionDiscount />} />
           <Route path="/employees" element={<Employee />} />
