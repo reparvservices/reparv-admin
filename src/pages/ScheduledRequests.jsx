@@ -5,7 +5,7 @@ import { useAuth } from "../store/auth";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 
-const Messages = () => {
+const ScheduledRequests = () => {
   const { URI, setLoading } = useAuth();
   const [datas, setDatas] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,14 +13,14 @@ const Messages = () => {
   // **Fetch Data from API**
   const fetchData = async () => {
     try {
-      const response = await fetch(URI + "/admin/messages", {
+      const response = await fetch(URI + "/admin/scheduled-requests", {
         method: "GET",
         credentials: "include", // Ensures cookies are sent
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (!response.ok) throw new Error("Failed to fetch messages.");
+      if (!response.ok) throw new Error("Failed to fetch scheduled requests.");
       const data = await response.json();
       setDatas(data);
     } catch (err) {
@@ -30,23 +30,26 @@ const Messages = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure to delete this Message ?")) return;
+    if (!window.confirm("Are you sure to delete this Request ?")) return;
     try {
-      const response = await fetch(URI + `/admin/messages/delete/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        URI + `/admin/scheduled-requests/delete/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
-        alert("Message deleted successfully!");
+        alert("Request deleted successfully!");
 
         fetchData();
       } else {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Message :", error);
+      console.error("Error deleting Request :", error);
     }
   };
 
@@ -55,10 +58,13 @@ const Messages = () => {
     if (!window.confirm("Are you sure to change status?")) return;
 
     try {
-      const response = await fetch(URI + `/admin/messages/status/${id}`, {
-        method: "PUT",
-        credentials: "include",
-      });
+      const response = await fetch(
+        URI + `/admin/scheduled-requests/status/${id}`,
+        {
+          method: "PUT",
+          credentials: "include",
+        }
+      );
       const data = await response.json();
       console.log(response);
       if (response.ok) {
@@ -78,7 +84,7 @@ const Messages = () => {
 
   const filteredData = datas.filter(
     (item) =>
-      item.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.contact.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -164,7 +170,7 @@ const Messages = () => {
               : "bg-blue-100 text-blue-600"
           }`}
         >
-          {row.fullname}
+          {row.full_name}
         </span>
       ),
       sortable: true,
@@ -175,6 +181,14 @@ const Messages = () => {
       selector: (row) => row.contact,
       sortable: true,
       width: "150px",
+    },
+    {
+      name: "Schedule Date & Time",
+      cell: (row) => (
+        <span>{row.scheduledDate + " | " + row.scheduledTime}</span>
+      ),
+      sortable: true,
+      minWidth: "200px",
     },
     {
       name: "Message",
@@ -278,4 +292,4 @@ const Messages = () => {
   );
 };
 
-export default Messages;
+export default ScheduledRequests;

@@ -28,6 +28,7 @@ const Blogs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [blogId, setBlogId] = useState(null);
   const [newBlog, setNewBlog] = useState({
+    type: "All",
     tittle: "",
     description: "",
     content: "",
@@ -100,6 +101,7 @@ const Blogs = () => {
 
       setNewBlog({
         id: data.id || "",
+        type: data.type || "All",
         tittle: data.tittle || "",
         description: data.description || "",
         content: data.content || "",
@@ -123,6 +125,7 @@ const Blogs = () => {
       setLoading(true);
 
       const formData = new FormData();
+      formData.append("type", newBlog.type);
       formData.append("tittle", newBlog.tittle);
       formData.append("description", newBlog.description);
       formData.append("content", newBlog.content);
@@ -148,6 +151,7 @@ const Blogs = () => {
         );
 
         setNewBlog({
+          type: "",
           tittle: "",
           description: "",
           content: "",
@@ -285,6 +289,7 @@ const Blogs = () => {
 
   const filteredData = blogs.filter((item) => {
     const matchesSearch =
+      item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.tittle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.status?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -385,6 +390,11 @@ const Blogs = () => {
       width: "130px",
     },
     { name: "Date & Time", selector: (row) => row.created_at, width: "200px" },
+    {
+      name: "Blog Type",
+      selector: (row) => row.type,
+      minWidth: "150px",
+    },
     {
       name: "Blog Title",
       selector: (row) => row.tittle,
@@ -529,6 +539,7 @@ const Blogs = () => {
               onClick={() => {
                 setShowBlogForm(false);
                 setNewBlog({
+                  type: "All",
                   tittle: "",
                   description: "",
                   content: "",
@@ -583,6 +594,35 @@ const Blogs = () => {
                     </button>
                   </div>
                 )}
+              </div>
+
+              <div className="w-full">
+                <label
+                  htmlFor="blogType"
+                  className="block text-sm leading-4 text-[#00000066] font-medium mt-2"
+                >
+                  Blog Type
+                </label>
+
+                <select
+                  id="blogType"
+                  required
+                  className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={newBlog?.type || "All"}
+                  onChange={(e) =>
+                    setNewBlog({ ...newBlog, type: e.target.value })
+                  }
+                >
+                  <option value="All">All</option>
+                  <option value="Mobile Apps">Mobile Apps</option>
+                  <option value="Properties">Properties</option>
+                  <option value="Guides">Guides</option>
+                  <option value="Sales">Sales</option>
+                  <option value="How to">How to</option>
+                  <option value="Rules & Laws">Rules & Laws</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
 
               <div className={`w-full `}>
@@ -697,6 +737,7 @@ const Blogs = () => {
                 onClick={() => {
                   setShowBlogForm(false);
                   setNewBlog({
+                    type: "All",
                     tittle: "",
                     description: "",
                     content: "",

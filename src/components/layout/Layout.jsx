@@ -101,6 +101,7 @@ const menuItems = [
       { label: "Territory Partner", to: "/territorypartner" },
       { label: "Guest Users", to: "/guest-users" },
       { label: "Messages", to: "/messages" },
+      { label: "Scheduled Requests", to: "/scheduled-requests" },
       { label: "Calendar", to: "/calender" },
     ],
   },

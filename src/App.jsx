@@ -37,6 +37,7 @@ import SubscriptionDiscount from "./pages/SubscriptionDiscount.jsx";
 import PropertiesFlatAndPlotInfo from "./pages/PropertiesFlatAndPlotInfo.jsx";
 import AdsManager from "./pages/AdsManager.jsx";
 import Messages from "./pages/Messages.jsx";
+import ScheduledRequests from "./pages/ScheduledRequests.jsx";
 
 
 const App = () => {
@@ -65,6 +66,7 @@ const App = () => {
           <Route path="/projectpartner" element={<ProjectPartner />} />
           <Route path="/territorypartner" element={<TerritoryPartner />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/scheduled-requests" element={<ScheduledRequests />} />
           <Route path="/subscription-pricing" element={<Subscription />} />
           <Route path="/subscription-discount" element={<SubscriptionDiscount />} />
           <Route path="/employees" element={<Employee />} />
