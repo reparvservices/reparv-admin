@@ -365,6 +365,7 @@ const FAQs = () => {
                     Select Type
                   </option>
                   <option value="General">General</option>
+                  <option value="Getting Started">Getting Started</option>
                   <option value="Payments & Earnings">
                     Payments & Earnings
                   </option>
