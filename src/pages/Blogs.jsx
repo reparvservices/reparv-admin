@@ -607,7 +607,7 @@ const Blogs = () => {
                 <select
                   id="blogType"
                   required
-                  className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
                   value={newBlog?.type || "All"}
                   onChange={(e) =>
                     setNewBlog({ ...newBlog, type: e.target.value })

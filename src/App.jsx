@@ -38,7 +38,7 @@ import PropertiesFlatAndPlotInfo from "./pages/PropertiesFlatAndPlotInfo.jsx";
 import AdsManager from "./pages/AdsManager.jsx";
 import Messages from "./pages/Messages.jsx";
 import ScheduledRequests from "./pages/ScheduledRequests.jsx";
-
+import FAQs from "./pages/FAQs.jsx";
 
 const App = () => {
   return (
@@ -85,6 +85,7 @@ const App = () => {
             element={<UpdateEMI />}
           />
           <Route path="/apk-upload" element={<ApkUpload />} />
+          <Route path="/faqs" element={<FAQs />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/trends" element={<Trends />} />
           {/*<Route path="/brand-accessories" element={<BrandAccessories />} />*/}

@@ -128,6 +128,7 @@ const menuItems = [
     label: "Manage Reparv",
     icon: <FaPhotoVideo size={21} />,
     dropdown: [
+      { to: "/faqs", label: "FAQs" },
       { to: "/blogs", label: "Blogs" },
       { label: "Trends", to: "/trends" },
       { label: "Slider", to: "/slider" },
@@ -271,6 +272,7 @@ function Layout() {
     setShowAdsManagerForm,
     showChangeProjectPartnerForm,
     setShowChangeProjectPartnerForm,
+    showFAQForm, setShowFAQForm,
     isLoggedIn,
   } = useAuth();
 
@@ -347,6 +349,7 @@ function Layout() {
       state: showChangeProjectPartnerForm,
       setter: setShowChangeProjectPartnerForm,
     },
+    { state: showFAQForm, setter: setShowFAQForm },
   ];
 
   const [openLeads, setOpenLeads] = useState(false);
