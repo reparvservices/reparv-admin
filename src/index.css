@@ -52,76 +52,127 @@
   line-height: 1.3; /* tighter line spacing */
 }
 
-/* Fix CKEditor bullet list visibility across Windows & macOS */
+/* ===============================
+   CKEditor Content Base Styling
+   =============================== */
 
-/* Table Borders in CKEditor Output */
-.ck-content table {
-  border-collapse: collapse !important;
-  width: 100%;
+.ck-content {
+  font-family: "Poppins", system-ui, sans-serif;
+  color: #374151; /* Gray-700 */
 }
 
-.ck-content table, 
-.ck-content th, 
-.ck-content td {
-  border: 1px solid #000 !important;
+/* ===============================
+   Paragraphs
+   =============================== */
+.ck-content p {
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+  margin-bottom: 16px !important;
+  color: #374151;
 }
 
-.ck-content th, 
-.ck-content td {
-  padding: 8px !important;
+/* ===============================
+   Headings (NO BOLD)
+   =============================== */
+
+.ck-content h1 {
+  font-size: 38px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: #111827; /* Gray-900 */
+  margin-bottom: 24px !important;
 }
 
-.ck-content .table {
-  border: 1px solid #000 !important;
-}
-.ck-content .table td,
-.ck-content .table th {
-  border: 1px solid #000 !important;
+.ck-content h2 {
+  font-size: 24px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: #111827;
+  margin-top: 40px !important;
+  margin-bottom: 16px !important;
+  border-bottom: 1px solid #d1d5db; /* Gray-300 */
+  padding-bottom: 6px;
 }
 
-/* List in CKEditor Output */
+.ck-content h3 {
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: #111827;
+  margin-top: 24px !important;
+  margin-bottom: 12px !important;
+}
+
+.ck-content h4 {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: #111827;
+}
+
+/* ===============================
+   Lists (Windows & macOS Fix)
+   =============================== */
+
 .ck-content ul,
 .ck-content ol {
   list-style-position: outside !important;
   margin-left: 1rem !important;
   padding-left: 1rem !important;
+  margin-bottom: 16px !important;
 }
 
 .ck-content li {
   display: list-item !important;
   margin-bottom: 0.4rem;
+  font-size: 15px;
 }
 
-/* Optional - improve spacing and readability */
-.ck-content p {
-  font-size: 1rem !important;
-  margin-bottom: 0.75rem;
-  line-height: 1.3;
+/* ===============================
+   Blockquote
+   =============================== */
+
+.ck-content blockquote {
+  border-left: 4px solid #111827;
+  padding-left: 16px;
+  color: #4b5563; /* Gray-600 */
+  margin: 16px 0;
+  font-style: italic;
 }
 
-.ck-content h1 {
-  font-size: 2rem !important;
-  font-weight: bold;
+/* ===============================
+   Tables (Preserved + Clean)
+   =============================== */
+
+.ck-content table {
+  border-collapse: collapse !important;
+  width: 100%;
+  margin-bottom: 16px;
 }
 
-.ck-content h2 {
-  font-size: 1.6rem !important;
-  font-weight: bold;
+.ck-content table,
+.ck-content th,
+.ck-content td {
+  border: 1px solid #d1d5db !important; /* Gray-300 */
 }
 
-.ck-content h3 {
-  font-size: 1.3rem !important;
-  font-weight: bold;
+.ck-content th,
+.ck-content td {
+  padding: 8px !important;
+  font-size: 14px;
 }
 
-.ck-content h4 {
-  font-size: 1.1rem !important;
-  font-weight: bold;
+.ck-content th {
+  background-color: #f9fafb; /* Gray-50 */
+  font-weight: 500;
 }
 
-.ck-content h1,
-.ck-content h2,
-.ck-content h3,
-.ck-content h4 {
-  line-height: 1.3 !important;
+.ck-content .table {
+  border: 1px solid #d1d5db !important;
+}
+
+.ck-content .table td,
+.ck-content .table th {
+  border: 1px solid #d1d5db !important;
 }

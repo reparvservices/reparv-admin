@@ -431,6 +431,9 @@ const Blogs = () => {
           setBlogId(id);
           edit(id);
           break;
+        case "manageFAQs":
+          window.open(`/blog/manage-faqs/${id}`, "_blank");
+          break;
         case "SEO":
           setBlogId(id);
           showSEO(id);
@@ -464,6 +467,7 @@ const Blogs = () => {
           <option value="status">Status</option>
           <option value="update">Update</option>
           <option value="SEO">SEO Details</option>
+          <option value="manageFAQs">Manage FAQs</option>
           <option value="delete">Delete</option>
         </select>
       </div>
@@ -667,21 +671,21 @@ const Blogs = () => {
                 <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">
                   Blog Content
                 </label>
+
                 <div className="border border-[#00000033] rounded-[4px] blog-content ck-content overflow-hidden">
                   {showBlogForm && newBlog.content !== undefined && (
                     <CKEditor
                       key={newBlog.id || "new"}
                       editor={ClassicEditor}
                       data={newBlog.content}
-                      onChange={(e, editor) => {
+                      onChange={(event, editor) => {
                         setNewBlog({ ...newBlog, content: editor.getData() });
                       }}
                       config={{
-                        placeholder: "Enter Blog Content",
+                        placeholder: "Write your blog content here...",
                         toolbar: [
                           "heading",
                           "|",
-                          "bold",
                           "italic",
                           "link",
                           "|",
@@ -716,12 +720,6 @@ const Blogs = () => {
                               view: "h3",
                               title: "Heading 3",
                               class: "ck-heading_heading3",
-                            },
-                            {
-                              model: "heading4",
-                              view: "h4",
-                              title: "Heading 4",
-                              class: "ck-heading_heading4",
                             },
                           ],
                         },

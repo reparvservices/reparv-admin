@@ -8,14 +8,17 @@ import AddButton from "../components/AddButton";
 import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import Loader from "../components/Loader";
+import { useParams } from "react-router-dom";
 
-const FAQs = () => {
+const BlogFAQs = () => {
+  const { blogId } = useParams();
   const { showFAQForm, setShowFAQForm, action, URI, setLoading } = useAuth();
   const [datas, setDatas] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [newFAQ, setNewFAQ] = useState({
     id: "",
-    location: "",
+    blogId: blogId,
+    location: "Reparv Blog Details Page",
     type: "",
     question: "",
     answer: "",
@@ -24,7 +27,7 @@ const FAQs = () => {
   // **Fetch Data from API**
   const fetchData = async () => {
     try {
-      const response = await fetch(URI + "/admin/faqs", {
+      const response = await fetch(URI + "/admin/faqs/get/all/" + blogId, {
         method: "GET",
         credentials: "include", // Ensures cookies are sent
         headers: {
@@ -39,32 +42,42 @@ const FAQs = () => {
     }
   };
 
-  //Add or update record
   const addOrUpdate = async (e) => {
     e.preventDefault();
 
-    const endpoint = newFAQ.id ? `edit/${newFAQ.id}` : "add";
+    const payload = {
+      ...newFAQ,
+      blogId, // 👈 force inject blogId here
+    };
+
+    const endpoint = payload.id ? `edit/${payload.id}` : "add";
 
     try {
       setLoading(true);
+
+      console.log("Sending Payload:", payload); // 🔍 DEBUG
+
       const response = await fetch(URI + `/admin/faqs/${endpoint}`, {
-        method: newFAQ.id ? "PUT" : "POST",
+        method: payload.id ? "PUT" : "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newFAQ),
+        body: JSON.stringify(payload), // 👈 send payload, NOT state
       });
 
       if (!response.ok) throw new Error("Failed to save FAQ.");
 
-      if (newFAQ.id) {
-        alert(`FAQ updated successfully!`);
-      } else if (response.status === 202) {
-        alert(`FAQ already Exit!!`);
-      } else {
-        alert(`FAQ added successfully!`);
-      }
+      alert(
+        payload.id ? "FAQ updated successfully!" : "FAQ added successfully!"
+      );
 
-      setNewFAQ({ id: "", location: "", type: "", question: "", answer: "" });
+      setNewFAQ({
+        id: "",
+        blogId,
+        location: "Reparv Blog Details Page",
+        type: "",
+        question: "",
+        answer: "",
+      });
 
       setShowFAQForm(false);
       fetchData();
@@ -139,14 +152,16 @@ const FAQs = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (blogId) {
+      fetchData();
+      setNewFAQ((prev) => ({ ...prev, blogId }));
+    }
+  }, [blogId]);
 
-  const filteredData = datas.filter(
-    (item) =>
-      item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.status.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredData = datas.filter((item) =>
+    [item.location, item.question, item.status]
+      .filter(Boolean)
+      .some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const customStyles = {
@@ -206,8 +221,8 @@ const FAQs = () => {
       name: "Type & Location",
       cell: (row) => (
         <div className="flex flex-col p-2 gap-3">
-          <span>{"Type: "+row.type}</span>
-          <span>{"Location: "+row.location}</span>
+          <span>{"Type: " + row.type}</span>
+          <span>{"Location: " + row.location}</span>
         </div>
       ),
       minWidth: "200px",
@@ -216,8 +231,8 @@ const FAQs = () => {
       name: "Questions & Answers",
       cell: (row) => (
         <div className="flex flex-col p-2 gap-3">
-          <span>{"Question: "+row.question}</span>
-          <span>{"Answer: "+row.answer}</span>
+          <span>{"Question: " + row.question}</span>
+          <span>{"Answer: " + row.answer}</span>
         </div>
       ),
       minWidth: "250px",
@@ -291,7 +306,8 @@ const FAQs = () => {
                 setShowFAQForm(false);
                 setNewFAQ({
                   id: "",
-                  location: "",
+                  blogId: blogId,
+                  location: "Reparv Blog Details Page",
                   type: "",
                   question: "",
                   answer: "",
@@ -314,38 +330,6 @@ const FAQs = () => {
               />
               <div className="w-full">
                 <label
-                  htmlFor="faqLocation"
-                  className="block text-sm leading-4 text-[#00000066] font-medium mt-1"
-                >
-                  FAQ Location
-                </label>
-
-                <select
-                  id="faqLocation"
-                  required
-                  className="w-full mt-2 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                  value={newFAQ?.location || ""}
-                  onChange={(e) =>
-                    setNewFAQ({ ...newFAQ, location: e.target.value })
-                  }
-                >
-                  <option disabled value="">
-                    Select Location
-                  </option>
-                  <option value="Reparv Contact Us Page">
-                    Reparv Contact Us Page
-                  </option>
-                  <option value="Reparv Blog Details Page">
-                    Reparv Blog Details Page
-                  </option>
-                  <option value="Partners Project Partner Page">
-                    Partners Project Partner Page
-                  </option>
-                </select>
-              </div>
-
-              <div className="w-full">
-                <label
                   htmlFor="faqType"
                   className="block text-sm leading-4 text-[#00000066] font-medium mt-1"
                 >
@@ -364,7 +348,6 @@ const FAQs = () => {
                   <option disabled value="">
                     Select Type
                   </option>
-                  <option value="General">General</option>
                   <option value="Getting Started">Getting Started</option>
                   <option value="Partnership & Support">
                     Partnership & Support
@@ -416,7 +399,7 @@ const FAQs = () => {
                 type="submit"
                 className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
               >
-                {action}
+                {newFAQ.id ? "Update FAQ" : "Add FAQ"}
               </button>
               <Loader></Loader>
             </div>
@@ -427,4 +410,4 @@ const FAQs = () => {
   );
 };
 
-export default FAQs;
+export default BlogFAQs;

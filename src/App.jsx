@@ -39,6 +39,7 @@ import AdsManager from "./pages/AdsManager.jsx";
 import Messages from "./pages/Messages.jsx";
 import ScheduledRequests from "./pages/ScheduledRequests.jsx";
 import FAQs from "./pages/FAQs.jsx";
+import BlogFAQs from "./pages/BlogFAQ.jsx";
 
 const App = () => {
   return (
@@ -87,6 +88,7 @@ const App = () => {
           <Route path="/apk-upload" element={<ApkUpload />} />
           <Route path="/faqs" element={<FAQs />} />
           <Route path="/blogs" element={<Blogs />} />
+          <Route path="/blog/manage-faqs/:blogId" element={<BlogFAQs />} />
           <Route path="/trends" element={<Trends />} />
           {/*<Route path="/brand-accessories" element={<BrandAccessories />} />*/}
           <Route path="/marketing-content" element={<MarketingContent />} />
