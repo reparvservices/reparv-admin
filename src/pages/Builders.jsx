@@ -39,12 +39,8 @@ const Builders = () => {
     contact_person: "",
     contact: "",
     email: "",
-    uid: "",
-    office_address: "",
     registration_no: "",
     dor: "",
-    website: "",
-    notes: "",
   });
   // **Fetch Data from API**
   const fetchData = async () => {
@@ -101,12 +97,9 @@ const Builders = () => {
         contact_person: "",
         contact: "",
         email: "",
-        uid: "",
-        office_address: "",
+
         registration_no: "",
         dor: "",
-        website: "",
-        notes: "",
       });
 
       setShowBuilderForm(false);
@@ -401,12 +394,6 @@ const Builders = () => {
     },
     { name: "Contact", selector: (row) => row.contact, width: "150px" },
     { name: "Email", selector: (row) => row.email, minWidth: "150px" },
-    { name: "Aadhaar No", selector: (row) => row.uid, width: "150px" },
-    {
-      name: "Office address",
-      selector: (row) => row.office_address,
-      width: "200px",
-    },
     {
       name: "Registration No",
       selector: (row) => row.registration_no,
@@ -418,7 +405,7 @@ const Builders = () => {
       width: "120px",
     },
   ];
-  
+
   const hasBuilderLister = datas.some((row) => !!row.listerName);
 
   const finalColumns = columns.map((col) => {
@@ -650,45 +637,6 @@ const Builders = () => {
                   }
                 />
               </div>
-              
-              <div className="w-full">
-                <label className="block text-sm leading-4 text-[#00000066] font-medium">
-                  Aadhaar Number <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  placeholder="Enter Aadhaar No"
-                  className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={newBuilder.uid}
-                  onChange={(e) => {
-                    const input = e.target.value;
-                    if (/^\d{0,12}$/.test(input)) {
-                      // Allows only up to 12 digits
-                      setNewBuilder({ ...newBuilder, uid: input });
-                    }
-                  }}
-                />
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm leading-4 text-[#00000066] font-medium">
-                  Office Address <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter Office Address"
-                  className="w-full mt-2 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={newBuilder.office_address}
-                  onChange={(e) =>
-                    setNewBuilder({
-                      ...newBuilder,
-                      office_address: e.target.value,
-                    })
-                  }
-                />
-              </div>
 
               <div className="w-full">
                 <label className="block text-sm leading-4 text-[#00000066] font-medium">
@@ -723,36 +671,6 @@ const Builders = () => {
                     const formattedDate = selectedDate.split("T")[0]; // Extract only YYYY-MM-DD
                     setNewBuilder({ ...newBuilder, dor: formattedDate });
                   }}
-                />
-              </div>
-              <div className="w-full">
-                <label className="block text-sm leading-4 text-[#00000066] font-medium">
-                  Website <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter website"
-                  className="w-full mt-2 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={newBuilder.website}
-                  onChange={(e) =>
-                    setNewBuilder({ ...newBuilder, website: e.target.value })
-                  }
-                />
-              </div>
-              <div className="w-full">
-                <label className="block text-sm leading-4 text-[#00000066] font-medium">
-                  Notes <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter notes"
-                  className="w-full mt-2 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={newBuilder.notes}
-                  onChange={(e) =>
-                    setNewBuilder({ ...newBuilder, notes: e.target.value })
-                  }
                 />
               </div>
             </div>
@@ -942,18 +860,7 @@ const Builders = () => {
                 readOnly
               />
             </div>
-            <div className="w-full ">
-              <label className="block text-sm leading-4 text-[#00000066] font-medium">
-                Office Address
-              </label>
-              <input
-                type="text"
-                disabled
-                className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={builder.office_address}
-                readOnly
-              />
-            </div>
+
             <div className="w-full ">
               <label className="block text-sm leading-4 text-[#00000066] font-medium">
                 Resgistration Date
@@ -975,30 +882,6 @@ const Builders = () => {
                 disabled
                 className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={builder.registration_no}
-                readOnly
-              />
-            </div>
-            <div className="w-full ">
-              <label className="block text-sm leading-4 text-[#00000066] font-medium">
-                Website
-              </label>
-              <input
-                type="text"
-                disabled
-                className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={builder.website}
-                readOnly
-              />
-            </div>
-            <div className="w-full ">
-              <label className="block text-sm leading-4 text-[#00000066] font-medium">
-                Notes
-              </label>
-              <input
-                type="text"
-                disabled
-                className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={builder.notes}
                 readOnly
               />
             </div>
