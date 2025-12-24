@@ -40,6 +40,8 @@ import Messages from "./pages/Messages.jsx";
 import ScheduledRequests from "./pages/ScheduledRequests.jsx";
 import FAQs from "./pages/FAQs.jsx";
 import BlogFAQs from "./pages/BlogFAQ.jsx";
+import CallEnquirers from "./pages/CallEnquirers.jsx";
+import WhatsappEnquirers from "./pages/WhatsappEnquirers.jsx";
 
 const App = () => {
   return (
@@ -52,9 +54,14 @@ const App = () => {
         <Route path="/" element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/enquirers" element={<Enquirers />} />
+          <Route path="/call-enquirers" element={<CallEnquirers />} />
+          <Route path="/whatsapp-enquirers" element={<WhatsappEnquirers />} />
           <Route path="/digital-broker" element={<DigitalBroker />} />
           <Route path="/properties" element={<Properties />} />
-          <Route path="/property/additional-info/:propertyid" element={<PropertiesFlatAndPlotInfo />} />
+          <Route
+            path="/property/additional-info/:propertyid"
+            element={<PropertiesFlatAndPlotInfo />}
+          />
           <Route path="/map" element={<Map />} />
           <Route path="/calender" element={<Calender />} />
           <Route path="/ads-manager" element={<AdsManager />} />
@@ -69,7 +76,10 @@ const App = () => {
           <Route path="/messages" element={<Messages />} />
           <Route path="/scheduled-requests" element={<ScheduledRequests />} />
           <Route path="/subscription-pricing" element={<Subscription />} />
-          <Route path="/subscription-discount" element={<SubscriptionDiscount />} />
+          <Route
+            path="/subscription-discount"
+            element={<SubscriptionDiscount />}
+          />
           <Route path="/employees" element={<Employee />} />
           <Route path="/role" element={<Role />} />
           <Route path="/department" element={<Department />} />

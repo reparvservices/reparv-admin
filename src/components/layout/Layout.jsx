@@ -54,6 +54,8 @@ const menuItems = [
     icon: <IoIosListBox size={21} />,
     dropdown: [
       { label: "Enquirers", to: "/enquirers" },
+      { label: "Call Enquirers", to: "/call-enquirers" },
+      { label: "Whatsapp Enquirers", to: "/whatsapp-enquirers" },
       { label: "Digital Broker", to: "/digital-broker" },
     ],
   },
