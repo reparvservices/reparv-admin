@@ -159,8 +159,8 @@ const CallEnquirers = () => {
       name: "Project Partner",
       cell: (row) => (
         <div className="flex flex-col gap-1">
-          <span >Name: {row.projectPartnerName}</span>
-          <span >Contact: {row.projectPartnerContact}</span>
+          <span>{row.projectPartnerName}</span>
+          <span>{row.projectPartnerContact}</span>
         </div>
       ),
       sortable: true,
