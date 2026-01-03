@@ -391,6 +391,32 @@ const AdsManager = () => {
     }
   };
 
+  // change status record
+  const changeAdsStatus = async (id) => {
+    if (!window.confirm("Are you sure to change this Ads status?"))
+      return;
+
+    try {
+      const response = await fetch(URI + `/admin/ads-manager/ads-status/${id}`, {
+        method: "PUT",
+        credentials: "include", //  Ensures cookies are sent
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      console.log(response);
+      if (response.ok) {
+        alert(`Success: ${data.message}`);
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+      fetchData();
+    } catch (error) {
+      console.error("Error changing status :", error);
+    }
+  };
+
   useEffect(() => {
     fetchData();
     fetchStates();
@@ -421,6 +447,7 @@ const AdsManager = () => {
       item.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.planName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.adStatus?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.status?.toLowerCase().includes(searchTerm.toLowerCase());
 
     // NEW: Matched City Filter
@@ -657,6 +684,9 @@ const AdsManager = () => {
           setPropertyId(id);
           fetchAdURL(id);
           break;
+        case "changeAdStatus":
+          changeAdsStatus(id);
+          break;
         case "delete":
           del(id);
           break;
@@ -683,6 +713,7 @@ const AdsManager = () => {
             Select Action
           </option>
           <option value="addUrl">Update Ads URL</option>
+          <option value="changeAdStatus">Change Ads Status</option>
         </select>
       </div>
     );
