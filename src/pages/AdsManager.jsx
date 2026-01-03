@@ -26,12 +26,16 @@ const AdsManager = () => {
     setShowAdsManager,
     showAdsManagerForm,
     setShowAdsManagerForm,
+    showAdURLForm,
+    setShowAdURLForm,
   } = useAuth();
 
   const [adsManagers, setAdsManagers] = useState([]);
   const [adsManager, setAdsManager] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [adsManagerId, setAdsManagerId] = useState(null);
+  const [propertyId, setPropertyId] = useState("");
+  const [adURL, setAdURL] = useState("");
   const [newAdsManager, setNewAdsManager] = useState({
     propertyCityId: "",
     projectPartnerId: "",
@@ -331,6 +335,62 @@ const AdsManager = () => {
     }
   };
 
+  //fetch data on form
+  const fetchAdURL = async (id) => {
+    try {
+      const response = await fetch(URI + `/admin/ads-manager/${id}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Failed to fetch ads manager.");
+      const data = await response.json();
+
+      setAdURL(data.adURL);
+      // Only show form after data is loaded
+      setShowAdURLForm(true);
+    } catch (err) {
+      console.error("Error fetching:", err);
+    }
+  };
+
+  const updateAdURL = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        `${URI}/admin/ads-manager/update/ad-url/${propertyId}`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ adURL }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      alert(data.message);
+      setShowAdURLForm(false);
+      setAdURL("");
+      await fetchData();
+    } catch (error) {
+      console.error("Error updating Ad URL:", error);
+      alert(error.message || "Failed to update Ad URL");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
     fetchStates();
@@ -358,18 +418,14 @@ const AdsManager = () => {
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       item.propertyCityId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.city
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
+      item.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.planName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.status?.toLowerCase().includes(searchTerm.toLowerCase());
 
     // NEW: Matched City Filter
     const matchesCity =
-      !filters.city ||
-      item.city?.toLowerCase() ===
-        filters.city.toLowerCase();
+      !filters.city || item.city?.toLowerCase() === filters.city.toLowerCase();
 
     // NEW: Matched Property Filter
     const matchesProperty =
@@ -490,6 +546,25 @@ const AdsManager = () => {
       width: "150px",
     },
     {
+      name: "Ads Status",
+      cell: (row, index) => (
+        <span
+          onClick={() => {
+            view(row.id);
+          }}
+          className={`px-2 py-1 rounded-md cursor-pointer ${
+            row.adStatus === "Enabled"
+              ? "bg-[#EAFBF1] text-[#0BB501]"
+              : "bg-[#FFEAEA] text-[#ff2323]"
+          }`}
+        >
+          {row.adStatus}
+        </span>
+      ),
+      sortable: false,
+      width: "150px",
+    },
+    {
       name: "Property Name",
       cell: (row) => {
         return (
@@ -531,7 +606,9 @@ const AdsManager = () => {
           <div className="flex gap-4 items-center justify-center">
             <div
               onClick={() => {
-                navigator.clipboard.writeText(`https://www.reparv.in/project-partner/${row.projectPartnerContact}`);
+                navigator.clipboard.writeText(
+                  `https://www.reparv.in/project-partner/${row.projectPartnerContact}`
+                );
                 alert("Landing Page Link Copied Successfully!");
               }}
               className="flex items-center justify-center w-8 h-8 p-2 text-white bg-blue-600 rounded-lg cursor-pointer active:scale-95"
@@ -552,17 +629,14 @@ const AdsManager = () => {
           </div>
         );
       },
-      minWidth: "200px",
+      width: "150px",
     },
-  ];
-
-  {
-    /*
+    {
       name: "Action",
       cell: (row) => <ActionDropdown row={row} />,
       width: "120px",
-    * */
-  }
+    },
+  ];
 
   const ActionDropdown = ({ row }) => {
     const [selectedAction, setSelectedAction] = useState("");
@@ -578,6 +652,10 @@ const AdsManager = () => {
         case "update":
           setAdsManagerId(id);
           edit(id);
+          break;
+        case "addUrl":
+          setPropertyId(id);
+          fetchAdURL(id);
           break;
         case "delete":
           del(id);
@@ -598,16 +676,13 @@ const AdsManager = () => {
           value={selectedAction}
           onChange={(e) => {
             const action = e.target.value;
-            handleActionSelect(action, row.id, row.seoSlug);
+            handleActionSelect(action, row.propertyid);
           }}
         >
           <option value="" disabled>
             Select Action
           </option>
-          <option value="view">View</option>
-          <option value="status">Status</option>
-          <option value="update">Update</option>
-          <option value="delete">Delete</option>
+          <option value="addUrl">Update Ads URL</option>
         </select>
       </div>
     );
@@ -668,6 +743,61 @@ const AdsManager = () => {
               selectAllRowsItemText: "All",
             }}
           />
+        </div>
+      </div>
+
+      <div
+        className={`${
+          showAdURLForm ? "flex" : "hidden"
+        } z-[61] Form overflow-scroll scrollbar-hide w-full fixed bottom-0 md:bottom-auto `}
+      >
+        <div className="w-full md:w-[500px] max-h-[70vh] overflow-scroll scrollbar-hide bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[16px] font-semibold">Ad URL</h2>
+            <IoMdClose
+              onClick={() => {
+                setShowAdURLForm(false);
+                setAdURL(null);
+              }}
+              className="w-6 h-6 cursor-pointer"
+            />
+          </div>
+          <form onSubmit={updateAdURL}>
+            <div className="w-full grid gap-4 place-items-center grid-cols-1">
+              <div className="w-full">
+                <label className="block text-sm leading-4 text-[#00000066] font-medium">
+                  Enter URL
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter URL"
+                  className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={adURL}
+                  onChange={(e) => setAdURL(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex mt-8 md:mt-6 justify-end gap-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdURLForm(false);
+                  setAdURL(null);
+                }}
+                className="px-4 py-2 leading-4 text-[#ffffff] bg-[#000000B2] rounded active:scale-[0.98]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
+              >
+                Save
+              </button>
+              <Loader></Loader>
+            </div>
+          </form>
         </div>
       </div>
 

@@ -274,7 +274,10 @@ function Layout() {
     setShowAdsManagerForm,
     showChangeProjectPartnerForm,
     setShowChangeProjectPartnerForm,
-    showFAQForm, setShowFAQForm,
+    showFAQForm,
+    setShowFAQForm,
+    showAdURLForm,
+    setShowAdURLForm,
     isLoggedIn,
   } = useAuth();
 
@@ -352,6 +355,7 @@ function Layout() {
       setter: setShowChangeProjectPartnerForm,
     },
     { state: showFAQForm, setter: setShowFAQForm },
+    { state: showAdURLForm, setter: setShowAdURLForm },
   ];
 
   const [openLeads, setOpenLeads] = useState(false);

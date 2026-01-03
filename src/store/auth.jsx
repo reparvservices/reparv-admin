@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }) => {
   const [showPropertyCommissionPopup, setShowPropertyCommissionPopup] =
     useState(false);
   const [showRoleForm, setShowRoleForm] = useState(false);
+  const [showAdURLForm, setShowAdURLForm] = useState(false);
 
   const [showDepartmentForm, setShowDepartmentForm] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -276,6 +277,7 @@ export const AuthProvider = ({ children }) => {
         setShowChangeProjectPartnerForm,
         showFAQForm,
         setShowFAQForm,
+        showAdURLForm, setShowAdURLForm,
       }}
     >
       {children}
