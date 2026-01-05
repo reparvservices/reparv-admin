@@ -1095,6 +1095,7 @@ const Enquirers = () => {
               <option value="Select Enquiry Source">
                 Select Enquiry Source
               </option>
+              <option value="Ads">Ads</option>
               <option value="Onsite">Onsite</option>
               <option value="Direct">Direct</option>
               <option value="CSV">CSV File</option>
