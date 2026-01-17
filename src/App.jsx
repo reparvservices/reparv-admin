@@ -42,6 +42,7 @@ import FAQs from "./pages/FAQs.jsx";
 import BlogFAQs from "./pages/BlogFAQ.jsx";
 import CallEnquirers from "./pages/CallEnquirers.jsx";
 import WhatsappEnquirers from "./pages/WhatsappEnquirers.jsx";
+import ContactUsMessages from "./pages/ContactUsMessages.jsx";
 
 const App = () => {
   return (
@@ -74,6 +75,7 @@ const App = () => {
           <Route path="/projectpartner" element={<ProjectPartner />} />
           <Route path="/territorypartner" element={<TerritoryPartner />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/contact-us-messages" element={<ContactUsMessages />} />
           <Route path="/scheduled-requests" element={<ScheduledRequests />} />
           <Route path="/subscription-pricing" element={<Subscription />} />
           <Route

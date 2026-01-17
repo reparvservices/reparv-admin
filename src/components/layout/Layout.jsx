@@ -66,6 +66,7 @@ const menuItems = [
     icon: <HiUsers size={21} />,
     dropdown: [
       { label: "Customers", to: "/customers" },
+      { label: "Messages", to: "/contact-us-messages" },
       { label: "Users Loan Eligibility", to: "/users-loan-eligibility" },
     ],
   },
