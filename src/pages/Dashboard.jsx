@@ -17,6 +17,7 @@ import FormatPrice from "../components/FormatPrice";
 
 function Dashboard() {
   const { URI, setLoading, showCustomer, setShowCustomer } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
   const navigate = useNavigate();
   const [customer, setCustomer] = useState({});
   const [customers, setCustomers] = useState([]);
@@ -216,7 +217,7 @@ function Dashboard() {
         try {
           const parsed = JSON.parse(row.frontView);
           if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${URI}${parsed[0]}`;
+            imageSrc = `${ImageURI}${parsed[0]}`;
           }
         } catch (e) {
           console.warn("Invalid or null frontView:", row.frontView);

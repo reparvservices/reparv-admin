@@ -27,6 +27,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
     showStatusForm,
     setShowStatusForm,
   } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");

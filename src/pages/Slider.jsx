@@ -17,6 +17,8 @@ const Slider = () => {
     showAddMobileImage,
     setShowAddMobileImage,
   } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
+
   const [data, setData] = useState([]);
   const [sliderId, setSliderId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -252,7 +254,7 @@ const Slider = () => {
           className={`w-[340px] h-[110px] lg:h-[120px] xl:h-[150px] overflow-hidden flex items-center justify-center`}
         >
           <img
-            src={`${URI}/uploads/${row.image}`}
+            src={`${ImageURI}/uploads/${row.image}`}
             alt="Image"
             className="w-[340px] h-[90%] object- cursor-pointer"
           />
@@ -267,7 +269,7 @@ const Slider = () => {
           className={`w-full h-[110px] lg:h-[120px] xl:h-[150px] overflow-hidden flex items-center justify-start`}
         >
           <img
-            src={`${URI}/uploads/${row.mobileimage}`}
+            src={`${ImageURI}/uploads/${row.mobileimage}`}
             alt="Image"
             className={`${
               row.mobileimage == null ? "hidden" : "block"

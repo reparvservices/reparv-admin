@@ -38,6 +38,7 @@ const DigitalBroker = () => {
     enquiryFilter,
     setEnquiryFilter,
   } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const [datas, setDatas] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("");
@@ -857,7 +858,7 @@ const DigitalBroker = () => {
         try {
           const parsed = JSON.parse(row.frontView);
           if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${URI}${parsed[0]}`;
+            imageSrc = `${ImageURI}${parsed[0]}`;
           }
         } catch (e) {
           console.warn("Invalid or null frontView:", row.frontView);

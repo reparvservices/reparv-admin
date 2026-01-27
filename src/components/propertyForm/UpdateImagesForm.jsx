@@ -15,6 +15,7 @@ const UpdateImagesForm = ({
 }) => {
   const { URI, setLoading, showUpdateImagesForm, setShowUpdateImagesForm } =
     useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const parseImageField = (field) => {
     try {
@@ -313,7 +314,7 @@ const UpdateImagesForm = ({
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -387,12 +388,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${ImageURI}${image}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -467,12 +468,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${ImageURI}${image}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -552,12 +553,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${ImageURI}${image}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -643,7 +644,7 @@ const UpdateImagesForm = ({
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -728,12 +729,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${ImageURI}${image}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -818,12 +819,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${ImageURI}${image}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -908,12 +909,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${ImageURI}${image}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -994,12 +995,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${ImageURI}${image}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${URI}${image}`}
+                        src={`${ImageURI}${image}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0

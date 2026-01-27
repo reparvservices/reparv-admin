@@ -29,6 +29,7 @@ const AdsManager = () => {
     showAdURLForm,
     setShowAdURLForm,
   } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const [adsManagers, setAdsManagers] = useState([]);
   const [adsManager, setAdsManager] = useState({});

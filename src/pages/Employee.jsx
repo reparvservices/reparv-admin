@@ -31,6 +31,8 @@ const Employee = () => {
     loading,
     setLoading,
   } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
+  
   const [datas, setDatas] = useState([]);
   const [employee, setEmployee] = useState({});
   const [menus, setMenus] = useState([]);

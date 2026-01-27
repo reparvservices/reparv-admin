@@ -22,6 +22,8 @@ const MarketingContent = () => {
     URI,
     setLoading,
   } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
+
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [newContent, setNewContent] = useState({
@@ -268,13 +270,13 @@ const MarketingContent = () => {
                   >
                     {content.contentType === "Video" ? (
                       <video
-                        src={`${URI}/${content.contentFile}`}
+                        src={`${ImageURI}/${content.contentFile}`}
                         controls
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <img
-                        src={`${URI}/${content.contentFile}`}
+                        src={`${ImageURI}/${content.contentFile}`}
                         alt={content.contentName}
                         className="w-full h-full object-cover"
                       />

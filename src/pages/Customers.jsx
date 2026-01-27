@@ -21,6 +21,7 @@ const Customers = () => {
     showCustomerPaymentForm,
     setShowCustomerPaymentForm,
   } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
   const [searchTerm, setSearchTerm] = useState("");
   const [customers, setCustomers] = useState([]);
   const [customer, setCustomer] = useState({});
@@ -247,7 +248,7 @@ const Customers = () => {
         try {
           const parsed = JSON.parse(row.frontView);
           if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${URI}${parsed[0]}`;
+            imageSrc = `${ImageURI}${parsed[0]}`;
           }
         } catch (e) {
           console.warn("Invalid or null frontView:", row.frontView);
@@ -698,7 +699,7 @@ const Customers = () => {
                   <div className="w-full px-2 py-1 border rounded-lg">
                     <div className="w-full mt-2 flex flex-row gap-3 items-start justify-start ">
                       <img
-                        src={URI + customer.paymentimage}
+                        src={ImageURI + customer.paymentimage}
                         alt="Payment_Image"
                         onClick={() => {
                           window.open(URI + customer.paymentimage, "_blank");
@@ -737,7 +738,7 @@ const Customers = () => {
                     <div className="w-full px-2 py-1 border rounded-lg">
                       <div className="w-full mt-2 flex flex-row gap-3 items-start justify-start ">
                         <img
-                          src={URI + payment.paymentImage}
+                          src={ImageURI + payment.paymentImage}
                           alt="Payment_Image"
                           onClick={() => {
                             window.open(URI + payment.paymentImage, "_blank");

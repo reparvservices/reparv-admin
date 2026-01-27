@@ -8,6 +8,7 @@ import FormatPrice from "../components/FormatPrice";
 
 const Map = () => {
   const { URI, setLoading } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
   const [properties, setProperties] = useState([]);
   const [cities, setCities] = useState([]);
   const [selectedCity, setSelectedCity] = useState("Nagpur");
@@ -120,7 +121,7 @@ const Map = () => {
         try {
           const parsed = JSON.parse(row.frontView);
           if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${URI}${parsed[0]}`;
+            imageSrc = `${ImageURI}${parsed[0]}`;
           }
         } catch (e) {
           console.warn("Invalid or null frontView:", row.frontView);

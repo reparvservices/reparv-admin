@@ -10,6 +10,7 @@ import Loader from "../components/Loader";
 
 const Testimonial = () => {
   const { showFeedbackForm, setShowFeedbackForm, URI, setLoading } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [newFeedback, setNewFeedback] = useState({
@@ -242,7 +243,7 @@ const Testimonial = () => {
           className={`w-full h-[110px] overflow-hidden flex items-center justify-center`}
         >
           <img
-            src={`${URI}${row.clientimage}`}
+            src={`${ImageURI}${row.clientimage}`}
             alt="Image"
             className="w-[55px] h-[90%] object- cursor-pointer"
           />

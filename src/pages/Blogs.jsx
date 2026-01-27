@@ -23,6 +23,7 @@ const Blogs = () => {
     showSeoForm,
     setShowSeoForm,
   } = useAuth();
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const [blogs, setBlogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -369,7 +370,7 @@ const Blogs = () => {
       name: "Blog Image",
       cell: (row) => {
         let imageSrc =
-          URI + row.image ||
+          ImageURI + row.image ||
           "https://images.unsplash.com/photo-1600585154340-be6161a56a0c";
         return (
           <div className="w-[130px] h-14 overflow-hidden flex items-center justify-center">

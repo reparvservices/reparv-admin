@@ -8,6 +8,7 @@ import { FaEdit } from "react-icons/fa";
 
 const Profile = () => {
   const { showProfile, setShowProfile, setLoading, URI } = useAuth();
+ 
   const [user, setUser] = useState({
     name: "",
     username: "",
@@ -16,6 +17,7 @@ const Profile = () => {
     role: "",
     userimage: "",
   });
+  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -168,7 +170,7 @@ const Profile = () => {
         </div>
         <div className="profileImgContainer w-[320px] h-[325px] bg-[#FFFFFF] flex flex-col items-center justify-center p-5 gap-3 rounded-[20px] shadow-[#0000001A] ">
           <img
-            src={`${URI}${user?.userimage}`}
+            src={`${ImageURI}${user?.userimage}`}
             alt=""
             className="w-[200px] h-[200px] rounded-[50%]"
           />
