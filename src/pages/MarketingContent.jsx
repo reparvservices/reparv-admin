@@ -11,6 +11,7 @@ import { MdOutlineWidthFull } from "react-icons/md";
 import { PiDotsThreeCircleVerticalFill } from "react-icons/pi";
 import propertyPicture from "../assets/propertyPicture.svg";
 import ContentFilter from "../components/ContentFilter";
+import { getImageURI } from "../utils/helper";
 
 const MarketingContent = () => {
   const {
@@ -264,19 +265,19 @@ const MarketingContent = () => {
                 <div key={content.id} className="flex flex-col items-center">
                   <div
                     onClick={() => {
-                      window.open(`${URI}/${content.contentFile}`, "_blank");
+                      window.open(`${getImageURI(content.contentFile)}`, "_blank");
                     }}
                     className="relative w-full border border-[#00000033] rounded-lg overflow-hidden aspect-[16/9] shadow cursor-pointer"
                   >
                     {content.contentType === "Video" ? (
                       <video
-                        src={`${ImageURI}/${content.contentFile}`}
+                        src={`${getImageURI(content.contentFile)}`}
                         controls
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <img
-                        src={`${ImageURI}/${content.contentFile}`}
+                        src={`${getImageURI(content.contentFile)}`}
                         alt={content.contentName}
                         className="w-full h-full object-cover"
                       />

@@ -14,6 +14,7 @@ import { useAuth } from "../store/auth";
 import { IoMdClose } from "react-icons/io";
 import propertyPicture from "../assets/propertyPicture.svg";
 import FormatPrice from "../components/FormatPrice";
+import { getImageURI } from "../utils/helper";
 
 function Dashboard() {
   const { URI, setLoading, showCustomer, setShowCustomer } = useAuth();
@@ -217,7 +218,7 @@ function Dashboard() {
         try {
           const parsed = JSON.parse(row.frontView);
           if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${ImageURI}${parsed[0]}`;
+            imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
           console.warn("Invalid or null frontView:", row.frontView);

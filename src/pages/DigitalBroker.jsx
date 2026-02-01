@@ -16,6 +16,7 @@ import FormatPrice from "../components/FormatPrice";
 import Select from "react-select";
 import DownloadCSV from "../components/DownloadCSV";
 import EnquiryFilter from "../components/enquiryFilter";
+import { getImageURI } from "../utils/helper";
 
 const DigitalBroker = () => {
   const {
@@ -858,7 +859,7 @@ const DigitalBroker = () => {
         try {
           const parsed = JSON.parse(row.frontView);
           if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${ImageURI}${parsed[0]}`;
+            imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
           console.warn("Invalid or null frontView:", row.frontView);

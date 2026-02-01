@@ -13,6 +13,7 @@ import Loader from "../components/Loader";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import DownloadCSV from "../components/DownloadCSV";
+import { getImageURI } from "../utils/helper";
 
 const Blogs = () => {
   const {
@@ -370,7 +371,7 @@ const Blogs = () => {
       name: "Blog Image",
       cell: (row) => {
         let imageSrc =
-          ImageURI + row.image ||
+          getImageURI(row.image) ||
           "https://images.unsplash.com/photo-1600585154340-be6161a56a0c";
         return (
           <div className="w-[130px] h-14 overflow-hidden flex items-center justify-center">

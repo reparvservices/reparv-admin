@@ -23,6 +23,7 @@ import PropertyFilter from "../components/propertyFilter";
 import FormatPrice from "../components/FormatPrice";
 import PropertyCommissionPopup from "../components/PropertyCommissionPopup";
 import Select from "react-select";
+import { getImageURI } from "../utils/helper";
 
 const Properties = () => {
   const navigate = useNavigate();
@@ -1454,7 +1455,7 @@ const Properties = () => {
         try {
           const parsed = JSON.parse(row.frontView);
           if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${ImageURI}${parsed[0]}`;
+            imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
           console.warn("Invalid or null frontView:", row.frontView);

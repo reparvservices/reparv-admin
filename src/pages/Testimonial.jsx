@@ -7,6 +7,7 @@ import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../components/Loader";
+import { getImageURI } from "../utils/helper";
 
 const Testimonial = () => {
   const { showFeedbackForm, setShowFeedbackForm, URI, setLoading } = useAuth();
@@ -243,7 +244,7 @@ const Testimonial = () => {
           className={`w-full h-[110px] overflow-hidden flex items-center justify-center`}
         >
           <img
-            src={`${ImageURI}${row.clientimage}`}
+            src={`${getImageURI(row.clientimage)}`}
             alt="Image"
             className="w-[55px] h-[90%] object- cursor-pointer"
           />

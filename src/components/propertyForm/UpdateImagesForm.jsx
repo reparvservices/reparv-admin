@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../store/auth";
 import { IoMdClose } from "react-icons/io";
 import Loader from "../Loader";
+import { getImageURI } from "../../utils/helper";
 
 const UpdateImagesForm = ({
   fetchImages,
@@ -309,12 +310,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -388,12 +389,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${ImageURI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -468,12 +469,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${ImageURI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -553,12 +554,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${ImageURI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -639,12 +640,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${URI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -729,12 +730,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${ImageURI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -819,12 +820,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${ImageURI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -909,12 +910,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${ImageURI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
@@ -995,12 +996,12 @@ const UpdateImagesForm = ({
                     <div
                       key={index}
                       onClick={() => {
-                        window.open(`${ImageURI}${image}`, "_blank");
+                        window.open(`${getImageURI(image)}`, "_blank");
                       }}
                       className="relative"
                     >
                       <img
-                        src={`${ImageURI}${image}`}
+                        src={`${getImageURI(image)}`}
                         alt="Uploaded preview"
                         className={`w-full h-24 object-cover rounded-lg border ${
                           index === 0
