@@ -1,6 +1,23 @@
+import { useState, useEffect } from "react";
 import PropertyTypeMultiSelect from "./PropertyTypeMultiSelect";
 
 const StepTwo = ({ newProperty, setPropertyData }) => {
+  const [isRental, setIsRental] = useState(false);
+
+  useEffect(() => {
+    const isRentalType = [
+      "RentalFlat",
+      "RentalVilla",
+      "RentalShop",
+      "RentalOffice",
+      "RentalHouse",
+      "RentalGodown",
+      "RentalOpenLand",
+      "RentalShowroom",
+    ].includes(newProperty?.propertyCategory);
+
+    setIsRental(isRentalType);
+  }, [newProperty?.propertyCategory]);
   return (
     <div className="bg-white h-[55vh] overflow-scroll scrollbar-x-hidden p-2">
       <h2 className="text-base font-semibold mb-4">
@@ -29,13 +46,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
         </div>
 
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
@@ -70,13 +81,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
         </div>
 
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
@@ -415,13 +420,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
       {/* Property Features */}
       <div className="grid gap-6 md:gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
@@ -556,13 +555,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           </select>
         </div>
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
@@ -628,14 +621,8 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
         </div>
 
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
-        >
+          className={`${isRental ? "hidden" : "block"} w-full`}
+        > 
           <label
             className={`${
               newProperty.propertyStatusFeature
@@ -835,13 +822,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           </select>
         </div>
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${

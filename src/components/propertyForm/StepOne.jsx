@@ -6,6 +6,17 @@ import TagsInput from "./TagsInput";
 import FormatPrice from "../../components/FormatPrice";
 //import MapLibreBuildings from "./MapLibreBuildings";
 
+import {
+  FaHome,
+  FaBuilding,
+  FaStore,
+  FaIndustry,
+  FaTree,
+  FaCity,
+} from "react-icons/fa";
+import { MdApartment } from "react-icons/md";
+import { GiFarmTractor, GiFamilyHouse } from "react-icons/gi";
+
 const StepOne = ({
   newProperty,
   setPropertyData,
@@ -19,6 +30,64 @@ const StepOne = ({
   // For Property Name Checking
   const [isSame, setIsSame] = useState(true);
   const [message, setMessage] = useState("");
+
+  const [propertyTab, setPropertyTab] = useState("new");
+
+  const newTypes = [
+    { label: "New Flat", value: "NewFlat", icon: MdApartment },
+    { label: "New Plot", value: "NewPlot", icon: FaTree },
+    { label: "New Shop", value: "NewShop", icon: FaStore },
+    { label: "Row House", value: "RowHouse", icon: FaHome },
+    { label: "Lease", value: "Lease", icon: FaBuilding },
+    { label: "Farm House", value: "FarmHouse", icon: GiFarmTractor },
+    { label: "Flarm Land", value: "FarmLand", icon: FaTree },
+    { label: "Commercial Flat", value: "CommercialFlat", icon: MdApartment },
+    { label: "Commercial Plot", value: "CommercialPlot", icon: FaCity },
+    { label: "Industrial Space", value: "IndustrialSpace", icon: FaIndustry },
+  ];
+
+  const rentalTypes = [
+    { label: "Rental Flat", value: "RentalFlat", icon: MdApartment },
+    { label: "Rental Villa", value: "RentalVilla", icon: FaTree },
+    { label: "Rental Shop", value: "RentalShop", icon: FaStore },
+    { label: "Rental Office", value: "RentalOffice", icon: FaBuilding },
+    { label: "Rental House", value: "RentalHouse", icon: FaHome },
+    { label: "Rental Godown", value: "RentalGodown", icon: FaCity },
+    { label: "Rental Land", value: "RentalOpenLand", icon: FaTree },
+    { label: "Rental ShowRoom", value: "RentalShowroom", icon: FaIndustry },
+  ];
+
+  const resaleTypes = [
+    { label: "Resale Flat", value: "ResaleFlat", icon: MdApartment },
+    { label: "Resale Villa", value: "ResalelVilla", icon: FaTree },
+    { label: "Resale Shop", value: "ResaleShop", icon: FaStore },
+    { label: "Resale Office", value: "ResaleOffice", icon: FaBuilding },
+    {
+      label: "Resale Farm House",
+      value: "ResaleFarmHouse",
+      icon: GiFarmTractor,
+    },
+    { label: "Resale Godown", value: "ResaleGodown", icon: FaCity },
+    { label: "Resale Bunglow", value: "ResaleBunglow", icon: FaBuilding },
+    { label: "Resale ShowRoom", value: "ResaleShowroom", icon: FaIndustry },
+  ];
+
+  const [isRental, setIsRental] = useState(false);
+
+  useEffect(() => {
+    const isRentalType = [
+      "RentalFlat",
+      "RentalVilla",
+      "RentalShop",
+      "RentalOffice",
+      "RentalHouse",
+      "RentalGodown",
+      "RentalOpenLand",
+      "RentalShowroom",
+    ].includes(newProperty?.propertyCategory);
+
+    setIsRental(isRentalType);
+  }, [newProperty?.propertyCategory]);
 
   const checkPropertyName = async () => {
     try {
@@ -50,6 +119,98 @@ const StepOne = ({
     <div className="bg-white h-[55vh] overflow-scroll scrollbar-x-hidden p-2">
       <h2 className="text-base font-semibold mb-4">Step 1: Property Details</h2>
       <div className="grid gap-6 md:gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="col-span-1 lg:col-span-2 xl:col-span-3">
+          {/* PROPERTY TYPE */}
+          <h2 className="text-base sm:text-lg font-semibold mb-4 text-black">
+            What type of property are you selling?{" "}
+            <span className="text-red-500">*</span>
+          </h2>
+          {/* PROPERTY MAIN TABS */}
+          <div className="flex gap-3 mb-6">
+            <button
+              type="button"
+              onClick={() => {
+                setPropertyTab("new");
+                setPropertyData({ ...newProperty, propertyCategory: "" });
+              }}
+              className={`px-6 py-2 rounded-lg font-semibold border ${
+                propertyTab === "new"
+                  ? "bg-green-600 text-white border-green-600"
+                  : "border-gray-300 text-gray-700"
+              }`}
+            >
+              New
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPropertyTab("rental");
+                setPropertyData({ ...newProperty, propertyCategory: "" });
+              }}
+              className={`px-6 py-2 rounded-lg font-semibold border ${
+                propertyTab === "rental"
+                  ? "bg-green-600 text-white border-green-600"
+                  : "border-gray-300 text-gray-700"
+              }`}
+            >
+              Rental
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPropertyTab("resale");
+                setPropertyData({ ...newProperty, propertyCategory: "" });
+              }}
+              className={`px-6 py-2 rounded-lg font-semibold border ${
+                propertyTab === "resale"
+                  ? "bg-green-600 text-white border-green-600"
+                  : "border-gray-300 text-gray-700"
+              }`}
+            >
+              Resale
+            </button>
+          </div>
+          {/* PROPERTY Category */}
+          <p className="text-sm hidden sm:block mb-5 text-[#868686]">
+            Select the category that best describes your property
+          </p>
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3 mb-4">
+            {(propertyTab === "new"
+              ? newTypes
+              : propertyTab === "rental"
+              ? rentalTypes
+              : resaleTypes
+            ).map((item) => {
+              const Icon = item.icon;
+              const isActive = newProperty.propertyCategory === item.value;
+
+              return (
+                <button
+                  type="button"
+                  key={item.value}
+                  onClick={() =>
+                    setPropertyData({
+                      ...newProperty,
+                      propertyCategory: item.value,
+                    })
+                  }
+                  className={`flex flex-col sm:flex-row items-start sm:items-center gap-2 px-3 py-2 rounded-lg border text-sm transition
+                             ${
+                               isActive
+                                 ? "bg-green-600 text-white font-bold border-green-600"
+                                 : "border-[#D9D9D9] text-[#868686] hover:border-green-600"
+                             }
+                            `}
+                >
+                  <Icon size={16} color={isActive ? "#FFFFFF" : "#868686"} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <div className="w-full">
           <label
             className={`${
@@ -79,53 +240,8 @@ const StepOne = ({
           </select>
         </div>
 
-        <div className="w-full">
-          <label
-            className={`${
-              newProperty.propertyCategory
-                ? "text-green-600"
-                : "text-[#00000066]"
-            } block text-sm leading-4 font-medium`}
-          >
-            Property Category <span className="text-red-600">*</span>
-          </label>
-          <select
-            className="w-full placeholder:text-black mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none bg-transparent"
-            style={{ backgroundImage: "none" }}
-            value={newProperty.propertyCategory}
-            onChange={(e) =>
-              setPropertyData({
-                ...newProperty,
-                propertyCategory: e.target.value,
-              })
-            }
-          >
-            <option value="">Select Property Category</option>
-            <option value="NewFlat">New Flat</option>
-            <option value="NewPlot">New Plot</option>
-            <option value="NewShop">New Shop</option>
-            <option value="RentalFlat">Rental Flat</option>
-            <option value="RentalShop">Rental Shop</option>
-            <option value="RentalOffice">Rental Office</option>
-            <option value="Resale">Resale</option>
-            <option value="RowHouse">Row House</option>
-            <option value="Lease">Lease</option>
-            <option value="FarmLand">Farm Land</option>
-            <option value="FarmHouse">Farm House</option>
-            <option value="CommercialFlat">Commercial Flat</option>
-            <option value="CommercialPlot">Commercial Plot</option>
-            <option value="IndustrialSpace">Industrial Space</option>
-          </select>
-        </div>
-
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`text-green-600 block text-sm leading-4 font-medium`}
@@ -519,13 +635,7 @@ const StepOne = ({
         </div>
 
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
@@ -560,13 +670,7 @@ const StepOne = ({
         </div>
 
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
@@ -594,13 +698,7 @@ const StepOne = ({
         </div>
 
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
@@ -630,13 +728,7 @@ const StepOne = ({
         </div>
 
         <div
-          className={`${
-            ["RentalFlat", "RentalShop", "RentalOffice"].includes(
-              newProperty.propertyCategory
-            )
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
@@ -663,11 +755,7 @@ const StepOne = ({
         </div>
 
         <div
-          className={`${
-            ["NewPlot", "CommercialPlot"].includes(newProperty.propertyCategory)
-              ? "hidden"
-              : "block"
-          } w-full`}
+          className={`${isRental ? "hidden" : "block"} w-full`}
         >
           <label
             className={`${
