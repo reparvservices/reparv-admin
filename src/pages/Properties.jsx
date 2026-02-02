@@ -600,6 +600,33 @@ const Properties = () => {
     }
   };
 
+  // change property into hot deal
+  const reparvAssured = async (id) => {
+    if (!window.confirm("Are you sure to change Reparv Assured status ?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        URI + `/admin/properties/reparv-assured/${id}`,
+        {
+          method: "PUT",
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      //console.log(response);
+      if (response.ok) {
+        alert(`Success: ${data.message}`);
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+      fetchData();
+    } catch (error) {
+      console.error("Error Reparv Assured :", error);
+    }
+  };
+
   // Update Property Loaction Latitude and Longitude
   const updatePropertyLocation = async (e) => {
     e.preventDefault();
@@ -1552,6 +1579,21 @@ const Properties = () => {
       minWidth: "150px",
     },
     {
+      name: "Reparv Assured",
+      cell: (row) => (
+        <span
+          className={`px-2 py-1 rounded-md ${
+            row.reparvAssured === "Active"
+              ? "bg-[#EAFBF1] text-[#0BB501]"
+              : "bg-gray-100"
+          }`}
+        >
+          {row.reparvAssured === "Active" ? "Assured" : "Not Assured"}
+        </span>
+      ),
+      minWidth: "150px",
+    },
+    {
       name: "Reject Reason",
       selector: (row) => row.rejectreason || "-- No Reason --",
       minWidth: "150px",
@@ -1588,6 +1630,8 @@ const Properties = () => {
           setPropertyKey(propertyid);
           showTopPicks(propertyid);
           break;
+        case "reparvAssured":
+          reparvAssured(propertyid);
         case "update":
           edit(propertyid);
           break;
@@ -1665,6 +1709,7 @@ const Properties = () => {
           <option value="approve">Approve</option>
           <option value="hotdeal">Set Hot Deal</option>
           <option value="topPicks">Set Top Picks</option>
+          <option value="reparvAssured">Reparv Assured</option>
 
           {row.propertyCategory === "NewFlat" ||
           row.propertyCategory === "CommercialFlat" ? (
@@ -2444,7 +2489,13 @@ const Properties = () => {
                       topPicksStatus: e.target.value,
                     })
                   }
-                  className={`${topPicks.topPicksStatus === "Active" ? "text-green-600 font-bold" : topPicks.topPicksStatus === "Inactive" ? "text-red-500 font-bold" : "" } w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none`}
+                  className={`${
+                    topPicks.topPicksStatus === "Active"
+                      ? "text-green-600 font-bold"
+                      : topPicks.topPicksStatus === "Inactive"
+                      ? "text-red-500 font-bold"
+                      : ""
+                  } w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none`}
                 >
                   <option value="">Select Status</option>
                   <option value="Active">Active</option>
