@@ -1594,6 +1594,21 @@ const Properties = () => {
       minWidth: "150px",
     },
     {
+      name: "Top Picks",
+      cell: (row) => (
+        <span
+          className={`px-2 py-1 rounded-md ${
+            row.topPicksStatus === "Active"
+              ? "bg-[#EAFBF1] text-[#0BB501]"
+              : "bg-gray-100"
+          }`}
+        >
+          {row.topPicksStatus}
+        </span>
+      ),
+      minWidth: "150px",
+    },
+    {
       name: "Reject Reason",
       selector: (row) => row.rejectreason || "-- No Reason --",
       minWidth: "150px",
