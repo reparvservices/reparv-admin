@@ -136,6 +136,7 @@ const menuItems = [
       { to: "/news", label: "News" },
       { label: "Trends", to: "/trends" },
       { label: "Slider", to: "/slider" },
+      { label: "Subscribers", to: "/subscribers" },
       { label: "Testimonial", to: "/testimonial" },
       { label: "Marketing Content", to: "/marketing-content" },
     ],

@@ -44,6 +44,7 @@ import BlogFAQs from "./pages/BlogFAQ.jsx";
 import CallEnquirers from "./pages/CallEnquirers.jsx";
 import WhatsappEnquirers from "./pages/WhatsappEnquirers.jsx";
 import ContactUsMessages from "./pages/ContactUsMessages.jsx";
+import Subscribers from "./pages/Subscribers.jsx";
 
 const App = () => {
   return (
@@ -104,6 +105,7 @@ const App = () => {
           <Route path="/blog/manage-faqs/:blogId" element={<BlogFAQs />} />
           <Route path="/news" element={<News />} />
           <Route path="/trends" element={<Trends />} />
+          <Route path="/subscribers" element={<Subscribers />} />
           {/*<Route path="/brand-accessories" element={<BrandAccessories />} />*/}
           <Route path="/marketing-content" element={<MarketingContent />} />
         </Route>
