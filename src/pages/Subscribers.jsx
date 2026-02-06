@@ -119,9 +119,9 @@ const Subscribers = () => {
           {/* Serial Number Box */}
           <span
             className={`min-w-6 flex items-center justify-center px-2 py-1 rounded-md cursor-pointer ${
-              row.status === "New"
+              row.status === "Active"
                 ? "bg-[#EAFBF1] text-[#0BB501]"
-                : "bg-blue-100 text-blue-600"
+                : "bg-red-100 text-red-500"
             }`}
           >
             {index + 1}
@@ -142,9 +142,9 @@ const Subscribers = () => {
           {/* Serial Number Box */}
           <span
             className={`min-w-6 flex items-center justify-center px-2 py-1 rounded-md cursor-pointer ${
-              row.status === "New"
+              row.status === "Active"
                 ? "bg-[#EAFBF1] text-[#0BB501]"
-                : "bg-blue-100 text-blue-600"
+                : "bg-red-100 text-red-500"
             }`}
           >
             {row.status}
