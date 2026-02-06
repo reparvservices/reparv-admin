@@ -15,27 +15,31 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import DownloadCSV from "../components/DownloadCSV";
 import { getImageURI } from "../utils/helper";
 
-const Blogs = () => {
+const News = () => {
   const {
     URI,
     setLoading,
-    showBlogForm,
-    setShowBlogForm,
+    showNewsForm,
+    setShowNewsForm,
     showSeoForm,
     setShowSeoForm,
   } = useAuth();
 
-  const [blogs, setBlogs] = useState([]);
+  const [news, setNews] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [blogId, setBlogId] = useState(null);
-  const [newBlog, setNewBlog] = useState({
+  const [newsId, setNewsId] = useState(null);
+  const [newNews, setNewNews] = useState({
     type: "All",
-    tittle: "",
+    state: "",
+    city: "",
+    title: "",
     description: "",
     content: "",
   });
   const [seoSlug, setSeoSlug] = useState("");
-  const [seoTittle, setSeoTittle] = useState("");
+  const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
 
   //Blog Image Upload
@@ -62,26 +66,65 @@ const Blogs = () => {
 
     // If valid, set state
     setSelectedImage(file);
-    setNewBlog((prev) => ({ ...prev, blogImage: file }));
+    setNewNews((prev) => ({ ...prev, newsImage: file }));
   };
   const removeSingleImage = () => {
     setSelectedImage(null);
   };
 
+  // **Fetch States from API**
+  const fetchStates = async () => {
+    try {
+      const response = await fetch(URI + "/admin/states", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Failed to fetch States.");
+      const data = await response.json();
+      setStates(data);
+    } catch (err) {
+      console.error("Error fetching :", err);
+    }
+  };
+
+  // **Fetch States from API**
+  const fetchCities = async () => {
+    try {
+      const response = await fetch(
+        `${URI}/admin/cities/${newNews?.state}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch cities.");
+      const data = await response.json();
+      setCities(data);
+    } catch (err) {
+      console.error("Error fetching :", err);
+    }
+  };
+
   // **Fetch Data from API**
   const fetchData = async () => {
     try {
-      const response = await fetch(URI + "/admin/blog", {
+      const response = await fetch(URI + "/admin/news", {
         method: "GET",
         credentials: "include", // Ensures cookies are sent
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (!response.ok) throw new Error("Failed to fetch Blogs.");
+      if (!response.ok) throw new Error("Failed to fetch News.");
       const data = await response.json();
       console.log(data);
-      setBlogs(data);
+      setNews(data);
     } catch (err) {
       console.error("Error fetching :", err);
     }
@@ -90,27 +133,28 @@ const Blogs = () => {
   //fetch data on form
   const edit = async (id) => {
     try {
-      const response = await fetch(URI + `/admin/blog/${id}`, {
+      const response = await fetch(URI + `/admin/news/${id}`, {
         method: "GET",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (!response.ok) throw new Error("Failed to fetch blog.");
+      if (!response.ok) throw new Error("Failed to fetch news.");
       const data = await response.json();
 
-      setNewBlog({
+      setNewNews({
         id: data.id || "",
         type: data.type || "All",
-        tittle: data.tittle || "",
+        state: data.state || "",
+        city: data.city || "",
+        title: data.title || "",
         description: data.description || "",
         content: data.content || "",
       });
 
       // Only show form after blog data is loaded
-      setShowBlogForm(true);
-      setShowBlogForm(true);
+      setShowNewsForm(true);
     } catch (err) {
       console.error("Error fetching:", err);
     }
@@ -119,51 +163,55 @@ const Blogs = () => {
   const add = async (e) => {
     e.preventDefault();
 
-    const endpoint = newBlog.id ? `edit/${newBlog.id}` : "add";
-    const method = newBlog.id ? "PUT" : "POST";
+    const endpoint = newNews.id ? `edit/${newNews.id}` : "add";
+    const method = newNews.id ? "PUT" : "POST";
 
     try {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append("type", newBlog.type);
-      formData.append("tittle", newBlog.tittle);
-      formData.append("description", newBlog.description);
-      formData.append("content", newBlog.content);
+      formData.append("type", newNews.type);
+      formData.append("state", newNews.state);
+      formData.append("city", newNews.city);
+      formData.append("title", newNews.title);
+      formData.append("description", newNews.description);
+      formData.append("content", newNews.content);
 
       // Append image if selected
       if (selectedImage) {
-        formData.append("blogImage", newBlog.blogImage);
+        formData.append("newsImage", newNews.newsImage);
       }
 
-      const response = await fetch(`${URI}/admin/blog/${endpoint}`, {
+      const response = await fetch(`${URI}/admin/news/${endpoint}`, {
         method,
         credentials: "include",
         body: formData, // No need for headers, browser sets it
       });
 
       if (response.status === 409) {
-        alert("Blog already exists!");
+        alert("News already exists!");
       } else if (!response.ok) {
-        throw new Error(`Failed to save blog. Status: ${response.status}`);
+        throw new Error(`Failed to save news. Status: ${response.status}`);
       } else {
         alert(
-          newBlog.id ? "Blog updated successfully!" : "Blog added successfully!"
+          newNews.id ? "News updated successfully!" : "News added successfully!"
         );
 
-        setNewBlog({
+        setNewNews({
           type: "",
-          tittle: "",
+          state: "",
+          city: "",
+          title: "",
           description: "",
           content: "",
         });
 
-        setShowBlogForm(false);
+        setShowNewsForm(false);
         setSelectedImage(null);
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving blog:", err);
+      console.error("Error saving news:", err);
     } finally {
       setLoading(false);
     }
@@ -171,11 +219,11 @@ const Blogs = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this Blog status?"))
+    if (!window.confirm("Are you sure you want to change this News status?"))
       return;
 
     try {
-      const response = await fetch(URI + `/admin/blog/status/${id}`, {
+      const response = await fetch(URI + `/admin/news/status/${id}`, {
         method: "PUT",
         credentials: "include", //  Ensures cookies are sent
         headers: {
@@ -198,17 +246,17 @@ const Blogs = () => {
   //fetch data on form
   const showSEO = async (id) => {
     try {
-      const response = await fetch(URI + `/admin/blog/${id}`, {
+      const response = await fetch(URI + `/admin/news/${id}`, {
         method: "GET",
         credentials: "include", // Ensures cookies are sent
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (!response.ok) throw new Error("Failed to fetch blog.");
+      if (!response.ok) throw new Error("Failed to fetch news.");
       const data = await response.json();
       setSeoSlug(data.seoSlug);
-      setSeoTittle(data.seoTittle);
+      setSeoTitle(data.seoTitle);
       setSeoDescription(data.seoDescription);
       setShowSeoForm(true);
     } catch (err) {
@@ -221,13 +269,13 @@ const Blogs = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch(URI + `/admin/blog/seo/${blogId}`, {
+      const response = await fetch(URI + `/admin/news/seo/${newsId}`, {
         method: "PUT",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ seoSlug, seoTittle, seoDescription }),
+        body: JSON.stringify({ seoSlug, seoTitle, seoDescription }),
       });
       const data = await response.json();
       console.log(response);
@@ -238,7 +286,7 @@ const Blogs = () => {
       }
       setShowSeoForm(false);
       setSeoSlug("");
-      setSeoTittle("");
+      setSeoTitle("");
       setSeoDescription("");
       await fetchData();
     } catch (error) {
@@ -250,11 +298,11 @@ const Blogs = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Blog?")) return;
+    if (!window.confirm("Are you sure you want to delete this News?")) return;
 
     try {
       setLoading(true);
-      const response = await fetch(URI + `/admin/blog/delete/${id}`, {
+      const response = await fetch(URI + `/admin/news/delete/${id}`, {
         method: "DELETE",
         credentials: "include", // Ensures cookies are sent
         headers: {
@@ -264,13 +312,13 @@ const Blogs = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Blog deleted successfully!");
+        alert("News deleted successfully!");
         fetchData();
       } else {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Blog:", error);
+      console.error("Error deleting News:", error);
     } finally {
       setLoading(false);
     }
@@ -278,7 +326,14 @@ const Blogs = () => {
 
   useEffect(() => {
     fetchData();
+    fetchStates();
   }, []);
+
+  useEffect(() => {
+      if (newNews.state != "") {
+        fetchCities();
+      }
+    }, [newNews.state]);
 
   const [range, setRange] = useState([
     {
@@ -288,10 +343,10 @@ const Blogs = () => {
     },
   ]);
 
-  const filteredData = blogs.filter((item) => {
+  const filteredData = news?.filter((item) => {
     const matchesSearch =
       item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.tittle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.status?.toLowerCase().includes(searchTerm.toLowerCase());
 
     let startDate = range[0].startDate;
@@ -367,7 +422,7 @@ const Blogs = () => {
       width: "70px",
     },
     {
-      name: "Blog Image",
+      name: "News Image",
       cell: (row) => {
         let imageSrc =
           getImageURI(row.image) ||
@@ -376,10 +431,10 @@ const Blogs = () => {
           <div className="w-[130px] h-14 overflow-hidden flex items-center justify-center">
             <img
               src={imageSrc}
-              alt="blogImage"
+              alt="newsImage"
               onClick={() => {
                 window.open(
-                  "https://www.reparv.in/blog/" + row.seoSlug,
+                  "https://www.reparv.in/news/" + row.seoSlug,
                   "_blank"
                 );
               }}
@@ -392,13 +447,13 @@ const Blogs = () => {
     },
     { name: "Date & Time", selector: (row) => row.created_at, width: "200px" },
     {
-      name: "Blog Type",
+      name: "News Type",
       selector: (row) => row.type,
       minWidth: "150px",
     },
     {
-      name: "Blog Title",
-      selector: (row) => row.tittle,
+      name: "News Title",
+      selector: (row) => row.title,
       sortable: true,
       minWidth: "150px",
       maxWidth: "250px",
@@ -411,7 +466,7 @@ const Blogs = () => {
       maxWidth: "600px",
     },
     {
-      name: "",
+      name: "Action",
       cell: (row) => <ActionDropdown row={row} />,
       width: "120px",
     },
@@ -423,20 +478,20 @@ const Blogs = () => {
     const handleActionSelect = (action, id, slug) => {
       switch (action) {
         case "view":
-          window.open("https://www.reparv.in/blog/" + slug, "_blank");
+          window.open("https://www.reparv.in/news/" + slug, "_blank");
           break;
         case "status":
           status(id);
           break;
         case "update":
-          setBlogId(id);
+          setNewsId(id);
           edit(id);
           break;
         case "manageFAQs":
           window.open(`/blog/manage-faqs/${id}`, "_blank");
           break;
         case "SEO":
-          setBlogId(id);
+          setNewsId(id);
           showSEO(id);
           break;
         case "delete":
@@ -468,7 +523,7 @@ const Blogs = () => {
           <option value="status">Status</option>
           <option value="update">Update</option>
           <option value="SEO">SEO Details</option>
-          <option value="manageFAQs">Manage FAQs</option>
+          {/*<option value="manageFAQs">Manage FAQs</option>*/}
           <option value="delete">Delete</option>
         </select>
       </div>
@@ -477,14 +532,14 @@ const Blogs = () => {
 
   return (
     <div
-      className={`sales Persons overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start`}
+      className={`overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start`}
     >
       <div className="sales-table w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
         <div className="w-full flex items-center justify-between md:justify-end gap-1 sm:gap-3">
-          <p className="block md:hidden text-lg font-semibold">Blogs</p>
+          <p className="block md:hidden text-lg font-semibold">News</p>
           <div className="flex xl:hidden flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
-            <DownloadCSV data={filteredData} filename={"Blog.csv"} />
-            <AddButton label={"Add"} func={setShowBlogForm} />
+            <DownloadCSV data={filteredData} filename={"News.csv"} />
+            <AddButton label={"Add"} func={setShowNewsForm} />
           </div>
         </div>
         <div className="searchBarContainer w-full flex flex-col lg:flex-row items-center justify-between gap-3">
@@ -492,7 +547,7 @@ const Blogs = () => {
             <CiSearch />
             <input
               type="text"
-              placeholder="Search Blog"
+              placeholder="Search News"
               className="search-input w-[250px] h-[36px] text-sm text-black bg-transparent border-none outline-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -505,12 +560,12 @@ const Blogs = () => {
               </div>
             </div>
             <div className="hidden xl:flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
-              <DownloadCSV data={filteredData} filename={"Blog.csv"} />
-              <AddButton label={"Add"} func={setShowBlogForm} />
+              <DownloadCSV data={filteredData} filename={"News.csv"} />
+              <AddButton label={"Add"} func={setShowNewsForm} />
             </div>
           </div>
         </div>
-        <h2 className="text-[16px] font-semibold">Blog List</h2>
+        <h2 className="text-[16px] font-semibold">News List</h2>
         <div className="overflow-scroll scrollbar-hide">
           <DataTable
             className="scrollbar-hide"
@@ -533,67 +588,73 @@ const Blogs = () => {
 
       <div
         className={`${
-          showBlogForm ? "flex" : "hidden"
-        } z-[61] sales-form overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+          showNewsForm ? "flex" : "hidden"
+        } z-[61] sales-form overflow-scroll scrollbar-hide w-full fixed bottom-0 md:bottom-auto`}
       >
         <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[780px] xl:w-[1000px] max-h-[80vh] bg-white py-8 pb-10 px-3 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[16px] font-semibold">ADD Blog </h2>
+            <h2 className="text-[16px] font-semibold">
+              {newNews.id ? "Edit News" : "Add News"}
+            </h2>
 
             <IoMdClose
               onClick={() => {
-                setShowBlogForm(false);
-                setNewBlog({
+                setShowNewsForm(false);
+                setNewNews({
+                  id: null,
                   type: "All",
-                  tittle: "",
+                  state: "",
+                  city: "",
+                  title: "",
                   description: "",
                   content: "",
                 });
+                setSelectedImage(null);
               }}
               className="w-6 h-6 cursor-pointer"
             />
           </div>
+
           <form onSubmit={add}>
             <div className="grid md:gap-2 grid-cols-1">
-              <input type="hidden" value={newBlog.id || ""} readOnly />
+              <input type="hidden" value={newNews.id || ""} readOnly />
+
+              {/* IMAGE */}
               <div className="w-full">
-                <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">
-                  Upload Blog Image
+                <label className="block text-sm text-[#00000066] font-medium mb-2">
+                  Upload News Image
                 </label>
 
-                <div className="w-full mt-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={singleImageChange}
-                    className="hidden"
-                    id="imageUpload"
-                  />
-                  <label
-                    htmlFor="imageUpload"
-                    className="flex items-center justify-between border border-gray-300 rounded cursor-pointer"
-                  >
-                    <span className="m-3 p-2 text-[16px] font-medium text-[#00000066]">
-                      Upload Image
-                    </span>
-                    <div className="btn flex items-center justify-center w-[107px] p-5 rounded-[3px] rounded-tl-none rounded-bl-none bg-[#000000B2] text-white">
-                      Browse
-                    </div>
-                  </label>
-                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={singleImageChange}
+                  className="hidden"
+                  id="imageUpload"
+                />
 
-                {/* Image Preview */}
+                <label
+                  htmlFor="imageUpload"
+                  className="flex items-center justify-between border border-gray-300 rounded cursor-pointer"
+                >
+                  <span className="m-3 p-2 text-[16px] font-medium text-[#00000066]">
+                    Upload Image
+                  </span>
+                  <div className="w-[107px] p-5 bg-[#000000B2] text-white">
+                    Browse
+                  </div>
+                </label>
+
                 {selectedImage && (
-                  <div className="relative mt-2 w-full max-w-[300px]">
+                  <div className="relative mt-2 max-w-[300px]">
                     <img
                       src={URL.createObjectURL(selectedImage)}
-                      alt="Uploaded preview"
-                      className="w-full object-cover rounded-lg border border-gray-300"
+                      className="w-full rounded-lg border"
                     />
                     <button
                       type="button"
                       onClick={removeSingleImage}
-                      className="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded-full shadow"
+                      className="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded-full"
                     >
                       ✕
                     </button>
@@ -601,158 +662,151 @@ const Blogs = () => {
                 )}
               </div>
 
-              <div className="w-full">
-                <label
-                  htmlFor="blogType"
-                  className="block text-sm leading-4 text-[#00000066] font-medium mt-2"
-                >
-                  Blog Type
+              {/* TYPE */}
+              <div>
+                <label className="block text-sm text-[#00000066] font-medium mt-2">
+                  News Type
                 </label>
 
                 <select
-                  id="blogType"
                   required
-                  className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                  value={newBlog?.type || "All"}
+                  value={newNews.type}
                   onChange={(e) =>
-                    setNewBlog({ ...newBlog, type: e.target.value })
+                    setNewNews({ ...newNews, type: e.target.value })
                   }
+                  className="w-full mt-2 p-4 border rounded"
                 >
                   <option value="All">All</option>
-                  <option value="Mobile Apps">Mobile Apps</option>
-                  <option value="Properties">Properties</option>
-                  <option value="Guides">Guides</option>
-                  <option value="Sales">Sales</option>
-                  <option value="How to">How to</option>
+                  <option value="Updates">Updates</option>
+                  <option value="Announcements">Announcements</option>
+                  <option value="Market News">Market News</option>
                   <option value="Rules & Laws">Rules & Laws</option>
-                  <option value="Marketing">Marketing</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
 
-              <div className={`w-full `}>
-                <label
-                  htmlFor="blogTittle"
-                  className="block text-sm leading-4 text-[#00000066] font-medium mt-2"
-                >
-                  Blog Title
+              <div className="w-full flex gap-4 mt-2">
+                {/* State Select Input */}
+                <div className="w-full">
+                  <label className="block text-sm leading-4 text-[#00000066] font-medium">
+                    Select State
+                  </label>
+                  <select
+                    required
+                    className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
+                    style={{ backgroundImage: "none" }}
+                    value={newNews.state}
+                    onChange={(e) =>
+                      setNewNews({ ...newNews, state: e.target.value })
+                    }
+                  >
+                    <option value="">Select Your State</option>
+                    {states?.map((state, index) => (
+                      <option key={index} value={state.state}>
+                        {state.state}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* City Select Input */}
+                <div className="w-full">
+                  <label className="block text-sm leading-4 text-[#00000066] font-medium">
+                    Select City
+                  </label>
+                  <select
+                    required
+                    className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
+                    style={{ backgroundImage: "none" }}
+                    value={newNews.city}
+                    onChange={(e) =>
+                      setNewNews({
+                        ...newNews,
+                        city: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select Your City</option>
+                    {cities?.map((city, index) => (
+                      <option key={index} value={city.city}>
+                        {city.city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {/* TITLE */}
+              <div>
+                <label className="block text-sm text-[#00000066] font-medium mt-2">
+                  News Title
                 </label>
                 <textarea
                   rows={2}
-                  cols={40}
-                  id="blogTittle"
-                  placeholder="Enter Blog Tittle"
                   required
-                  className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={newBlog?.tittle || ""}
-                  onChange={(e) => {
-                    setNewBlog({ ...newBlog, tittle: e.target.value });
-                  }}
+                  value={newNews.title}
+                  onChange={(e) =>
+                    setNewNews({ ...newNews, title: e.target.value })
+                  }
+                  className="w-full mt-2 p-4 border rounded"
+                  placeholder="Enter News Title"
                 />
               </div>
 
-              <div className={`w-full `}>
-                <label className="block text-sm leading-4 text-[#00000066] font-medium ">
-                  Blog Description
+              {/* DESCRIPTION */}
+              <div>
+                <label className="block text-sm text-[#00000066] font-medium">
+                  News Description
                 </label>
                 <textarea
                   rows={3}
-                  cols={40}
-                  placeholder="Enter Blog Description"
                   required
-                  className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={newBlog?.description || ""}
-                  onChange={(e) => {
-                    setNewBlog({ ...newBlog, description: e.target.value });
-                  }}
+                  value={newNews.description}
+                  onChange={(e) =>
+                    setNewNews({ ...newNews, description: e.target.value })
+                  }
+                  className="w-full mt-2 p-4 border rounded"
                 />
               </div>
 
-              <div className="w-full mt-[10px]">
-                <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">
-                  Blog Content
+              {/* CONTENT */}
+              <div className="mt-3">
+                <label className="block text-sm text-[#00000066] font-medium mb-2">
+                  News Content
                 </label>
 
-                <div className="border border-[#00000033] rounded-[4px] blog-content ck-content overflow-hidden">
-                  {showBlogForm && newBlog.content !== undefined && (
+                <div className="border rounded blog-content ck-content">
+                  {showNewsForm && (
                     <CKEditor
-                      key={newBlog.id || "new"}
                       editor={ClassicEditor}
-                      data={newBlog.content}
-                      onChange={(event, editor) => {
-                        setNewBlog({ ...newBlog, content: editor.getData() });
-                      }}
-                      config={{
-                        placeholder: "Write your blog content here...",
-                        toolbar: [
-                          "heading",
-                          "|",
-                          "italic",
-                          "link",
-                          "|",
-                          "bulletedList",
-                          "numberedList",
-                          "blockQuote",
-                          "|",
-                          "undo",
-                          "redo",
-                        ],
-                        heading: {
-                          options: [
-                            {
-                              model: "paragraph",
-                              title: "Paragraph",
-                              class: "ck-heading_paragraph",
-                            },
-                            {
-                              model: "heading1",
-                              view: "h1",
-                              title: "Heading 1",
-                              class: "ck-heading_heading1",
-                            },
-                            {
-                              model: "heading2",
-                              view: "h2",
-                              title: "Heading 2",
-                              class: "ck-heading_heading2",
-                            },
-                            {
-                              model: "heading3",
-                              view: "h3",
-                              title: "Heading 3",
-                              class: "ck-heading_heading3",
-                            },
-                          ],
-                        },
-                      }}
+                      data={newNews.content}
+                      onChange={(e, editor) =>
+                        setNewNews({
+                          ...newNews,
+                          content: editor.getData(),
+                        })
+                      }
                     />
                   )}
                 </div>
               </div>
             </div>
-            <div className="flex h-10 mt-8 md:mt-6 justify-end gap-6">
+
+            {/* ACTIONS */}
+            <div className="flex mt-6 justify-end gap-6">
               <button
                 type="button"
-                onClick={() => {
-                  setShowBlogForm(false);
-                  setNewBlog({
-                    type: "All",
-                    tittle: "",
-                    description: "",
-                    content: "",
-                  });
-                }}
-                className="px-4 py-2 leading-4 text-[#ffffff] bg-[#000000B2] rounded active:scale-[0.98]"
+                onClick={() => setShowNewsForm(false)}
+                className="px-4 py-2 bg-[#000000B2] text-white rounded"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
+                className="px-4 py-2 bg-[#076300] text-white rounded"
               >
                 Save
               </button>
-              <Loader></Loader>
+              <Loader />
             </div>
           </form>
         </div>
@@ -760,9 +814,9 @@ const Blogs = () => {
 
       {/* ADD SEO Details */}
       <div
-        className={` ${
+        className={`${
           !showSeoForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide  w-full flex fixed bottom-0 md:bottom-auto `}
+        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto`}
       >
         <div className="w-full max-h-[70vh] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
@@ -771,82 +825,88 @@ const Blogs = () => {
               onClick={() => {
                 setShowSeoForm(false);
                 setSeoSlug("");
-                setSeoTittle("");
+                setSeoTitle("");
                 setSeoDescription("");
               }}
               className="w-6 h-6 cursor-pointer"
             />
           </div>
+
           <form onSubmit={addSeoDetails}>
-            <div className="w-full grid md:gap-2 place-items-center grid-cols-1 lg:grid-cols-1">
+            <input type="hidden" value={newsId || ""} />
+
+            {/* SEO SLUG */}
+            <div className="w-full mb-3">
+              <label className="block text-sm text-[#00000066] font-medium">
+                SEO Slug
+              </label>
               <input
-                type="hidden"
-                value={blogId || ""}
-                onChange={(e) => setBlogId(e.target.value)}
+                type="text"
+                required
+                placeholder="example-news-title"
+                value={seoSlug}
+                onChange={(e) => setSeoSlug(e.target.value)}
+                className="w-full mt-2 p-4 border rounded focus:ring-2 focus:ring-blue-500"
               />
-              <div className="w-full">
-                <label className="block text-sm leading-4 text-[#00000066] font-medium ">
-                  Seo Slug
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter Slug"
-                  className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={seoSlug}
-                  onChange={(e) => {
-                    setSeoSlug(e.target.value);
-                  }}
-                />
-              </div>
-              <div className={`w-full `}>
-                <label className="block text-sm leading-4 text-[#00000066] font-medium ">
-                  Seo Tittle
-                </label>
-                <textarea
-                  rows={2}
-                  cols={40}
-                  placeholder="Enter Tittle"
-                  required
-                  className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={seoTittle}
-                  onChange={(e) => setSeoTittle(e.target.value)}
-                />
-              </div>
-              <div className={`w-full `}>
-                <label className="block text-sm leading-4 text-[#00000066] font-medium ">
-                  Seo Description
-                </label>
-                <textarea
-                  rows={4}
-                  cols={40}
-                  placeholder="Enter Description"
-                  required
-                  className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={seoDescription}
-                  onChange={(e) => setSeoDescription(e.target.value)}
-                />
-              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                URL friendly (lowercase, hyphens)
+              </p>
             </div>
-            <div className="flex mt-8 md:mt-6 justify-end gap-6">
+
+            {/* SEO TITLE */}
+            <div className="w-full mb-3">
+              <label className="block text-sm text-[#00000066] font-medium">
+                SEO Title
+              </label>
+              <textarea
+                rows={2}
+                required
+                maxLength={60}
+                placeholder="Max 60 characters"
+                value={seoTitle}
+                onChange={(e) => setSeoTitle(e.target.value)}
+                className="w-full mt-2 p-4 border rounded focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* SEO DESCRIPTION */}
+            <div className="w-full mb-4">
+              <label className="block text-sm text-[#00000066] font-medium">
+                SEO Description
+              </label>
+              <textarea
+                rows={4}
+                required
+                maxLength={160}
+                placeholder="Max 160 characters"
+                value={seoDescription}
+                onChange={(e) => setSeoDescription(e.target.value)}
+                className="w-full mt-2 p-4 border rounded focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* ACTIONS */}
+            <div className="flex justify-end gap-6 mt-6">
               <button
                 type="button"
                 onClick={() => {
                   setShowSeoForm(false);
-                  setSeoTittle("");
+                  setSeoTitle("");
                   setSeoDescription("");
                 }}
-                className="px-4 py-2 leading-4 text-[#ffffff] bg-[#000000B2] rounded active:scale-[0.98]"
+                className="px-4 py-2 bg-[#000000B2] text-white rounded"
               >
                 Cancel
               </button>
+
               <button
                 type="submit"
-                className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
+                className="px-4 py-2 bg-[#076300] text-white rounded"
               >
                 Add SEO Details
               </button>
-              <Loader></Loader>
+
+              <Loader />
             </div>
           </form>
         </div>
@@ -855,4 +915,4 @@ const Blogs = () => {
   );
 };
 
-export default Blogs;
+export default News;

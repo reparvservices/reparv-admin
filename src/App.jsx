@@ -27,6 +27,7 @@ import Slider from "./pages/Slider.jsx";
 import Testimonial from "./pages/Testimonial.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import Blogs from "./pages/Blogs.jsx";
+import News from "./pages/News.jsx";
 import ApkUpload from "./pages/ApkUpload.jsx";
 import UsersLoanEligibility from "./pages/UsersLoanEligibility.jsx";
 import UpdateEMI from "./components/usersLoanEligibility/UpdateEMI.jsx";
@@ -101,6 +102,7 @@ const App = () => {
           <Route path="/faqs" element={<FAQs />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blog/manage-faqs/:blogId" element={<BlogFAQs />} />
+          <Route path="/news" element={<News />} />
           <Route path="/trends" element={<Trends />} />
           {/*<Route path="/brand-accessories" element={<BrandAccessories />} />*/}
           <Route path="/marketing-content" element={<MarketingContent />} />

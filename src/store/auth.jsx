@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("adminUser");
   };
+
   //const URI = "http://localhost:3000";
   const URI = "https://aws-api.reparv.in";
   //const URI = "https://api.reparv.in";
@@ -78,6 +79,7 @@ export const AuthProvider = ({ children }) => {
   const [showFollowUpList, setShowFollowUpList] = useState(false);
   const [showSeoForm, setShowSeoForm] = useState(false);
   const [showBlogForm, setShowBlogForm] = useState(false);
+  const [showNewsForm, setShowNewsForm] = useState(false);
   const [showCommissionForm, setShowCommissionForm] = useState(false);
   const [showCustomer, setShowCustomer] = useState(false);
   const [showCustomerPaymentForm, setShowCustomerPaymentForm] = useState(false);
@@ -212,6 +214,8 @@ export const AuthProvider = ({ children }) => {
         setShowSeoForm,
         showBlogForm,
         setShowBlogForm,
+        showNewsForm,
+        setShowNewsForm,
         showCommissionForm,
         setShowCommissionForm,
         partnerPaymentStatus,
@@ -279,8 +283,10 @@ export const AuthProvider = ({ children }) => {
         setShowChangeProjectPartnerForm,
         showFAQForm,
         setShowFAQForm,
-        showAdURLForm, setShowAdURLForm,
-        showTopPicksForm, setShowTopPicksForm,
+        showAdURLForm,
+        setShowAdURLForm,
+        showTopPicksForm,
+        setShowTopPicksForm,
       }}
     >
       {children}
