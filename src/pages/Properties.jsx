@@ -1196,7 +1196,14 @@ const Properties = () => {
 
       const formData = new FormData();
       formData.append("topPicksStatus", topPicks.topPicksStatus);
+      const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
       if (topPicks.topPicksBanner instanceof File) {
+        if (topPicks.topPicksBanner.size > MAX_FILE_SIZE) {
+          alert("Image size must be less than 2MB");
+          return;
+        }
+
         formData.append("topPicksBanner", topPicks.topPicksBanner);
       }
 
