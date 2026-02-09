@@ -1385,48 +1385,58 @@ const Properties = () => {
   ]);
 
   const filteredData = datas.filter((item) => {
-    // Text search filter
-    const matchesSearch =
-      item.propertyName?.toLowerCase().includes(searchTerm) ||
-      item.company_name?.toLowerCase().includes(searchTerm) ||
-      item.propertyCategory?.toLowerCase().includes(searchTerm) ||
-      item.state?.toLowerCase().includes(searchTerm) ||
-      item.city?.toLowerCase().includes(searchTerm) ||
-      item.approve?.toLowerCase().includes(searchTerm) ||
-      item.status?.toLowerCase().includes(searchTerm);
+  const lowerSearchTerm = searchTerm?.toLowerCase() || "";
 
-    // Date range filter
-    let startDate = range[0].startDate;
-    let endDate = range[0].endDate;
+  /* Text search filter */
+  const matchesSearch =
+    !lowerSearchTerm ||
+    item.propertyName?.toLowerCase().includes(lowerSearchTerm) ||
+    item.company_name?.toLowerCase().includes(lowerSearchTerm) ||
+    item.propertyCategory?.toLowerCase().includes(lowerSearchTerm) ||
+    item.state?.toLowerCase().includes(lowerSearchTerm) ||
+    item.city?.toLowerCase().includes(lowerSearchTerm) ||
+    item.approve?.toLowerCase().includes(lowerSearchTerm) ||
+    item.status?.toLowerCase().includes(lowerSearchTerm);
 
-    if (startDate) startDate = new Date(startDate.setHours(0, 0, 0, 0));
-    if (endDate) endDate = new Date(endDate.setHours(23, 59, 59, 999));
+  /* Date range filter */
+  let startDate = range?.[0]?.startDate;
+  let endDate = range?.[0]?.endDate;
 
-    // Parse item.created_at (format: "26 Apr 2025 | 06:28 PM")
-    const itemDate = parse(
-      item.created_at,
-      "dd MMM yyyy | hh:mm a",
-      new Date()
-    );
+  if (startDate) startDate = new Date(new Date(startDate).setHours(0, 0, 0, 0));
+  if (endDate) endDate = new Date(new Date(endDate).setHours(23, 59, 59, 999));
 
-    const matchesDate =
-      (!startDate && !endDate) || // no filter
-      (startDate && endDate && itemDate >= startDate && itemDate <= endDate);
+  const itemDate = item.created_at
+    ? parse(item.created_at, "dd MMM yyyy | hh:mm a", new Date())
+    : null;
 
-    // Enquiry filter logic: New, Alloted, Assign
-    const getPropertyApprovedStatus = () => {
-      if (item.approve === "Approved") return "Approved";
-      if (item.approve === "Not Approved") return "Not Approved";
-      if (item.approve === "Rejected") return "Rejected";
-      return "";
-    };
+  const matchesDate =
+    (!startDate && !endDate) ||
+    (itemDate &&
+      startDate &&
+      endDate &&
+      itemDate >= startDate &&
+      itemDate <= endDate);
 
-    const matchesProperty =
-      !propertyFilter || getPropertyApprovedStatus() === propertyFilter;
+  /* Property approval filter */
+  const getPropertyApprovedStatus = () => {
+    switch (item.approve) {
+      case "Approved":
+        return "Approved";
+      case "Not Approved":
+        return "Not Approved";
+      case "Rejected":
+        return "Rejected";
+      default:
+        return "";
+    }
+  };
 
-    // Final return
-    return matchesSearch && matchesDate && matchesProperty;
-  });
+  const matchesProperty =
+    !propertyFilter || getPropertyApprovedStatus() === propertyFilter;
+
+  /* Final decision */
+  return matchesSearch && matchesDate && matchesProperty;
+});
 
   const customStyles = {
     rows: {
@@ -1537,6 +1547,25 @@ const Properties = () => {
       minWidth: "200px",
     },
     {
+      name: "Top Picks",
+      cell: (row) => (
+        <span
+          onClick={() => {
+            setPropertyKey(row.propertyid);
+            showTopPicks(row.propertyid);
+          }}
+          className={`px-2 py-1 rounded-md cursor-pointer ${
+            row.topPicksStatus === "Active"
+              ? "bg-[#EAFBF1] text-[#0BB501]"
+              : "bg-gray-100"
+          }`}
+        >
+          {row.topPicksStatus}
+        </span>
+      ),
+      minWidth: "150px",
+    },
+    {
       name: "Offer Price",
       selector: (row) => <FormatPrice price={parseInt(row.totalOfferPrice)} />,
       width: "150px",
@@ -1596,21 +1625,6 @@ const Properties = () => {
           }`}
         >
           {row.reparvAssured === "Active" ? "Assured" : "Not Assured"}
-        </span>
-      ),
-      minWidth: "150px",
-    },
-    {
-      name: "Top Picks",
-      cell: (row) => (
-        <span
-          className={`px-2 py-1 rounded-md ${
-            row.topPicksStatus === "Active"
-              ? "bg-[#EAFBF1] text-[#0BB501]"
-              : "bg-gray-100"
-          }`}
-        >
-          {row.topPicksStatus}
         </span>
       ),
       minWidth: "150px",
@@ -2531,12 +2545,23 @@ const Properties = () => {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+
+                      const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+
+                      if (file.size > MAX_SIZE) {
+                        alert("Image size must be less than or equal to 2MB");
+                        e.target.value = ""; // reset input
+                        return;
+                      }
+
                       setTopPicks({
                         ...topPicks,
-                        topPicksBanner: e.target.files[0],
-                      })
-                    }
+                        topPicksBanner: file,
+                      });
+                    }}
                     className="hidden"
                     id="topPicksBannerUpload"
                   />
