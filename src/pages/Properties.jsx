@@ -61,7 +61,7 @@ const Properties = () => {
     loading,
     setLoading,
   } = useAuth();
-  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
+  //const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const [datas, setDatas] = useState([]);
   const [propertyTypeData, setPropertyTypeData] = useState([]);
@@ -1659,6 +1659,7 @@ const Properties = () => {
           break;
         case "status":
           status(propertyid);
+          break;
         case "hotdeal":
           hotDeal(propertyid);
           break;
@@ -2006,11 +2007,11 @@ const Properties = () => {
                     <img
                       onClick={() => {
                         window.open(
-                          ImageURI + videoUpload?.brochureFile,
+                          getImageURI(videoUpload?.brochureFile),
                           "_blank"
                         );
                       }}
-                      src={ImageURI + videoUpload?.brochureFile}
+                      src={getImageURI(videoUpload?.brochureFile)}
                       alt="Old Image"
                       className="w-full max-w-[100px] object-cover rounded-lg border border-gray-300 cursor-pointer"
                     />
