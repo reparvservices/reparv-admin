@@ -161,7 +161,6 @@ const MultiStepForm = ({
   const checkButton = () => {
     if (step === 1) {
       const requiredFieldsStep1 = [
-        "builderid", // number
         "propertyCategory",
         "propertyName",
         "address",

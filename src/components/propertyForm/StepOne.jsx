@@ -217,10 +217,9 @@ const StepOne = ({
               newProperty.builderid ? "text-green-600" : "text-[#00000066]"
             } block text-sm leading-4 font-medium`}
           >
-            Builder/Company <span className="text-red-600">*</span>
+            Builder/Company
           </label>
           <select
-            required
             className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none bg-transparent placeholder:text-black"
             style={{ backgroundImage: "none" }}
             value={newProperty.builderid}
