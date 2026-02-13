@@ -146,7 +146,7 @@ const FAQs = () => {
     (item) =>
       item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.status.toLowerCase().includes(searchTerm.toLowerCase())
+      item.status.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const customStyles = {
@@ -206,8 +206,8 @@ const FAQs = () => {
       name: "Type & Location",
       cell: (row) => (
         <div className="flex flex-col p-2 gap-3">
-          <span>{"Type: "+row.type}</span>
-          <span>{"Location: "+row.location}</span>
+          <span>{"Type: " + row.type}</span>
+          <span>{"Location: " + row.location}</span>
         </div>
       ),
       minWidth: "200px",
@@ -216,8 +216,8 @@ const FAQs = () => {
       name: "Questions & Answers",
       cell: (row) => (
         <div className="flex flex-col p-2 gap-3">
-          <span>{"Question: "+row.question}</span>
-          <span>{"Answer: "+row.answer}</span>
+          <span>{"Question: " + row.question}</span>
+          <span>{"Answer: " + row.answer}</span>
         </div>
       ),
       minWidth: "250px",
@@ -332,8 +332,12 @@ const FAQs = () => {
                   <option disabled value="">
                     Select Location
                   </option>
-                  <option value="Reparv Contact Us Page">
-                    Reparv Contact Us Page
+                  <option value="Reparv Home Page">Reparv Home Page</option>
+                  <option value="Reparv Buy New Property Page">
+                    Reparv Buy New Property Page
+                  </option>
+                  <option value="Reparv Buy Resale Property Page">
+                    Reparv Buy Resale Property Page
                   </option>
                   <option value="Reparv Blog Details Page">
                     Reparv Blog Details Page
