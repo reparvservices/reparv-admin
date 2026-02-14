@@ -58,25 +58,44 @@ const UpdateImagesForm = ({
   const [selectedImageType, setselectedImageType] = useState("");
 
   // Property Image Selector
+  const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+
   const handleImageChange = (event, category) => {
     const files = Array.from(event.target.files);
 
+    const validFiles = [];
+    const rejectedFiles = [];
+
+    files.forEach((file) => {
+      if (file.size > MAX_SIZE) {
+        rejectedFiles.push(file.name);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (rejectedFiles.length) {
+      alert(
+        `These files exceed 2MB limit:\n${rejectedFiles.join(
+          ", ",
+        )}\n\nPlease upload images under 2MB.`,
+      );
+    }
+
     setImageFiles((prev) => {
       const existing = prev[category] || [];
-      const newFiles = [...existing, ...files];
+      const newFiles = [...existing, ...validFiles];
 
       if (newFiles.length > 3) {
         alert("You can only upload up to 3 images per category.");
-        return { ...prev, [category]: newFiles.slice(0, 3) }; // keep only 3
+        return { ...prev, [category]: newFiles.slice(0, 3) };
       }
 
       return { ...prev, [category]: newFiles };
     });
 
-    // reset input so same file can be selected again
     event.target.value = "";
   };
-
   // Property Image Remove
   const removeImage = (category, index) => {
     setImageFiles((prev) => {
@@ -121,7 +140,7 @@ const UpdateImagesForm = ({
           method: "PUT",
           credentials: "include",
           body: formData, // Use FormData instead of JSON
-        }
+        },
       );
 
       if (response.status === 409) {
@@ -165,7 +184,7 @@ const UpdateImagesForm = ({
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       const result = await response.json();
@@ -286,7 +305,7 @@ const UpdateImagesForm = ({
                   .filter(
                     (opt) =>
                       !opt.exclude ||
-                      !opt.exclude.includes(newProperty.propertyCategory)
+                      !opt.exclude.includes(newProperty.propertyCategory),
                   )
                   .map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -537,12 +556,12 @@ const UpdateImagesForm = ({
             <div
               className={`${
                 ["CommercialPlot", "NewPlot", "FarmLand"].includes(
-                  newProperty.propertyCategory
+                  newProperty.propertyCategory,
                 )
                   ? "hidden"
                   : selectedImageType === "sideView"
-                  ? "block"
-                  : "hidden"
+                    ? "block"
+                    : "hidden"
               } w-full`}
             >
               <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">
@@ -623,12 +642,12 @@ const UpdateImagesForm = ({
             <div
               className={`${
                 ["CommercialPlot", "NewPlot", "FarmLand"].includes(
-                  newProperty.propertyCategory
+                  newProperty.propertyCategory,
                 )
                   ? "hidden"
                   : selectedImageType === "hallView"
-                  ? "block"
-                  : "hidden"
+                    ? "block"
+                    : "hidden"
               } w-full`}
             >
               <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">
@@ -717,8 +736,8 @@ const UpdateImagesForm = ({
                 ].includes(newProperty.propertyCategory)
                   ? "hidden"
                   : selectedImageType === "kitchenView"
-                  ? "block"
-                  : "hidden"
+                    ? "block"
+                    : "hidden"
               } w-full`}
             >
               <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">
@@ -807,8 +826,8 @@ const UpdateImagesForm = ({
                 ].includes(newProperty.propertyCategory)
                   ? "hidden"
                   : selectedImageType === "bedroomView"
-                  ? "block"
-                  : "hidden"
+                    ? "block"
+                    : "hidden"
               } w-full`}
             >
               <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">
@@ -897,8 +916,8 @@ const UpdateImagesForm = ({
                 ].includes(newProperty.propertyCategory)
                   ? "hidden"
                   : selectedImageType === "bathroomView"
-                  ? "block"
-                  : "hidden"
+                    ? "block"
+                    : "hidden"
               } w-full`}
             >
               <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">
@@ -979,12 +998,12 @@ const UpdateImagesForm = ({
             <div
               className={`${
                 ["CommercialPlot", "NewPlot", "FarmLand"].includes(
-                  newProperty.propertyCategory
+                  newProperty.propertyCategory,
                 )
                   ? "hidden"
                   : selectedImageType === "balconyView"
-                  ? "block"
-                  : "hidden"
+                    ? "block"
+                    : "hidden"
               } w-full`}
             >
               <label className="block text-sm leading-4 text-[#00000066] font-medium mb-2">

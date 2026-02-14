@@ -9,17 +9,17 @@ const StepThree = ({
   // Handle Image Upload with Validation
   const handleImageChange = (event, category) => {
     const files = Array.from(event.target.files);
-    const validFormats = ["image/jpeg", "image/jpg", "image/png"];
-    const maxSize = 500 * 1024; // 500 KB limit
+    const validFormats = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const maxSize = 2 * 1024 * 1024; // 2MB limit
 
     const validFiles = [];
     for (const file of files) {
       if (!validFormats.includes(file.type)) {
-        alert(`❌ Invalid file type: ${file.name}. Only JPG, JPEG, PNG allowed.`);
+        alert(`❌ Invalid file type: ${file.name}. Only WEBP, JPG, JPEG, PNG allowed.`);
         continue;
       }
       if (file.size > maxSize) {
-        alert(`⚠️ File too large: ${file.name}. Must be under 500KB.`);
+        alert(`⚠️ File too large: ${file.name}. Must be under 2MB.`);
         continue;
       }
       validFiles.push(file);
@@ -63,7 +63,7 @@ const StepThree = ({
         <div className="w-full mt-2">
           <input
             type="file"
-            accept="image/jpeg,image/png,image/jpg"
+            accept="image/jpeg,image/png,image/jpg,image/webp"
             multiple
             onChange={(e) => handleImageChange(e, category)}
             className="hidden"
