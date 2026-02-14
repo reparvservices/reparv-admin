@@ -3,6 +3,7 @@ import PropertyTypeMultiSelect from "./PropertyTypeMultiSelect";
 
 const StepTwo = ({ newProperty, setPropertyData }) => {
   const [isRental, setIsRental] = useState(false);
+  const [isPlot, setIsPlot] = useState(false);
 
   useEffect(() => {
     const isRentalType = [
@@ -18,6 +19,15 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
 
     setIsRental(isRentalType);
   }, [newProperty?.propertyCategory]);
+
+  useEffect(() => {
+    const isPlotType = ["NewPlot", "CommercialPlot", "RentalLand"].includes(
+      newProperty?.propertyCategory,
+    );
+
+    setIsPlot(isPlotType);
+  }, [newProperty?.propertyCategory]);
+
   return (
     <div className="bg-white h-[55vh] overflow-scroll scrollbar-x-hidden p-2">
       <h2 className="text-base font-semibold mb-4">
@@ -45,9 +55,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           />
         </div>
 
-        <div
-          className={`${isRental ? "hidden" : "block"} w-full`}
-        >
+        <div className={`${isPlot || isRental ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.builtYear ? "text-green-600" : "text-[#00000066]"
@@ -69,7 +77,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
             <option value="">Select Year</option>
             {Array.from(
               { length: new Date().getFullYear() - 1990 + 1 },
-              (_, i) => 1990 + i
+              (_, i) => 1990 + i,
             )
               .reverse()
               .map((year) => (
@@ -80,9 +88,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           </select>
         </div>
 
-        <div
-          className={`${isRental ? "hidden" : "block"} w-full`}
-        >
+        <div className={`${isRental ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.ownershipType ? "text-green-600" : "text-[#00000066]"
@@ -157,7 +163,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           />
         </div>
 
-        <div className="w-full">
+        <div className={`${isPlot ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.parkingAvailability
@@ -183,7 +189,8 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
             <option value="No">NO</option>
           </select>
         </div>
-        <div className="w-full ">
+
+        <div className={`${isPlot ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.totalFloors ? "text-green-600" : "text-[#00000066]"
@@ -206,7 +213,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           />
         </div>
 
-        <div className="w-full ">
+        <div className={`${isPlot ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.floorNo ? "text-green-600" : "text-[#00000066]"
@@ -252,6 +259,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
             <option value="No">NO</option>
           </select>
         </div>
+
         <div className="w-full">
           <label
             className={`${
@@ -325,7 +333,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           />
         </div>
 
-        <div className="w-full">
+        <div className={`${isPlot ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.furnishing ? "text-green-600" : "text-[#00000066]"
@@ -413,15 +421,17 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
       </div>
 
       {/* Property Features And Benefits */}
-      <h2 className="text-base font-semibold mt-6 mb-2">
+      <h2
+        className={`${isPlot ? "hidden" : "block"} text-base font-semibold mt-6 mb-2`}
+      >
         Step 2: Property Features
       </h2>
 
       {/* Property Features */}
-      <div className="grid gap-6 md:gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-        <div
-          className={`${isRental ? "hidden" : "block"} w-full`}
-        >
+      <div
+        className={`${isPlot ? "hidden" : "block"} grid gap-6 md:gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}
+      >
+        <div className={`${isRental ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.locationFeature
@@ -489,7 +499,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           />
         </div>
 
-        <div className="w-full">
+        <div className={`${isPlot ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.parkingFeature ? "text-green-600" : "text-[#00000066]"
@@ -554,9 +564,8 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
             <option>Highway Facing</option>
           </select>
         </div>
-        <div
-          className={`${isRental ? "hidden" : "block"} w-full`}
-        >
+
+        <div className={`${isRental ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.ageOfPropertyFeature
@@ -620,9 +629,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           </select>
         </div>
 
-        <div
-          className={`${isRental ? "hidden" : "block"} w-full`}
-        > 
+        <div className={`${isRental ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.propertyStatusFeature
@@ -710,7 +717,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
 
       {/* Property Features And Benefits */}
       <h2 className="text-base font-semibold mt-6 mb-2">
-        Step 3: Property Benefits
+        {isPlot ? "Step 2: " : "Step 3: "} Property Benefits
       </h2>
 
       {/* Property Features */}
@@ -821,9 +828,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
             </option>
           </select>
         </div>
-        <div
-          className={`${isRental ? "hidden" : "block"} w-full`}
-        >
+        <div className={`${isRental ? "hidden" : "block"} w-full`}>
           <label
             className={`${
               newProperty.qualityBenefit ? "text-green-600" : "text-[#00000066]"

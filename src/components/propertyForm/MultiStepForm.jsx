@@ -190,14 +190,10 @@ const MultiStepForm = ({
     } else if (step === 2) {
       const requiredFieldsStep2 = [
         "carpetArea", // number
-        "parkingAvailability",
         "loanAvailability",
         "propertyFacing",
         "waterSupply",
         "powerBackup",
-        "sizeAreaFeature",
-        "parkingFeature",
-        "amenitiesFeature",
         "securityBenefit",
         "primeLocationBenefit",
         "rentalIncomeBenefit",
