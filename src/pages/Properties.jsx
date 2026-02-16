@@ -84,6 +84,7 @@ const Properties = () => {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
 
+  const [seoActive, setSeoActive] = useState(false);
   const [seoSlug, setSeoSlug] = useState("");
   const [seoTittle, setSeoTittle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
@@ -167,7 +168,7 @@ const Properties = () => {
   });
 
   const [selectedPartner, setSelectedPartner] = useState(
-    "Select Property Lister"
+    "Select Property Lister",
   );
 
   const [propertyCommission, setPropertyCommission] = useState({
@@ -383,7 +384,7 @@ const Properties = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
@@ -443,7 +444,7 @@ const Properties = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) throw new Error("Failed to fetch properties.");
       const data = await response.json();
@@ -562,7 +563,7 @@ const Properties = () => {
         {
           method: "PUT",
           credentials: "include",
-        }
+        },
       );
       const data = await response.json();
       //console.log(response);
@@ -588,7 +589,7 @@ const Properties = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) throw new Error("Failed to fetch property location.");
       const data = await response.json();
@@ -612,7 +613,7 @@ const Properties = () => {
         {
           method: "PUT",
           credentials: "include",
-        }
+        },
       );
       const data = await response.json();
       //console.log(response);
@@ -644,7 +645,7 @@ const Properties = () => {
             latitude,
             longitude,
           }),
-        }
+        },
       );
       const data = await response.json();
       //console.log(response);
@@ -694,7 +695,7 @@ const Properties = () => {
     // === Validation ===
     if (!selectedImage && !videoUpload?.videoLink) {
       alert(
-        "Please select a brochure image/PDF or enter a YouTube video link."
+        "Please select a brochure image/PDF or enter a YouTube video link.",
       );
       return;
     }
@@ -745,7 +746,7 @@ const Properties = () => {
           method: "PUT",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -810,7 +811,7 @@ const Properties = () => {
             seoDescription,
             propertyDescription,
           }),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -846,7 +847,7 @@ const Properties = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ rejectReason }),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -957,7 +958,7 @@ const Properties = () => {
           method: "POST",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -996,7 +997,7 @@ const Properties = () => {
           method: "POST",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -1066,13 +1067,13 @@ const Properties = () => {
         alert("Additional Info already exists!");
       } else if (!response.ok) {
         throw new Error(
-          `Failed to save Additional Info. Status: ${response.status}`
+          `Failed to save Additional Info. Status: ${response.status}`,
         );
       } else {
         alert(
           newAddInfo.propertyinfoid
             ? "Additional Info updated successfully!"
-            : "Additional Info added successfully!"
+            : "Additional Info added successfully!",
         );
       }
       // Clear form only after a successful response
@@ -1139,7 +1140,7 @@ const Properties = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(propertyCommission),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -1213,7 +1214,7 @@ const Properties = () => {
           method: "PUT",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -1248,7 +1249,7 @@ const Properties = () => {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       const data = await response.json();
@@ -1289,7 +1290,7 @@ const Properties = () => {
     if (
       !window.confirm(
         "Are you sure to Assign Property to " +
-          projectPartnerChange.projectPartner
+          projectPartnerChange.projectPartner,
       )
     )
       return;
@@ -1305,7 +1306,7 @@ const Properties = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(projectPartnerChange),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -1370,7 +1371,7 @@ const Properties = () => {
         }
         return acc;
       },
-      { Approved: 0, NotApproved: 0, Rejected: 0 }
+      { Approved: 0, NotApproved: 0, Rejected: 0 },
     );
   };
 
@@ -1385,58 +1386,69 @@ const Properties = () => {
   ]);
 
   const filteredData = datas.filter((item) => {
-  const lowerSearchTerm = searchTerm?.toLowerCase() || "";
+    const lowerSearchTerm = searchTerm?.toLowerCase() || "";
 
-  /* Text search filter */
-  const matchesSearch =
-    !lowerSearchTerm ||
-    item.propertyName?.toLowerCase().includes(lowerSearchTerm) ||
-    item.company_name?.toLowerCase().includes(lowerSearchTerm) ||
-    item.propertyCategory?.toLowerCase().includes(lowerSearchTerm) ||
-    item.state?.toLowerCase().includes(lowerSearchTerm) ||
-    item.city?.toLowerCase().includes(lowerSearchTerm) ||
-    item.approve?.toLowerCase().includes(lowerSearchTerm) ||
-    item.status?.toLowerCase().includes(lowerSearchTerm);
+    /* Text search filter */
+    const matchesSearch =
+      !lowerSearchTerm ||
+      item.propertyName?.toLowerCase().includes(lowerSearchTerm) ||
+      item.company_name?.toLowerCase().includes(lowerSearchTerm) ||
+      item.propertyCategory?.toLowerCase().includes(lowerSearchTerm) ||
+      item.state?.toLowerCase().includes(lowerSearchTerm) ||
+      item.city?.toLowerCase().includes(lowerSearchTerm) ||
+      item.approve?.toLowerCase().includes(lowerSearchTerm) ||
+      item.status?.toLowerCase().includes(lowerSearchTerm);
 
-  /* Date range filter */
-  let startDate = range?.[0]?.startDate;
-  let endDate = range?.[0]?.endDate;
+    /* Date range filter */
+    let startDate = range?.[0]?.startDate;
+    let endDate = range?.[0]?.endDate;
 
-  if (startDate) startDate = new Date(new Date(startDate).setHours(0, 0, 0, 0));
-  if (endDate) endDate = new Date(new Date(endDate).setHours(23, 59, 59, 999));
+    if (startDate)
+      startDate = new Date(new Date(startDate).setHours(0, 0, 0, 0));
+    if (endDate)
+      endDate = new Date(new Date(endDate).setHours(23, 59, 59, 999));
 
-  const itemDate = item.created_at
-    ? parse(item.created_at, "dd MMM yyyy | hh:mm a", new Date())
-    : null;
+    const itemDate = item.created_at
+      ? parse(item.created_at, "dd MMM yyyy | hh:mm a", new Date())
+      : null;
 
-  const matchesDate =
-    (!startDate && !endDate) ||
-    (itemDate &&
-      startDate &&
-      endDate &&
-      itemDate >= startDate &&
-      itemDate <= endDate);
+    const matchesDate =
+      (!startDate && !endDate) ||
+      (itemDate &&
+        startDate &&
+        endDate &&
+        itemDate >= startDate &&
+        itemDate <= endDate);
 
-  /* Property approval filter */
-  const getPropertyApprovedStatus = () => {
-    switch (item.approve) {
-      case "Approved":
-        return "Approved";
-      case "Not Approved":
-        return "Not Approved";
-      case "Rejected":
-        return "Rejected";
-      default:
-        return "";
-    }
-  };
+    /* Property approval filter */
+    const getPropertyApprovedStatus = () => {
+      switch (item.approve) {
+        case "Approved":
+          return "Approved";
+        case "Not Approved":
+          return "Not Approved";
+        case "Rejected":
+          return "Rejected";
+        default:
+          return "";
+      }
+    };
 
-  const matchesProperty =
-    !propertyFilter || getPropertyApprovedStatus() === propertyFilter;
+    const matchesProperty =
+      !propertyFilter || getPropertyApprovedStatus() === propertyFilter;
 
-  /* Final decision */
-  return matchesSearch && matchesDate && matchesProperty;
-});
+    /* SEO filter */
+    const isSeoMissing =
+      !item.seoSlug?.trim() ||
+      !item.seoTittle?.trim() ||
+      !item.seoDescription?.trim() ||
+      !item.propertyDescription?.trim();
+
+    const matchesSeo = seoActive ? isSeoMissing : true;
+
+    /* Final decision */
+    return matchesSearch && matchesDate && matchesProperty && matchesSeo;
+  });
 
   const customStyles = {
     rows: {
@@ -1513,7 +1525,7 @@ const Properties = () => {
               onClick={() => {
                 window.open(
                   "https://www.reparv.in/property-info/" + row.seoSlug,
-                  "_blank"
+                  "_blank",
                 );
               }}
               className="w-full h-[100%] object-cover cursor-pointer"
@@ -1605,8 +1617,8 @@ const Properties = () => {
             row.approve === "Approved"
               ? "bg-[#EAFBF1] text-[#0BB501]"
               : row.approve === "Rejected"
-              ? "bg-[#FBE9E9] text-[#FF0000]"
-              : "bg-[#E9F2FF] text-[#0068FF]"
+                ? "bg-[#FBE9E9] text-[#FF0000]"
+                : "bg-[#E9F2FF] text-[#0068FF]"
           }`}
         >
           {row.approve}
@@ -1762,7 +1774,7 @@ const Properties = () => {
           )}
 
           {["NewFlat", "NewPlot", "CommercialFlat", "CommercialPlot"].includes(
-            row.propertyCategory
+            row.propertyCategory,
           ) ? (
             <option value="gotoadditionalinfo">View Additional Info</option>
           ) : (
@@ -1823,6 +1835,14 @@ const Properties = () => {
             />
           </div>
           <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
+            <div
+              onClick={() => {
+                setSeoActive(!seoActive);
+              }}
+              className={`${seoActive && "bg-red-100 text-red-600"} border w-24 flex items-center justify-center font-medium rounded-lg text-sm px-4 py-2 cursor-pointer active:scale-95`}
+            >
+              <span>Not SEO</span>
+            </div>
             <div className="flex flex-wrap items-center justify-end gap-3 px-2">
               <div className="block">
                 <CustomDateRangePicker range={range} setRange={setRange} />
@@ -1925,7 +1945,7 @@ const Properties = () => {
                   value={latitude ?? ""}
                   onChange={(e) =>
                     setLatitude(
-                      e.target.value === "" ? null : parseFloat(e.target.value)
+                      e.target.value === "" ? null : parseFloat(e.target.value),
                     )
                   }
                 />
@@ -1943,7 +1963,7 @@ const Properties = () => {
                   value={longitude ?? ""}
                   onChange={(e) =>
                     setLongitude(
-                      e.target.value === "" ? null : parseFloat(e.target.value)
+                      e.target.value === "" ? null : parseFloat(e.target.value),
                     )
                   }
                 />
@@ -2008,7 +2028,7 @@ const Properties = () => {
                       onClick={() => {
                         window.open(
                           getImageURI(videoUpload?.brochureFile),
-                          "_blank"
+                          "_blank",
                         );
                       }}
                       src={getImageURI(videoUpload?.brochureFile)}
@@ -2038,7 +2058,7 @@ const Properties = () => {
 
                         if (!allowedTypes.includes(file.type)) {
                           alert(
-                            "Only JPG, PNG, WEBP, or PDF files are allowed."
+                            "Only JPG, PNG, WEBP, or PDF files are allowed.",
                           );
                           e.target.value = "";
                           return;
@@ -2210,7 +2230,7 @@ const Properties = () => {
                           .find(
                             (opt) =>
                               opt.value.projectPartnerId ===
-                              projectPartnerChange.projectPartnerId
+                              projectPartnerChange.projectPartnerId,
                           ) || null
                       : null
                   }
@@ -2530,8 +2550,8 @@ const Properties = () => {
                     topPicks.topPicksStatus === "Active"
                       ? "text-green-600 font-bold"
                       : topPicks.topPicksStatus === "Inactive"
-                      ? "text-red-500 font-bold"
-                      : ""
+                        ? "text-red-500 font-bold"
+                        : ""
                   } w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none`}
                 >
                   <option value="">Select Status</option>

@@ -14,6 +14,7 @@ import Loader from "../components/Loader";
 import PartnerFilter from "../components/PartnerFilter";
 import { RxCross2 } from "react-icons/rx";
 import { MdDone } from "react-icons/md";
+import { MdMoneyOffCsred } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
 
 const ProjectPartner = () => {
@@ -41,7 +42,7 @@ const ProjectPartner = () => {
   const [partnerId, setPartnerId] = useState(null);
   const [partner, setPartner] = useState({});
   const [selectedPartnerLister, setSelectedPartnerLister] = useState(
-    "Select Partner Lister"
+    "Select Partner Lister",
   );
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -122,7 +123,7 @@ const ProjectPartner = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Failed to fetch Project Partner.");
@@ -161,7 +162,7 @@ const ProjectPartner = () => {
         alert(
           newPartner.id
             ? "Project Partner updated successfully!"
-            : "Project Partner added successfully!"
+            : "Project Partner added successfully!",
         );
 
         setNewPartner({
@@ -258,7 +259,7 @@ const ProjectPartner = () => {
   const status = async (id) => {
     if (
       !window.confirm(
-        "Are you sure you want to change this Project Partner status?"
+        "Are you sure you want to change this Project Partner status?",
       )
     )
       return;
@@ -329,7 +330,7 @@ const ProjectPartner = () => {
             twitterSite,
             twitterDescription,
           }),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -352,6 +353,39 @@ const ProjectPartner = () => {
     }
   };
 
+  // change set Free Partner
+  const setFreePartner = async (id) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to Set Free Subscription to Project Partner ?",
+      )
+    )
+      return;
+
+    try {
+      const response = await fetch(
+        URI + `/admin/projectpartner/free-partner/${id}`,
+        {
+          method: "PUT",
+          credentials: "include", //  Ensures cookies are sent
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await response.json();
+      //console.log(response);
+      if (response.ok) {
+        alert(`Success: ${data.message}`);
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+      fetchData();
+    } catch (error) {
+      console.error("Error setting Free Partner :", error);
+    }
+  };
+
   // Update Payment ID
   const updatePaymentId = async (e) => {
     e.preventDefault();
@@ -367,7 +401,7 @@ const ProjectPartner = () => {
           },
           credentials: "include",
           body: JSON.stringify(payment),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -398,7 +432,7 @@ const ProjectPartner = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) throw new Error("Failed to fetch follow up list.");
       const data = await response.json();
@@ -422,7 +456,7 @@ const ProjectPartner = () => {
           },
           credentials: "include",
           body: JSON.stringify({ followUp, followUpText }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -450,7 +484,7 @@ const ProjectPartner = () => {
     e.preventDefault();
     if (
       !window.confirm(
-        "Are you sure you want to assign login to this Project Partner ?"
+        "Are you sure you want to assign login to this Project Partner ?",
       )
     )
       return;
@@ -466,7 +500,7 @@ const ProjectPartner = () => {
           },
           credentials: "include", //  Ensures cookies are sent
           body: JSON.stringify({ partnerId, username, password }),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -518,7 +552,7 @@ const ProjectPartner = () => {
         }
         return acc;
       },
-      { Unpaid: 0, FollowUp: 0, Paid: 0, Free: 0 }
+      { Unpaid: 0, FollowUp: 0, Paid: 0, Free: 0 },
     );
   };
 
@@ -549,7 +583,7 @@ const ProjectPartner = () => {
     const itemDate = parse(
       item.created_at,
       "dd MMM yyyy | hh:mm a",
-      new Date()
+      new Date(),
     );
 
     const matchesDate =
@@ -680,10 +714,10 @@ const ProjectPartner = () => {
     {
       name: "Full Name",
       cell: (row) => (
-        <div className={`flex gap-1 items-center justify-center`}>
+        <div className={`flex gap-2 items-center justify-center`}>
           <div className="relative group cursor-pointer">
             <div
-              className={`px-[2px] py-[2px] rounded-md flex items-center justify-center ${
+              className={`px-[3px] py-[3px] rounded-md flex items-center justify-center ${
                 row.loginstatus === "Active"
                   ? "bg-[#EAFBF1] text-[#0BB501]"
                   : "bg-[#FBE9E9] text-[#FF0000]"
@@ -700,6 +734,28 @@ const ProjectPartner = () => {
                 ? "Login Status Active"
                 : "Login Status Inactive"}
             </div>
+          </div>
+          <div className="relative group cursor-pointer">
+            {row.freeProjectPartner === "Active" && (
+              <>
+                <div
+                  className={`px-[3px] py-[3px] rounded-md flex items-center justify-center ${
+                    row.freeProjectPartner === "Active"
+                      ? "bg-[#EAFBF1] text-[#0BB501]"
+                      : "bg-[#FBE9E9] text-[#FF0000]"
+                  }`}
+                  onClick={() => {
+                    setPartnerId(row.id);
+                    //setFreeProjectPartner
+                  }}
+                >
+                  <MdMoneyOffCsred />
+                </div>
+                <div className="absolute w-[150px] text-center -top-12 left-[75px] -translate-x-1/2 px-2 py-2 rounded bg-black text-white text-xs hidden group-hover:block transition">
+                  {row.freeProjectPartner === "Active" ? "Free Partner" : ""}
+                </div>
+              </>
+            )}
           </div>
           <div className="relative group cursor-pointer">
             <span
@@ -729,7 +785,7 @@ const ProjectPartner = () => {
           onClick={() => {
             window.open(
               `https://www.reparv.in/project-partner/${row.contact}`,
-              "_blank"
+              "_blank",
             );
           }}
         >
@@ -792,6 +848,10 @@ const ProjectPartner = () => {
           setPartnerId(id);
           showSEO(id);
           break;
+        case "free":
+          setPartnerId(id);
+          setFreePartner(id);
+          break;
         default:
           console.log("Invalid action");
       }
@@ -821,6 +881,7 @@ const ProjectPartner = () => {
           <option value="followup">Follow Up</option>
           <option value="assignlogin">Assign Login</option>
           <option value="SEO">Landing Page SEO</option>
+          <option value="free">Set Free Partner</option>
           <option value="delete">Delete</option>
         </select>
       </div>
@@ -1414,37 +1475,43 @@ const ProjectPartner = () => {
                           followUp?.followUp === "CNR4"
                             ? "bg-red-100 text-red-600"
                             : followUp?.followUp === "Switch Off"
-                            ? "bg-red-100 text-red-700"
-                            : followUp?.followUp === "Call Busy" ||
-                              followUp?.followUp === "Call Back" ||
-                              followUp?.followUp ===
-                                "Not Responding (After Follow Up)"
-                            ? "bg-yellow-100 text-yellow-600"
-                            : followUp?.followUp ===
-                                "Call Cut / Disconnected" ||
-                              followUp?.followUp ===
-                                "Not Interested (After Details Shared & Explanation)"
-                            ? "bg-orange-100 text-orange-600"
-                            : followUp?.followUp === "Invalid Number" ||
-                              followUp?.followUp === "Wrong Number"
-                            ? "bg-red-100 text-red-700"
-                            : followUp?.followUp === "Form Filled By Mistake"
-                            ? "bg-blue-100 text-blue-600"
-                            : followUp?.followUp === "Repeat Lead"
-                            ? "bg-gray-100 text-gray-600"
-                            : followUp?.followUp === "Lead Clash"
-                            ? "bg-purple-100 text-purple-500"
-                            : followUp?.followUp === "Details Shared"
-                            ? "bg-green-100 text-green-600"
-                            : followUp?.followUp === "Not Interested"
-                            ? "bg-pink-100 text-pink-600"
-                            : followUp?.followUp === "Interested"
-                            ? "bg-green-100 text-green-700"
-                            : followUp?.followUp === "Documents Collected"
-                            ? "bg-green-100 text-green-800"
-                            : followUp?.followUp === "Payment Done"
-                            ? "bg-green-100 text-green-900"
-                            : "bg-gray-100 text-black"
+                              ? "bg-red-100 text-red-700"
+                              : followUp?.followUp === "Call Busy" ||
+                                  followUp?.followUp === "Call Back" ||
+                                  followUp?.followUp ===
+                                    "Not Responding (After Follow Up)"
+                                ? "bg-yellow-100 text-yellow-600"
+                                : followUp?.followUp ===
+                                      "Call Cut / Disconnected" ||
+                                    followUp?.followUp ===
+                                      "Not Interested (After Details Shared & Explanation)"
+                                  ? "bg-orange-100 text-orange-600"
+                                  : followUp?.followUp === "Invalid Number" ||
+                                      followUp?.followUp === "Wrong Number"
+                                    ? "bg-red-100 text-red-700"
+                                    : followUp?.followUp ===
+                                        "Form Filled By Mistake"
+                                      ? "bg-blue-100 text-blue-600"
+                                      : followUp?.followUp === "Repeat Lead"
+                                        ? "bg-gray-100 text-gray-600"
+                                        : followUp?.followUp === "Lead Clash"
+                                          ? "bg-purple-100 text-purple-500"
+                                          : followUp?.followUp ===
+                                              "Details Shared"
+                                            ? "bg-green-100 text-green-600"
+                                            : followUp?.followUp ===
+                                                "Not Interested"
+                                              ? "bg-pink-100 text-pink-600"
+                                              : followUp?.followUp ===
+                                                  "Interested"
+                                                ? "bg-green-100 text-green-700"
+                                                : followUp?.followUp ===
+                                                    "Documents Collected"
+                                                  ? "bg-green-100 text-green-800"
+                                                  : followUp?.followUp ===
+                                                      "Payment Done"
+                                                    ? "bg-green-100 text-green-900"
+                                                    : "bg-gray-100 text-black"
                         }`}
                       >
                         {" "}
