@@ -21,7 +21,7 @@ const UsersLoanEligibility = () => {
     setShowEMIForm,
     giveAccess,
     setGiveAccess,
-    filterStatus,
+    loanApproved,
     URI,
     setLoading,
   } = useAuth();
@@ -36,7 +36,7 @@ const UsersLoanEligibility = () => {
   // **Fetch Data from API**
   const fetchData = async () => {
     try {
-      const response = await fetch(`${URI}/admin/emi/${filterStatus}`, {
+      const response = await fetch(`${URI}/admin/emi/${loanApproved}`, {
         method: "GET",
         credentials: "include", // Sends cookies
         headers: {
@@ -78,11 +78,40 @@ const UsersLoanEligibility = () => {
   };
 
   // change status record
-  const changeStatus = async (e) => {
+  const changeStatus = async (id) => {
+    if (!window.confirm("Are you sure you want to change this status?"))
+      return;
+
+    try {
+      const response = await fetch(
+        URI + `/admin/emi/status/${id}`,
+        {
+          method: "PUT",
+          credentials: "include", // Ensures cookies are sent
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await response.json();
+      //console.log(response);
+      if (response.ok) {
+        alert(`Success: ${data.message}`);
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting :", error);
+    }
+  };
+
+  // change status record
+  const changeApprovedStatus = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch(URI + `/admin/emi/status/${userId}`, {
+      const response = await fetch(URI + `/admin/emi/approved/${userId}`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -135,7 +164,7 @@ const UsersLoanEligibility = () => {
 
   useEffect(() => {
     fetchData();
-  }, [filterStatus]);
+  }, [loanApproved]);
 
   const [range, setRange] = useState([
     {
@@ -167,7 +196,7 @@ const UsersLoanEligibility = () => {
     const itemDate = parse(
       item.created_at,
       "dd MMM yyyy | hh:mm a",
-      new Date()
+      new Date(),
     );
 
     const matchesDate =
@@ -212,11 +241,11 @@ const UsersLoanEligibility = () => {
       cell: (row, index) => (
         <span
           className={`min-w-6 flex items-center justify-center px-2 py-1 rounded-md ${
-            row.status === "Eligible"
+            row.status === "Active"
               ? "bg-[#EAFBF1] text-[#0BB501]"
-              : row.status === "Not Eligible"
-              ? "bg-[#FBE9E9] text-[#FF0000]"
-              : "bg-blue-100 text-blue-600"
+              : row.status === "Inactive"
+                ? "bg-[#FBE9E9] text-[#FF0000]"
+                : "bg-blue-100 text-blue-600"
           }`}
         >
           {index + 1}
@@ -229,16 +258,33 @@ const UsersLoanEligibility = () => {
       cell: (row) => (
         <span
           className={`px-2 py-1 rounded-md ${
-            row.status === "Eligible"
+            row.status === "Active"
               ? "bg-[#EAFBF1] text-[#0BB501]"
-              : row.status === "Not Eligible"
-              ? "bg-[#FBE9E9] text-[#FF0000]"
-              : "bg-blue-100 text-blue-600"
+              : row.status === "Inactive"
+                ? "bg-[#FBE9E9] text-[#FF0000]"
+                : "bg-blue-100 text-blue-600"
           }`}
         >
           {row.status}
         </span>
       ),
+    },
+    {
+      name: "Approved",
+      cell: (row) => (
+        <span
+          className={`px-2 py-1 rounded-md ${
+            row.approved === "Approved"
+              ? "bg-[#EAFBF1] text-[#0BB501]"
+              : row.filterStatus === "Not Approved"
+                ? "bg-[#FBE9E9] text-[#FF0000]"
+                : "bg-yellow-100 text-yellow-600"
+          }`}
+        >
+          {row.approved}
+        </span>
+      ),
+      minWidth: "150px",
     },
     { name: "Date & Time", selector: (row) => row.created_at, width: "200px" },
     {
@@ -292,9 +338,12 @@ const UsersLoanEligibility = () => {
           view(id);
           break;
         case "status":
+          changeStatus(id);
+          break;
+        case "approved":
           setShowEMI(true);
           setUserId(id);
-          changeStatus();
+          //changeApprovedStatus();
           break;
         case "update":
           navigate(`/user-loan-eligibility-data-update/${id}`);
@@ -326,6 +375,7 @@ const UsersLoanEligibility = () => {
           </option>
           <option value="view">View</option>
           <option value="status">Status</option>
+          <option value="approved">Approved</option>
           <option value="update">Update</option>
           <option value="delete">Delete</option>
         </select>
@@ -389,7 +439,7 @@ const UsersLoanEligibility = () => {
         </div>
       </div>
 
-      {/* Change Status Form */}
+      {/* Change Approved Status Form */}
       <div
         className={` ${
           !showEMI && "hidden"
@@ -398,7 +448,7 @@ const UsersLoanEligibility = () => {
         <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] h-[40vh] bg-white py-8 pb-10 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">
-              Change Eligibility Status
+              Change Approved Status
             </h2>
             <IoMdClose
               onClick={() => {
@@ -407,11 +457,11 @@ const UsersLoanEligibility = () => {
               className="w-6 h-6 cursor-pointer"
             />
           </div>
-          <form onSubmit={changeStatus}>
+          <form onSubmit={changeApprovedStatus}>
             <div className="w-full grid gap-4 place-items-center grid-cols-1">
               <div className="w-full">
                 <label className="block text-sm leading-4 text-[#00000066] font-medium">
-                  Eligibility Status
+                  Approved Status
                 </label>
                 <select
                   required
@@ -423,10 +473,10 @@ const UsersLoanEligibility = () => {
                   }}
                 >
                   <option value="" disabled>
-                    Select Eligibility Status
+                    Select Approved Status
                   </option>
-                  <option value="Eligible">Eligible</option>
-                  <option value="Not Eligible">Not Eligible</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Not Approved">Not Approved</option>
                 </select>
               </div>
             </div>
@@ -435,7 +485,7 @@ const UsersLoanEligibility = () => {
                 type="submit"
                 className="w-full px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
               >
-                Change Status
+                Save
               </button>
               <Loader></Loader>
             </div>
@@ -457,6 +507,7 @@ const UsersLoanEligibility = () => {
             <form className="grid gap-6 md:gap-4 grid-cols-1 lg:grid-cols-2">
               {[
                 { label: "Status", value: formData.status },
+                { label: "Approved", value: formData.approved },
                 { label: "Employment Type", value: formData.employmentType },
                 { label: "Full Name", value: formData.fullname },
                 { label: "Contact Number", value: formData.contactNo },
@@ -560,6 +611,42 @@ const UsersLoanEligibility = () => {
                     />
                   </div>
                 ))}
+
+              {/* Document Images */}
+              <div className="col-span-1 lg:col-span-2 mt-6">
+                <h3 className="text-[15px] font-semibold mb-3">
+                  Uploaded Documents
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {[
+                    { label: "PAN Card", src: formData.panImage },
+                    { label: "Aadhaar Front", src: formData.aadhaarFrontImage },
+                    { label: "Aadhaar Back", src: formData.aadhaarBackImage },
+                  ].map(({ label, src }) =>
+                    src ? (
+                      <div key={label} className="border rounded-md p-2">
+                        <p className="text-xs text-gray-500 mb-2">{label}</p>
+
+                        <a href={src} target="_blank" rel="noreferrer">
+                          <img
+                            src={src}
+                            alt={label}
+                            className="w-full h-[120px] object-cover rounded cursor-pointer hover:scale-105 transition"
+                          />
+                        </a>
+                      </div>
+                    ) : (
+                      <div
+                        key={label}
+                        className="border rounded-md p-3 flex items-center justify-center text-xs text-gray-400 bg-gray-50"
+                      >
+                        {label} not uploaded
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
             </form>
           </div>
         </div>

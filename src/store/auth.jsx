@@ -87,6 +87,7 @@ export const AuthProvider = ({ children }) => {
   const [partnerPaymentStatus, setPartnerPaymentStatus] = useState("Unpaid");
   const [showEMIForm, setShowEMIForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState("New");
+  const [loanApproved, setLoanApproved] = useState("In Progress");
   const [showEMI, setShowEMI] = useState(false);
   const [enquiryFilter, setEnquiryFilter] = useState("New");
   const [propertyFilter, setPropertyFilter] = useState("Approved");
@@ -287,6 +288,8 @@ export const AuthProvider = ({ children }) => {
         setShowAdURLForm,
         showTopPicksForm,
         setShowTopPicksForm,
+        loanApproved,
+        setLoanApproved,
       }}
     >
       {children}
