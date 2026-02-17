@@ -34,6 +34,7 @@ const Blogs = () => {
     description: "",
     content: "",
   });
+  const [seoActive, setSeoActive] = useState(false);
   const [seoSlug, setSeoSlug] = useState("");
   const [seoTittle, setSeoTittle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
@@ -148,7 +149,9 @@ const Blogs = () => {
         throw new Error(`Failed to save blog. Status: ${response.status}`);
       } else {
         alert(
-          newBlog.id ? "Blog updated successfully!" : "Blog added successfully!"
+          newBlog.id
+            ? "Blog updated successfully!"
+            : "Blog added successfully!",
         );
 
         setNewBlog({
@@ -303,14 +306,23 @@ const Blogs = () => {
     const itemDate = parse(
       item.created_at,
       "dd MMM yyyy | hh:mm a",
-      new Date()
+      new Date(),
     );
 
     const matchesDate =
       (!startDate && !endDate) ||
       (startDate && endDate && itemDate >= startDate && itemDate <= endDate);
 
-    return matchesSearch && matchesDate;
+    /* SEO filter */
+    const isSeoMissing =
+      !item.seoSlug?.trim() ||
+      !item.seoTittle?.trim() ||
+      !item.seoDescription?.trim();
+
+    const matchesSeo = seoActive ? isSeoMissing : true;
+
+    /* Final decision */
+    return matchesSearch && matchesDate && matchesSeo;
   });
 
   const customStyles = {
@@ -380,7 +392,7 @@ const Blogs = () => {
               onClick={() => {
                 window.open(
                   "https://www.reparv.in/blog/" + row.seoSlug,
-                  "_blank"
+                  "_blank",
                 );
               }}
               className="w-full h-[100%] object-cover cursor-pointer"
@@ -499,6 +511,14 @@ const Blogs = () => {
             />
           </div>
           <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
+            <div
+              onClick={() => {
+                setSeoActive(!seoActive);
+              }}
+              className={`${seoActive && "bg-red-100 text-red-600"} border w-24 flex items-center justify-center font-medium rounded-lg text-sm px-4 py-2 cursor-pointer active:scale-95`}
+            >
+              <span>Not SEO</span>
+            </div>
             <div className="flex flex-wrap items-center justify-end gap-3 px-2">
               <div className="block">
                 <CustomDateRangePicker range={range} setRange={setRange} />

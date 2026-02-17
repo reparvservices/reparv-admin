@@ -38,6 +38,7 @@ const News = () => {
     description: "",
     content: "",
   });
+  const [seoActive, setSeoActive] = useState(false);
   const [seoSlug, setSeoSlug] = useState("");
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
@@ -93,16 +94,13 @@ const News = () => {
   // **Fetch States from API**
   const fetchCities = async () => {
     try {
-      const response = await fetch(
-        `${URI}/admin/cities/${newNews?.state}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${URI}/admin/cities/${newNews?.state}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
       setCities(data);
@@ -194,7 +192,9 @@ const News = () => {
         throw new Error(`Failed to save news. Status: ${response.status}`);
       } else {
         alert(
-          newNews.id ? "News updated successfully!" : "News added successfully!"
+          newNews.id
+            ? "News updated successfully!"
+            : "News added successfully!",
         );
 
         setNewNews({
@@ -330,10 +330,10 @@ const News = () => {
   }, []);
 
   useEffect(() => {
-      if (newNews.state != "") {
-        fetchCities();
-      }
-    }, [newNews.state]);
+    if (newNews.state != "") {
+      fetchCities();
+    }
+  }, [newNews.state]);
 
   const [range, setRange] = useState([
     {
@@ -358,14 +358,23 @@ const News = () => {
     const itemDate = parse(
       item.created_at,
       "dd MMM yyyy | hh:mm a",
-      new Date()
+      new Date(),
     );
 
     const matchesDate =
       (!startDate && !endDate) ||
       (startDate && endDate && itemDate >= startDate && itemDate <= endDate);
 
-    return matchesSearch && matchesDate;
+    /* SEO filter */
+    const isSeoMissing =
+      !item.seoSlug?.trim() ||
+      !item.seoTitle?.trim() ||
+      !item.seoDescription?.trim();
+
+    const matchesSeo = seoActive ? isSeoMissing : true;
+
+    /* Final decision */
+    return matchesSearch && matchesDate && matchesSeo;
   });
 
   const customStyles = {
@@ -435,7 +444,7 @@ const News = () => {
               onClick={() => {
                 window.open(
                   "https://www.reparv.in/news/" + row.seoSlug,
-                  "_blank"
+                  "_blank",
                 );
               }}
               className="w-full h-[100%] object-cover cursor-pointer"
@@ -554,6 +563,14 @@ const News = () => {
             />
           </div>
           <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
+            <div
+              onClick={() => {
+                setSeoActive(!seoActive);
+              }}
+              className={`${seoActive && "bg-red-100 text-red-600"} border w-24 flex items-center justify-center font-medium rounded-lg text-sm px-4 py-2 cursor-pointer active:scale-95`}
+            >
+              <span>Not SEO</span>
+            </div>
             <div className="flex flex-wrap items-center justify-end gap-3 px-2">
               <div className="block">
                 <CustomDateRangePicker range={range} setRange={setRange} />
