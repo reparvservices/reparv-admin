@@ -780,6 +780,8 @@ const Enquirers = () => {
       item.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.contact?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.assign?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.projectPartnerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.projectPartnerContact?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.territoryName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.source?.toLowerCase().includes(searchTerm.toLowerCase());
 
