@@ -15,7 +15,7 @@ import propertyPicture from "../assets/propertyPicture.svg";
 import FormatPrice from "../components/FormatPrice";
 import Select from "react-select";
 import DownloadCSV from "../components/DownloadCSV";
-import EnquiryFilter from "../components/enquiryFilter";
+import EnquiryFilter from "../components/EnquiryFilter";
 import { getImageURI } from "../utils/helper";
 
 const Enquirers = () => {

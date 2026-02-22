@@ -14,7 +14,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import DownloadCSV from "../components/DownloadCSV";
 import Select from "react-select";
-import FilterBar from "../components/adsManager/filterBar";
+import FilterBar from "../components/adsManager/FilterBar";
 import { FaRegCopy } from "react-icons/fa";
 import { FaExternalLinkAlt } from "react-icons/fa";
 
