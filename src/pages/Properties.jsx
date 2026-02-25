@@ -19,7 +19,7 @@ import { useLocation } from "react-router-dom";
 import propertyPicture from "../assets/propertyPicture.svg";
 import DownloadCSV from "../components/DownloadCSV";
 import UpdateImagesForm from "../components/propertyForm/UpdateImagesForm";
-import PropertyFilter from "../components/propertyFilter";
+import PropertyFilter from "../components/PropertyFilter";
 import FormatPrice from "../components/FormatPrice";
 import PropertyCommissionPopup from "../components/PropertyCommissionPopup";
 import Select from "react-select";
