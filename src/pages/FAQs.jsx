@@ -360,7 +360,7 @@ const FAQs = () => {
                   <option value="Partners Project Partner Page">
                     Partners Project Partner Page
                   </option>
-                </select>
+                </select> 
               </div>
 
               <div className="w-full">
