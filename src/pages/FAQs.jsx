@@ -357,7 +357,6 @@ const FAQs = () => {
                   <option value="Reparv Visit Properties On Weekend Page">
                     Reparv Visit Properties On Weekend Page
                   </option>
-
                   <option value="Partners Project Partner Page">
                     Partners Project Partner Page
                   </option>
