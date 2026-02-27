@@ -339,6 +339,9 @@ const FAQs = () => {
                   <option value="Reparv Buy Resale Property Page">
                     Reparv Buy Resale Property Page
                   </option>
+                  <option value="Reparv Home Loan Application Page">
+                    Reparv Home Loan Application Page
+                  </option>
                   <option value="Reparv Blog Details Page">
                     Reparv Blog Details Page
                   </option>
