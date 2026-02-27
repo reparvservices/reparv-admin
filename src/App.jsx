@@ -42,6 +42,7 @@ import ScheduledRequests from "./pages/ScheduledRequests.jsx";
 import FAQs from "./pages/FAQs.jsx";
 import BlogFAQs from "./pages/BlogFAQ.jsx";
 import CallEnquirers from "./pages/CallEnquirers.jsx";
+import MetaLeads from "./pages/MetaLeads.jsx";
 import WhatsappEnquirers from "./pages/WhatsappEnquirers.jsx";
 import ContactUsMessages from "./pages/ContactUsMessages.jsx";
 import Subscribers from "./pages/Subscribers.jsx";
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="/enquirers" element={<Enquirers />} />
           <Route path="/call-enquirers" element={<CallEnquirers />} />
           <Route path="/whatsapp-enquirers" element={<WhatsappEnquirers />} />
+          <Route path="/meta-leads" element={<MetaLeads />} />
           <Route path="/digital-broker" element={<DigitalBroker />} />
           <Route path="/properties" element={<Properties />} />
           <Route

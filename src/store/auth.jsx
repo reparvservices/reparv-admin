@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   //const URI = "https://api.reparv.in";
 
   const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("adminUser"))
+    JSON.parse(localStorage.getItem("adminUser")),
   );
   const [loading, setLoading] = useState(false);
   const [showEmployee, setShowEmployee] = useState(false);

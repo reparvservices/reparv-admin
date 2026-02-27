@@ -57,6 +57,7 @@ const menuItems = [
       { label: "Call Enquirers", to: "/call-enquirers" },
       { label: "Whatsapp Enquirers", to: "/whatsapp-enquirers" },
       { label: "Digital Broker", to: "/digital-broker" },
+      { label: "Meta Leads", to: "/meta-leads" },
     ],
   },
 
@@ -490,7 +491,7 @@ function Layout() {
                     if (!item.dropdown) getHeading(item.label);
                   }}
                   className={`group flex items-center gap-3 w-full p-3 rounded-[20px] cursor-pointer transition-all duration-300 text-black ${getNavLinkClass(
-                    item.to
+                    item.to,
                   )}`}
                 >
                   <div className="min-w-8 min-h-8 md:min-w-10 md:min-h-10 flex items-center justify-center rounded-[12px] bg-white">
@@ -563,7 +564,7 @@ function Layout() {
                             setIsSidebarOpen(false);
                           }}
                           className={`text-sm py-2 px-4 rounded-xl hover:bg-[#E3FFDF] ${getNavLinkClass(
-                            sub.to
+                            sub.to,
                           )}`}
                         >
                           {sub.label}
@@ -594,7 +595,7 @@ function Layout() {
             className="w-full h-screen z-[60] fixed bg-[#767676a0]"
             onClick={() => setter(false)}
           ></div>
-        ) : null
+        ) : null,
       )}
     </div>
   );
