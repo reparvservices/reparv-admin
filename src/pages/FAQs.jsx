@@ -345,7 +345,7 @@ const FAQs = () => {
                   <option value="Reparv Blog Details Page">
                     Reparv Blog Details Page
                   </option>
-                  <option value="Reparv Verify 7/12 Page">
+                  <option value="Reparv Verify 7-12 Page">
                     Reparv Verify 7/12 Page
                   </option>
                   <option value="Reparv Rera Property Page">
