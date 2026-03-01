@@ -445,6 +445,8 @@ const AdsManager = () => {
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       item.propertyCityId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.propertyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.projectPartnerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.planName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
