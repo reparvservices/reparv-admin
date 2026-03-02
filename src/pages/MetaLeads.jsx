@@ -5,6 +5,7 @@ import DataTable from "react-data-table-component";
 
 // const URI = "http://localhost:3000";
 const URI = "https://aws-api.reparv.in";
+
 const MetaLeads = () => {
   const [datas, setDatas] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,13 +15,23 @@ const MetaLeads = () => {
   const [selectedLead, setSelectedLead] = useState(null);
 
   /* ================= FETCH META LEADS ================= */
-
   const fetchData = async () => {
     try {
       setLoading(true);
       const response = await fetch(`${URI}/meta`);
       const result = await response.json();
-      if (result.success) setDatas(result.data);
+
+      if (result.success && Array.isArray(result.data)) {
+        // Sort by created_at — newest first (descending)
+        const sorted = [...result.data].sort((a, b) => {
+          // Convert "02 Mar 2026 | 05:43 AM" → comparable value
+          const dateA = new Date(a.created_at.replace(" | ", " "));
+          const dateB = new Date(b.created_at.replace(" | ", " "));
+          return dateB - dateA; // descending = newest on top
+        });
+
+        setDatas(sorted);
+      }
     } catch (err) {
       console.error("Error fetching meta leads:", err);
     } finally {
@@ -33,7 +44,6 @@ const MetaLeads = () => {
   }, []);
 
   /* ================= OPEN DELETE MODAL ================= */
-
   const openDeleteModal = (lead) => {
     setSelectedLead(lead);
     setIsModalOpen(true);
@@ -45,7 +55,6 @@ const MetaLeads = () => {
   };
 
   /* ================= DELETE API ================= */
-
   const confirmDelete = async () => {
     if (!selectedLead) return;
 
@@ -73,7 +82,6 @@ const MetaLeads = () => {
   };
 
   /* ================= SEARCH FILTER ================= */
-
   const filteredData = datas.filter((item) =>
     [
       item.full_name,
@@ -90,7 +98,6 @@ const MetaLeads = () => {
   );
 
   /* ================= TABLE COLUMNS ================= */
-
   const columns = [
     {
       name: "SN",
@@ -105,9 +112,11 @@ const MetaLeads = () => {
       name: "Lead Details",
       cell: (row) => (
         <div className="flex flex-col gap-1">
-          <span className="font-semibold">{row.full_name}</span>
-          <span className="text-xs text-gray-500">{row.phone_number}</span>
-          <span className="text-xs text-gray-500">{row.email}</span>
+          <span className="font-semibold">{row.full_name || "-"}</span>
+          <span className="text-xs text-gray-500">
+            {row.phone_number || "-"}
+          </span>
+          <span className="text-xs text-gray-500">{row.email || "-"}</span>
         </div>
       ),
       minWidth: "220px",
@@ -122,8 +131,8 @@ const MetaLeads = () => {
       name: "Campaign",
       cell: (row) => (
         <div className="flex flex-col">
-          <span className="text-sm">{row.campaign_name}</span>
-          <span className="text-xs text-gray-500">{row.adset_name}</span>
+          <span className="text-sm">{row.campaign_name || "-"}</span>
+          <span className="text-xs text-gray-500">{row.adset_name || "-"}</span>
         </div>
       ),
       minWidth: "250px",
@@ -138,7 +147,7 @@ const MetaLeads = () => {
               : "bg-blue-100 text-blue-600"
           }`}
         >
-          {row.platform?.toUpperCase()}
+          {row.platform ? row.platform.toUpperCase() : "-"}
         </span>
       ),
       width: "120px",
@@ -186,6 +195,8 @@ const MetaLeads = () => {
           data={filteredData}
           progressPending={loading}
           pagination
+          paginationPerPage={20}
+          paginationRowsPerPageOptions={[10, 20, 50, 100]}
           fixedHeader
           fixedHeaderScrollHeight="60vh"
           highlightOnHover
@@ -203,7 +214,10 @@ const MetaLeads = () => {
 
             <p className="text-sm text-gray-600 mb-6">
               Are you sure you want to delete lead{" "}
-              <span className="font-semibold">{selectedLead?.full_name}</span>?
+              <span className="font-semibold">
+                {selectedLead?.full_name || "this lead"}
+              </span>
+              ?
             </p>
 
             <div className="flex justify-end gap-3">
