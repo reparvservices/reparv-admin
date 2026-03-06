@@ -25,6 +25,14 @@ import PropertyCommissionPopup from "../components/PropertyCommissionPopup";
 import Select from "react-select";
 import { getImageURI } from "../utils/helper";
 
+import {
+  FaEye,
+  FaHeart,
+  FaPhoneAlt,
+  FaWhatsapp,
+  FaShareAlt,
+} from "react-icons/fa";
+
 const Properties = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -1561,6 +1569,44 @@ const Properties = () => {
       ),
       sortable: true,
       minWidth: "200px",
+    },
+    {
+      name: "Analytics",
+      cell: (row) => (
+        <div className="flex items-center gap-4 text-xs">
+          {/* Views */}
+          <div className="flex items-center gap-1 text-gray-600">
+            <FaEye className="text-gray-400" />
+            <span>{row.views || 0}</span>
+          </div>
+
+          {/* Likes */}
+          <div className="flex items-center gap-1 text-red-500">
+            <FaHeart />
+            <span>{row.likes || 0}</span>
+          </div>
+
+          {/* Calls */}
+          <div className="flex items-center gap-1 text-blue-500">
+            <FaPhoneAlt />
+            <span>{row.calls || 0}</span>
+          </div>
+
+          {/* WhatsApp */}
+          <div className="flex items-center gap-1 text-green-600">
+            <FaWhatsapp />
+            <span>{row.whatsapp || 0}</span>
+          </div>
+
+          {/* Shares */}
+          <div className="flex items-center gap-1 text-purple-500">
+            <FaShareAlt />
+            <span>{row.shares || 0}</span>
+          </div>
+        </div>
+      ),
+      sortable: false,
+      minWidth: "220px",
     },
     {
       name: "Top Picks",
