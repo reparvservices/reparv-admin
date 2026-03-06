@@ -86,6 +86,7 @@ const Properties = () => {
 
   const [seoActive, setSeoActive] = useState(false);
   const [seoSlug, setSeoSlug] = useState("");
+  const [pageTitle, setPageTitle] = useState("");
   const [seoTittle, setSeoTittle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
   const [propertyDescription, setPropertyDescription] = useState("");
@@ -783,6 +784,7 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch property.");
       const data = await response.json();
       setSeoSlug(data.seoSlug);
+      setPageTitle(data.pageTitle);
       setSeoTittle(data.seoTittle);
       setSeoDescription(data.seoDescription);
       setPropertyDescription(data.propertyDescription);
@@ -807,6 +809,7 @@ const Properties = () => {
           },
           body: JSON.stringify({
             seoSlug,
+            pageTitle,
             seoTittle,
             seoDescription,
             propertyDescription,
@@ -822,6 +825,7 @@ const Properties = () => {
       }
       setShowSeoForm(false);
       setSeoSlug("");
+      setPageTitle("");
       setSeoTittle("");
       setSeoDescription("");
       setPropertyDescription("");
@@ -2413,6 +2417,7 @@ const Properties = () => {
             <IoMdClose
               onClick={() => {
                 setShowSeoForm(false);
+                setPageTitle("");
                 setSeoSlug("");
                 setSeoTittle("");
                 setSeoDescription("");
@@ -2440,6 +2445,21 @@ const Properties = () => {
                   value={seoSlug}
                   onChange={(e) => {
                     setSeoSlug(e.target.value);
+                  }}
+                />
+              </div>
+              <div className="w-full">
+                <label className="block text-sm leading-4 text-[#00000066] font-medium ">
+                  Page Title
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter Page Title"
+                  className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={pageTitle}
+                  onChange={(e) => {
+                    setPageTitle(e.target.value);
                   }}
                 />
               </div>
