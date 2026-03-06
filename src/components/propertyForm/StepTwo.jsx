@@ -8,6 +8,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
   useEffect(() => {
     const isRentalType = [
       "RentalFlat",
+      "RentalPlot",
       "RentalVilla",
       "RentalShop",
       "RentalOffice",
