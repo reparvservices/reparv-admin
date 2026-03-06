@@ -14,6 +14,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import DownloadCSV from "../components/DownloadCSV";
 import { getImageURI } from "../utils/helper";
+import { FaEye, FaHeart, FaShareAlt } from "react-icons/fa";
 
 const News = () => {
   const {
@@ -454,11 +455,37 @@ const News = () => {
       },
       width: "130px",
     },
+    {
+      name: "Analytics",
+      cell: (row) => (
+        <div className="flex items-center gap-4 text-xs">
+          {/* Views */}
+          <div className="flex items-center gap-1 text-gray-600">
+            <FaEye className="text-gray-400" />
+            <span>{row.views || 0}</span>
+          </div>
+
+          {/* Likes */}
+          <div className="flex items-center gap-1 text-red-500">
+            <FaHeart />
+            <span>{row.likes || 0}</span>
+          </div>
+
+          {/* Shares */}
+          <div className="flex items-center gap-1 text-purple-500">
+            <FaShareAlt />
+            <span>{row.shares || 0}</span>
+          </div>
+        </div>
+      ),
+      sortable: false,
+      width: "160px",
+    },
     { name: "Date & Time", selector: (row) => row.created_at, width: "200px" },
     {
       name: "News Type",
       selector: (row) => row.type,
-      minWidth: "150px",
+      width: "150px",
     },
     {
       name: "News Title",

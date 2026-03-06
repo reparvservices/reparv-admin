@@ -2,7 +2,7 @@ import { parse } from "date-fns";
 import { useState, useEffect } from "react";
 import { FaRupeeSign } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaHeart, FaShareAlt } from "react-icons/fa";
 import card1 from "../assets/overview/card1.svg";
 import card2 from "../assets/overview/card2.svg";
 import card3 from "../assets/overview/card3.svg";
@@ -37,6 +37,17 @@ function Dashboard() {
     }
   };
 
+  const formatNumber = (num) => {
+    if (!num) return 0;
+
+    if (num >= 10000000) return (num / 10000000).toFixed(1) + "Cr"; // Crore
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"; // Million
+    if (num >= 100000) return (num / 100000).toFixed(1) + "L"; // Lakh
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K"; // Thousand
+
+    return num;
+  };
+
   const fetchCountData = async () => {
     try {
       const response = await fetch(`${URI}/admin/dashboard/count`, {
@@ -61,7 +72,7 @@ function Dashboard() {
 
     const totalPaid = payments.reduce(
       (sum, payment) => sum + (Number(payment.paymentAmount) || 0),
-      tokenAmount
+      tokenAmount,
     );
 
     const balance = dealAmount - totalPaid;
@@ -156,7 +167,7 @@ function Dashboard() {
     const itemDate = parse(
       item.created_at,
       "dd MMM yyyy | hh:mm a",
-      new Date()
+      new Date(),
     );
 
     const matchesDate =
@@ -232,7 +243,7 @@ function Dashboard() {
               onClick={() => {
                 window.open(
                   "https://www.reparv.in/property-info/" + row.seoSlug,
-                  "_blank"
+                  "_blank",
                 );
               }}
               className="w-full h-[100%] object-cover cursor-pointer"
@@ -286,7 +297,7 @@ function Dashboard() {
             label: "Total Deal Amount",
             value:
               (Number(overviewCountData?.totalDealAmount) / 10000000).toFixed(
-                2
+                2,
               ) + " cr" || "00",
             icon: card1,
           },
@@ -365,7 +376,6 @@ function Dashboard() {
           </div>
         ))}
       </div>
-
       <div className="overview-card-container gap-2 sm:gap-3 px-4 md:px-0 w-full grid place-items-center grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 my-5">
         {[
           {
@@ -377,8 +387,32 @@ function Dashboard() {
           {
             label: "Properties",
             value: overviewCountData?.totalProperty || "00",
-            //icon: card4,
             to: "/properties",
+            analytics: {
+              views: overviewCountData?.propertyViews || 0,
+              likes: overviewCountData?.propertyLikes || 0,
+              shares: overviewCountData?.propertyShares || 0,
+            },
+          },
+          {
+            label: "Total Blogs",
+            value: overviewCountData?.totalBlog || "00",
+            to: "/blogs",
+            analytics: {
+              views: overviewCountData?.blogViews || 0,
+              likes: overviewCountData?.blogLikes || 0,
+              shares: overviewCountData?.blogShares || 0,
+            },
+          },
+          {
+            label: "Total News",
+            value: overviewCountData?.totalNews || "00",
+            to: "/news",
+            analytics: {
+              views: overviewCountData?.newsViews || 0,
+              likes: overviewCountData?.newsLikes || 0,
+              shares: overviewCountData?.newsShares || 0,
+            },
           },
           {
             label: "Builders",
@@ -434,31 +468,38 @@ function Dashboard() {
             //icon: card4,
             to: "/tickets",
           },
-          {
-            label: "Total Blogs",
-            value: overviewCountData?.totalBlog || "00",
-            //icon: card4,
-            to: "/blogs",
-          },
         ].map((card, index) => (
           <div
             key={index}
             onClick={() => navigate(card.to)}
-            className="overview-card w-full max-w-[190px] sm:max-w-[290px] flex flex-col items-center justify-center gap-2 rounded-lg sm:rounded-[16px] p-4 sm:p-6 border-2 hover:border-[#0BB501] bg-white cursor-pointer"
+            className={`overview-card w-full max-w-[190px] sm:max-w-[290px] flex flex-col items-center justify-center gap-1 rounded-lg sm:rounded-[16px] border-2 hover:border-[#0BB501] bg-white cursor-pointer transition 
+                      ${card.analytics ? "py-[10px]" : "py-4 sm:py-6"} px-4 sm:px-6`}
           >
-            <div className="upside w-full sm:max-w-[224px] h-[30px] sm:h-[40px] flex items-center justify-between gap-2 sm:gap-3 text-xs sm:text-base font-semibold ">
+            {/* Title + Count */}
+            <div className="w-full flex items-center justify-between font-semibold">
               <p>{card.label}</p>
-              <p className="flex items-center justify-center text-xl">
-                {[
-                  "Total Deal Amount",
-                  "Reparv Share",
-                  "Total Share",
-                  "Sales Share",
-                  "Territory Share",
-                ].includes(card.label) && <FaRupeeSign />}
-                {card.value}
-              </p>
+              <p className="text-xl">{card.value}</p>
             </div>
+
+            {/* Analytics */}
+            {card.analytics && (
+              <div className="flex items-center justify-between w-full text-sm text-gray-600 font-medium border-t pt-1">
+                <div className="flex items-center gap-1">
+                  <FaEye className="text-blue-500" />
+                  {formatNumber(card.analytics.views)}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <FaHeart className="text-red-500" />
+                  {formatNumber(card.analytics.likes)}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <FaShareAlt className="text-green-500" />
+                  {formatNumber(card.analytics.shares)}
+                </div>
+              </div>
+            )}{" "}
           </div>
         ))}
       </div>
@@ -511,7 +552,6 @@ function Dashboard() {
           />
         </div>
       </div>
-
       {/* Show Customer Info */}
       <div
         className={`${
