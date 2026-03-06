@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("adminUser");
   };
 
-  const URI = "http://localhost:3000";
-  //const URI = "https://aws-api.reparv.in";
+  //const URI = "http://localhost:3000";
+  const URI = "https://aws-api.reparv.in";
   //const URI = "https://api.reparv.in";
 
   const [user, setUser] = useState(
