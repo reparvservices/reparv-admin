@@ -15,6 +15,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import DownloadCSV from "../components/DownloadCSV";
 import { getImageURI } from "../utils/helper";
 import { FaEye, FaHeart, FaShareAlt } from "react-icons/fa";
+import { formatNumber } from "../utils/formatNumber";
 
 const News = () => {
   const {
@@ -462,24 +463,24 @@ const News = () => {
           {/* Views */}
           <div className="flex items-center gap-1 text-gray-600">
             <FaEye className="text-gray-400" />
-            <span>{row.views || 0}</span>
+            <span>{formatNumber(row.views)}</span>
           </div>
 
           {/* Likes */}
           <div className="flex items-center gap-1 text-red-500">
             <FaHeart />
-            <span>{row.likes || 0}</span>
+            <span>{formatNumber(row.likes)}</span>
           </div>
 
           {/* Shares */}
           <div className="flex items-center gap-1 text-purple-500">
             <FaShareAlt />
-            <span>{row.shares || 0}</span>
+            <span>{formatNumber(row.shares)}</span>
           </div>
         </div>
       ),
       sortable: false,
-      width: "160px",
+      width: "180px",
     },
     { name: "Date & Time", selector: (row) => row.created_at, width: "200px" },
     {

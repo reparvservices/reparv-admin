@@ -2,7 +2,13 @@ import { parse } from "date-fns";
 import { useState, useEffect } from "react";
 import { FaRupeeSign } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
-import { FaEye, FaHeart, FaShareAlt } from "react-icons/fa";
+import {
+  FaEye,
+  FaHeart,
+  FaPhoneAlt,
+  FaWhatsapp,
+  FaShareAlt,
+} from "react-icons/fa";
 import card1 from "../assets/overview/card1.svg";
 import card2 from "../assets/overview/card2.svg";
 import card3 from "../assets/overview/card3.svg";
@@ -15,6 +21,7 @@ import { IoMdClose } from "react-icons/io";
 import propertyPicture from "../assets/propertyPicture.svg";
 import FormatPrice from "../components/FormatPrice";
 import { getImageURI } from "../utils/helper";
+import { formatNumber } from "../utils/formatNumber";
 
 function Dashboard() {
   const { URI, setLoading, showCustomer, setShowCustomer } = useAuth();
@@ -35,17 +42,6 @@ function Dashboard() {
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
-  };
-
-  const formatNumber = (num) => {
-    if (!num) return 0;
-
-    if (num >= 10000000) return (num / 10000000).toFixed(1) + "Cr"; // Crore
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"; // Million
-    if (num >= 100000) return (num / 100000).toFixed(1) + "L"; // Lakh
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K"; // Thousand
-
-    return num;
   };
 
   const fetchCountData = async () => {
@@ -383,6 +379,10 @@ function Dashboard() {
             value: overviewCountData?.totalEnquiry || "00",
             //icon: card4,
             to: "/enquirers",
+            analytics: {
+              call_enquirers: overviewCountData?.call_enquirers || 0,
+              whatsapp_enquirers: overviewCountData?.whatsapp_enquirers || 0,
+            },
           },
           {
             label: "Properties",
@@ -439,12 +439,6 @@ function Dashboard() {
             to: "/projectpartner",
           },
           {
-            label: "Onboarding Partners",
-            value: overviewCountData?.totalOnboardingPartner || "00",
-            //icon: card4,
-            to: "/onboardingpartner",
-          },
-          {
             label: "Sales Persons",
             value: overviewCountData?.totalSalesPerson || "00",
             //icon: card4,
@@ -480,24 +474,41 @@ function Dashboard() {
               <p>{card.label}</p>
               <p className="text-xl">{card.value}</p>
             </div>
-
             {/* Analytics */}
             {card.analytics && (
               <div className="flex items-center justify-between w-full text-sm text-gray-600 font-medium border-t pt-1">
-                <div className="flex items-center gap-1">
-                  <FaEye className="text-blue-500" />
-                  {formatNumber(card.analytics.views)}
-                </div>
+                {card.analytics.views && (
+                  <div className="flex items-center gap-1">
+                    <FaEye className="text-blue-500" />
+                    {formatNumber(card.analytics.views)}
+                  </div>
+                )}
 
-                <div className="flex items-center gap-1">
-                  <FaHeart className="text-red-500" />
-                  {formatNumber(card.analytics.likes)}
-                </div>
+                {card.analytics.likes && (
+                  <div className="flex items-center gap-1">
+                    <FaHeart className="text-red-500" />
+                    {formatNumber(card.analytics.likes)}
+                  </div>
+                )}
 
-                <div className="flex items-center gap-1">
-                  <FaShareAlt className="text-green-500" />
-                  {formatNumber(card.analytics.shares)}
-                </div>
+                {card.analytics.shares && (
+                  <div className="flex items-center gap-1">
+                    <FaShareAlt className="text-green-500" />
+                    {formatNumber(card.analytics.shares)}
+                  </div>
+                )}
+                {card.analytics.call_enquirers && (
+                  <div className="flex items-center gap-1">
+                    <FaPhoneAlt className="text-blue-500" />
+                    {formatNumber(card.analytics.call_enquirers)}
+                  </div>
+                )}
+                {card.analytics.whatsapp_enquirers && (
+                  <div className="flex items-center gap-1">
+                    <FaWhatsapp className="text-green-500" />
+                    {formatNumber(card.analytics.whatsapp_enquirers || 10)}
+                  </div>
+                )}
               </div>
             )}{" "}
           </div>
