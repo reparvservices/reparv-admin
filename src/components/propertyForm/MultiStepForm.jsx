@@ -87,7 +87,7 @@ const MultiStepForm = ({
       alert(
         newProperty.propertyid
           ? "Property updated successfully!"
-          : "Property added successfully!"
+          : "Property added successfully!",
       );
 
       // Reset form
@@ -131,20 +131,20 @@ const MultiStepForm = ({
         furnishing: "",
         waterSupply: "",
         powerBackup: "",
-        locationFeature: "",
+        locationFeature: [],
         sizeAreaFeature: "",
         parkingFeature: "",
         terraceFeature: "",
         ageOfPropertyFeature: "",
-        amenitiesFeature: "",
+        amenitiesFeature: [],
         propertyStatusFeature: "",
-        smartHomeFeature: "",
-        securityBenefit: "",
-        primeLocationBenefit: "",
-        rentalIncomeBenefit: "",
-        qualityBenefit: "",
-        capitalAppreciationBenefit: "",
-        ecofriendlyBenefit: "",
+        smartHomeFeature: [],
+        securityBenefit: [],
+        primeLocationBenefit: [],
+        rentalIncomeBenefit: [],
+        qualityBenefit: [],
+        capitalAppreciationBenefit: [],
+        ecofriendlyBenefit: [],
       });
 
       setStep(1);
@@ -239,8 +239,8 @@ const MultiStepForm = ({
                   step === index + 1
                     ? "bg-blue-500 text-white"
                     : step > index + 1
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-300 text-black"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-300 text-black"
                 }`}
               >
                 {index + 1}
@@ -254,7 +254,7 @@ const MultiStepForm = ({
             onClick={() => {
               setShowPropertyForm(false);
               setPropertyData((prev) =>
-                Object.fromEntries(Object.keys(prev).map((k) => [k, ""]))
+                Object.fromEntries(Object.keys(prev).map((k) => [k, ""])),
               );
             }}
             className="w-7 h-7 cursor-pointer"

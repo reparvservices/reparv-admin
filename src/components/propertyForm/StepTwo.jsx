@@ -1,5 +1,173 @@
 import { useState, useEffect } from "react";
 import PropertyTypeMultiSelect from "./PropertyTypeMultiSelect";
+import Select from "react-select";
+
+const selectStyles = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: "52px",
+    borderColor: state.isFocused ? "#16a34a" : "#00000033",
+    boxShadow: state.isFocused ? "0 0 0 2px rgba(22,163,74,0.4)" : "none",
+    "&:hover": {
+      borderColor: "#16a34a",
+    },
+  }),
+
+  multiValue: (base) => ({
+    ...base,
+    backgroundColor: "#16a34a20",
+  }),
+
+  multiValueLabel: (base) => ({
+    ...base,
+    color: "#15803d",
+    fontWeight: 500,
+  }),
+
+  multiValueRemove: (base) => ({
+    ...base,
+    color: "#15803d",
+    ":hover": {
+      backgroundColor: "#16a34a",
+      color: "white",
+    },
+  }),
+};
+
+const locationFeatureOptions = [
+  { value: "Main Road Facing", label: "Main Road Facing" },
+  {
+    value: "Corner Plot / Corner Facing",
+    label: "Corner Plot / Corner Facing",
+  },
+  { value: "Park Facing", label: "Park Facing" },
+  { value: "Sea Facing", label: "Sea Facing" },
+  { value: "Lake Facing", label: "Lake Facing" },
+  { value: "River / Waterfront Facing", label: "River / Waterfront Facing" },
+  { value: "Golf Course Facing", label: "Golf Course Facing" },
+  { value: "City View / Skyline View", label: "City View / Skyline View" },
+  { value: "Garden / Green Belt Facing", label: "Garden / Green Belt Facing" },
+  { value: "Highway Facing", label: "Highway Facing" },
+];
+
+const amenitiesFeatureOptions = [
+  { value: "Lift / Elevator", label: "Lift / Elevator" },
+  { value: "Power Backup", label: "Power Backup" },
+  { value: "24x7 Water Supply", label: "24x7 Water Supply" },
+  {
+    value: "Security / CCTV Surveillance",
+    label: "Security / CCTV Surveillance",
+  },
+  { value: "Car Parking", label: "Car Parking" },
+  { value: "Gym / Fitness Center", label: "Gym / Fitness Center" },
+  { value: "Swimming Pool", label: "Swimming Pool" },
+  { value: "Children's Play Area", label: "Children's Play Area" },
+  { value: "Clubhouse / Community Hall", label: "Clubhouse / Community Hall" },
+];
+
+const smartHomeFeatureOptions = [
+  {
+    value: "Smart Door Lock / Digital Lock",
+    label: "Smart Door Lock / Digital Lock",
+  },
+  { value: "Video Door Phone", label: "Video Door Phone" },
+  { value: "Smart Lighting Control", label: "Smart Lighting Control" },
+  {
+    value: "Smart Thermostat / Climate Control",
+    label: "Smart Thermostat / Climate Control",
+  },
+  { value: "App-Controlled Appliances", label: "App-Controlled Appliances" },
+  {
+    value: "Voice Assistant Integration (Alexa, Google Home, etc.)",
+    label: "Voice Assistant Integration (Alexa, Google Home, etc.)",
+  },
+  {
+    value: "Smart Security Cameras / CCTV with Remote Access",
+    label: "Smart Security Cameras / CCTV with Remote Access",
+  },
+  { value: "Motion Sensor Lighting", label: "Motion Sensor Lighting" },
+  {
+    value: "Smart Smoke / Gas Leak Detectors",
+    label: "Smart Smoke / Gas Leak Detectors",
+  },
+  {
+    value: "Automated Curtains / Blinds",
+    label: "Automated Curtains / Blinds",
+  },
+  { value: "No Feature", label: "No Feature" },
+];
+
+const securityOptions = [
+  { value: "24x7 Security", label: "24x7 Security" },
+  { value: "CCTV Surveillance", label: "CCTV Surveillance" },
+  { value: "Gated Community", label: "Gated Community" },
+  { value: "Intercom Facility", label: "Intercom Facility" },
+  { value: "Fire Safety System", label: "Fire Safety System" },
+];
+
+const locationOptions = [
+  { value: "Near School / College", label: "Near School / College" },
+  { value: "Near Hospital", label: "Near Hospital" },
+  {
+    value: "Near Market / Shopping Mall",
+    label: "Near Market / Shopping Mall",
+  },
+  { value: "Near Public Transport", label: "Near Public Transport" },
+  { value: "Near IT / Business Hub", label: "Near IT / Business Hub" },
+];
+
+const rentalOptions = [
+  {
+    value: "Residential Long-Term Rental",
+    label: "Residential Long-Term Rental",
+  },
+  {
+    value: "Residential Short-Term / Vacation Rental",
+    label: "Residential Short-Term / Vacation Rental",
+  },
+  {
+    value: "Paying Guest (PG) Accommodation",
+    label: "Paying Guest (PG) Accommodation",
+  },
+  { value: "Commercial Space Rental", label: "Commercial Space Rental" },
+  { value: "Co-working Space Rental", label: "Co-working Space Rental" },
+  { value: "Retail Shop Rental", label: "Retail Shop Rental" },
+  { value: "Warehouse / Storage Rental", label: "Warehouse / Storage Rental" },
+];
+
+const qualityOptions = [
+  { value: "Longer Building Life", label: "Longer Building Life" },
+  { value: "Low Maintenance Cost", label: "Low Maintenance Cost" },
+  {
+    value: "Better Safety & Structural Strength",
+    label: "Better Safety & Structural Strength",
+  },
+  { value: "Higher Property Value", label: "Higher Property Value" },
+];
+
+const capitalOptions = [
+  { value: "Higher Resale Value", label: "Higher Resale Value" },
+  {
+    value: "Increased Return on Investment (ROI)",
+    label: "Increased Return on Investment (ROI)",
+  },
+  { value: "Wealth Creation Over Time", label: "Wealth Creation Over Time" },
+  {
+    value: "Better Loan Collateral Value",
+    label: "Better Loan Collateral Value",
+  },
+  { value: "Inflation Hedge", label: "Inflation Hedge" },
+];
+
+const ecoOptions = [
+  { value: "Lower Energy Bills", label: "Lower Energy Bills" },
+  { value: "Reduced Water Consumption", label: "Reduced Water Consumption" },
+  {
+    value: "Healthier Living Environment",
+    label: "Healthier Living Environment",
+  },
+  { value: "Lower Carbon Footprint", label: "Lower Carbon Footprint" },
+];
 
 const StepTwo = ({ newProperty, setPropertyData }) => {
   const [isRental, setIsRental] = useState(false);
@@ -442,37 +610,22 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           >
             Location Feature <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
-            value={newProperty.locationFeature}
-            onChange={(e) => {
+          <Select
+            isMulti
+            options={locationFeatureOptions}
+            styles={selectStyles}
+            className="mt-[10px]"
+            placeholder="Select Location Features"
+            value={locationFeatureOptions.filter((option) =>
+              newProperty.locationFeature?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                locationFeature: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select Feature</option>
-            <option value="Main Road Facing">Main Road Facing</option>
-            <option value="Corner Plot / Corner Facing">
-              Corner Plot / Corner Facing
-            </option>
-            <option value="Park Facing">Park Facing</option>
-            <option value="Sea Facing">Sea Facing</option>
-            <option value="Lake Facing">Lake Facing</option>
-            <option value="River / Waterfront Facing">
-              River / Waterfront Facing
-            </option>
-            <option value="Golf Course Facing">Golf Course Facing</option>
-            <option value="City View / Skyline View">
-              City View / Skyline View
-            </option>
-            <option value="Garden / Green Belt Facing">
-              Garden / Green Belt Facing
-            </option>
-            <option value="Highway Facing">Highway Facing</option>
-          </select>
+                locationFeature: selected ? selected.map((i) => i.value) : [],
+              })
+            }
+          />
         </div>
 
         <div className="w-full ">
@@ -594,125 +747,59 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
         <div className="w-full">
           <label
             className={`${
-              newProperty.amenitiesFeature
+              newProperty.amenitiesFeature?.length
                 ? "text-green-600"
                 : "text-[#00000066]"
             } block text-sm leading-4 font-medium`}
           >
             Amenities Feature <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
-            value={newProperty.amenitiesFeature}
-            onChange={(e) => {
-              setPropertyData({
-                ...newProperty,
-                amenitiesFeature: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select Amenities Feature</option>
-            <option value="Lift / Elevator">Lift / Elevator</option>
-            <option value="Power Backup">Power Backup</option>
-            <option value="24x7 Water Supply">24x7 Water Supply</option>
-            <option value="Security / CCTV Surveillance">
-              Security / CCTV Surveillance
-            </option>
-            <option value="Car Parking">Car Parking</option>
-            <option value="Gym / Fitness Center">Gym / Fitness Center</option>
-            <option value="Swimming Pool">Swimming Pool</option>
-            <option value="Children's Play Area">Children's Play Area</option>
-            <option value="Clubhouse / Community Hall">
-              Clubhouse / Community Hall
-            </option>
-            <option value="No Feature">No Feature</option>
-          </select>
-        </div>
 
-        <div className={`${isRental ? "hidden" : "block"} w-full`}>
-          <label
-            className={`${
-              newProperty.propertyStatusFeature
-                ? "text-green-600"
-                : "text-[#00000066]"
-            } block text-sm leading-4 font-medium`}
-          >
-            Property Status <span className="text-red-600">*</span>
-          </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
-            value={newProperty.propertyStatusFeature}
-            onChange={(e) =>
+          <Select
+            isMulti
+            options={amenitiesFeatureOptions}
+            styles={selectStyles}
+            placeholder="Select Amenities Feature"
+            className="mt-[10px]"
+            value={amenitiesFeatureOptions.filter((option) =>
+              newProperty.amenitiesFeature?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                propertyStatusFeature: e.target.value,
+                amenitiesFeature: selected ? selected.map((i) => i.value) : [],
               })
             }
-          >
-            <option value="">Select Property Status</option>
-            <option value="Under Construction">Under Construction</option>
-            <option value="Ready to Move New Launch">
-              Ready to Move New Launch
-            </option>
-            <option value="Resale">Resale</option>
-            <option value="Upcoming Project">Upcoming Project</option>
-          </select>
+          />
         </div>
 
         <div className="w-full">
           <label
             className={`${
-              newProperty.smartHomeFeature
+              newProperty.smartHomeFeature?.length
                 ? "text-green-600"
                 : "text-[#00000066]"
             } block text-sm leading-4 font-medium`}
           >
             Smart Home Feature <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
-            value={newProperty.smartHomeFeature}
-            onChange={(e) => {
+
+          <Select
+            isMulti
+            options={smartHomeFeatureOptions}
+            styles={selectStyles}
+            placeholder="Select Smart Home Features"
+            className="mt-[10px]"
+            value={smartHomeFeatureOptions.filter((option) =>
+              newProperty.smartHomeFeature?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                smartHomeFeature: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select a feature</option>
-            <option value="Smart Door Lock / Digital Lock">
-              Smart Door Lock / Digital Lock
-            </option>
-            <option value="Video Door Phone">Video Door Phone</option>
-            <option value="Smart Lighting Control">
-              Smart Lighting Control
-            </option>
-            <option value="Smart Thermostat / Climate Control">
-              Smart Thermostat / Climate Control
-            </option>
-            <option value="App-Controlled Appliances">
-              App-Controlled Appliances
-            </option>
-            <option value="Voice Assistant Integration (Alexa, Google Home, etc.)">
-              Voice Assistant Integration (Alexa, Google Home, etc.)
-            </option>
-            <option value="Smart Security Cameras / CCTV with Remote Access">
-              Smart Security Cameras / CCTV with Remote Access
-            </option>
-            <option value="Motion Sensor Lighting">
-              Motion Sensor Lighting
-            </option>
-            <option value="Smart Smoke / Gas Leak Detectors">
-              Smart Smoke / Gas Leak Detectors
-            </option>
-            <option value="Automated Curtains / Blinds">
-              Automated Curtains / Blinds
-            </option>
-            <option value="No Feature">No Feature</option>
-          </select>
+                smartHomeFeature: selected ? selected.map((i) => i.value) : [],
+              })
+            }
+          />
         </div>
       </div>
 
@@ -723,208 +810,168 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
 
       {/* Property Features */}
       <div className="grid gap-6 md:gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+        {/* SECURITY */}
         <div className="w-full">
           <label
-            className={`${
-              newProperty.securityBenefit
-                ? "text-green-600"
-                : "text-[#00000066]"
-            } block text-sm leading-4 font-medium`}
+            className={`${newProperty.securityBenefit?.length ? "text-green-600" : "text-[#00000066]"} block text-sm font-medium`}
           >
             Security Benefits <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
-            value={newProperty.securityBenefit}
-            onChange={(e) => {
+
+          <Select
+            isMulti
+            styles={selectStyles}
+            options={securityOptions}
+            className="mt-[10px]"
+            placeholder="Select Security Benefit"
+            value={securityOptions.filter((option) =>
+              newProperty.securityBenefit?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                securityBenefit: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select Security Benefit</option>
-            <option value="24x7 Security">24x7 Security</option>
-            <option value="CCTV Surveillance">CCTV Surveillance</option>
-            <option value="Gated Community">Gated Community</option>
-            <option value="Intercom Facility">Intercom Facility</option>
-            <option value="Fire Safety System">Fire Safety System</option>
-          </select>
+                securityBenefit: selected ? selected.map((i) => i.value) : [],
+              })
+            }
+          />
         </div>
 
+        {/* PRIME LOCATION */}
         <div className="w-full">
           <label
-            className={`${
-              newProperty.primeLocationBenefit
-                ? "text-green-600"
-                : "text-[#00000066]"
-            } block text-sm leading-4 font-medium`}
+            className={`${newProperty.primeLocationBenefit?.length ? "text-green-600" : "text-[#00000066]"} block text-sm font-medium`}
           >
             Prime Location <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
-            value={newProperty.primeLocationBenefit}
-            onChange={(e) => {
+
+          <Select
+            isMulti
+            styles={selectStyles}
+            options={locationOptions}
+            className="mt-[10px]"
+            placeholder="Select Benefit"
+            value={locationOptions.filter((option) =>
+              newProperty.primeLocationBenefit?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                primeLocationBenefit: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select Benefit</option>
-            <option value="Near School / College">Near School / College</option>
-            <option value="Near Hospital">Near Hospital</option>
-            <option value="Near Market / Shopping Mall">
-              Near Market / Shopping Mall
-            </option>
-            <option value="Near Public Transport">Near Public Transport</option>
-            <option value="Near IT / Business Hub">
-              Near IT / Business Hub
-            </option>
-          </select>
+                primeLocationBenefit: selected
+                  ? selected.map((i) => i.value)
+                  : [],
+              })
+            }
+          />
         </div>
+
+        {/* RENTAL INCOME */}
         <div className="w-full">
           <label
-            className={`${
-              newProperty.rentalIncomeBenefit
-                ? "text-green-600"
-                : "text-[#00000066]"
-            } block text-sm leading-4 font-medium`}
+            className={`${newProperty.rentalIncomeBenefit?.length ? "text-green-600" : "text-[#00000066]"} block text-sm font-medium`}
           >
             Rental Income Possibilities <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
-            value={newProperty.rentalIncomeBenefit}
-            onChange={(e) => {
+
+          <Select
+            isMulti
+            styles={selectStyles}
+            options={rentalOptions}
+            className="mt-[10px]"
+            placeholder="Select Rental Income"
+            value={rentalOptions.filter((option) =>
+              newProperty.rentalIncomeBenefit?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                rentalIncomeBenefit: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select Rental Income Possibility</option>
-            <option value="Residential Long-Term Rental">
-              Residential Long-Term Rental
-            </option>
-            <option value="Residential Short-Term / Vacation Rental">
-              Residential Short-Term / Vacation Rental
-            </option>
-            <option value="Paying Guest (PG) Accommodation">
-              Paying Guest (PG) Accommodation
-            </option>
-            <option value="Commercial Space Rental">
-              Commercial Space Rental
-            </option>
-            <option value="Co-working Space Rental">
-              Co-working Space Rental
-            </option>
-            <option value="Retail Shop Rental">Retail Shop Rental</option>
-            <option value="Warehouse / Storage Rental">
-              Warehouse / Storage Rental
-            </option>
-          </select>
+                rentalIncomeBenefit: selected
+                  ? selected.map((i) => i.value)
+                  : [],
+              })
+            }
+          />
         </div>
+
+        {/* QUALITY */}
         <div className={`${isRental ? "hidden" : "block"} w-full`}>
           <label
-            className={`${
-              newProperty.qualityBenefit ? "text-green-600" : "text-[#00000066]"
-            } block text-sm leading-4 font-medium`}
+            className={`${newProperty.qualityBenefit?.length ? "text-green-600" : "text-[#00000066]"} block text-sm font-medium`}
           >
             Quality Construction <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600  appearance-none placeholder:text-black"
-            value={newProperty.qualityBenefit}
-            onChange={(e) => {
+
+          <Select
+            isMulti
+            styles={selectStyles}
+            options={qualityOptions}
+            className="mt-[10px]"
+            placeholder="Select Benefit"
+            value={qualityOptions.filter((option) =>
+              newProperty.qualityBenefit?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                qualityBenefit: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select Benefit</option>
-            <option value="Longer Building Life">Longer Building Life</option>
-            <option value="Low Maintenance Cost">Low Maintenance Cost</option>
-            <option value="Better Safety & Structural Strength">
-              Better Safety & Structural Strength
-            </option>
-            <option value="Higher Property Value">Higher Property Value</option>
-          </select>
+                qualityBenefit: selected ? selected.map((i) => i.value) : [],
+              })
+            }
+          />
         </div>
+
+        {/* CAPITAL */}
         <div className="w-full">
           <label
-            className={`${
-              newProperty.capitalAppreciationBenefit
-                ? "text-green-600"
-                : "text-[#00000066]"
-            } block text-sm leading-4 font-medium`}
+            className={`${newProperty.capitalAppreciationBenefit?.length ? "text-green-600" : "text-[#00000066]"} block text-sm font-medium`}
           >
             Capital Appreciation <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600  appearance-none placeholder:text-black"
-            value={newProperty.capitalAppreciationBenefit}
-            onChange={(e) => {
+
+          <Select
+            isMulti
+            styles={selectStyles}
+            options={capitalOptions}
+            className="mt-[10px]"
+            placeholder="Select Benefit"
+            value={capitalOptions.filter((option) =>
+              newProperty.capitalAppreciationBenefit?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                capitalAppreciationBenefit: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select Benefit</option>
-            <option value="Higher Resale Value">Higher Resale Value</option>
-            <option value="Increased Return on Investment (ROI)">
-              Increased Return on Investment (ROI)
-            </option>
-            <option value="Wealth Creation Over Time">
-              Wealth Creation Over Time
-            </option>
-            <option value="Better Loan Collateral Value">
-              Better Loan Collateral Value
-            </option>
-            <option value="Inflation Hedge">Inflation Hedge</option>
-          </select>
+                capitalAppreciationBenefit: selected
+                  ? selected.map((i) => i.value)
+                  : [],
+              })
+            }
+          />
         </div>
+
+        {/* ECO */}
         <div className="w-full">
           <label
-            className={`${
-              newProperty.ecofriendlyBenefit
-                ? "text-green-600"
-                : "text-[#00000066]"
-            } block text-sm leading-4 font-medium`}
+            className={`${newProperty.ecofriendlyBenefit?.length ? "text-green-600" : "text-[#00000066]"} block text-sm font-medium`}
           >
-            Eco-Friendly <span className="text-red-600">*</span>
+            Eco Friendly <span className="text-red-600">*</span>
           </label>
-          <select
-            required
-            className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600  appearance-none placeholder:text-black"
-            value={newProperty.ecofriendlyBenefit}
-            onChange={(e) => {
+
+          <Select
+            isMulti
+            styles={selectStyles}
+            options={ecoOptions}
+            className="mt-[10px]"
+            placeholder="Select Benefit"
+            value={ecoOptions.filter((option) =>
+              newProperty.ecofriendlyBenefit?.includes(option.value),
+            )}
+            onChange={(selected) =>
               setPropertyData({
                 ...newProperty,
-                ecofriendlyBenefit: e.target.value,
-              });
-            }}
-          >
-            <option value="">Select Benefit</option>
-            <option value="Lower Energy Bills">Lower Energy Bills</option>
-            <option value="Reduced Water Consumption">
-              Reduced Water Consumption
-            </option>
-            <option value="Healthier Living Environment">
-              Healthier Living Environment
-            </option>
-            <option value="Lower Carbon Footprint">
-              Lower Carbon Footprint
-            </option>
-          </select>
+                ecofriendlyBenefit: selected
+                  ? selected.map((i) => i.value)
+                  : [],
+              })
+            }
+          />
         </div>
       </div>
     </div>
