@@ -590,15 +590,13 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
       </div>
 
       {/* Property Features And Benefits */}
-      <h2
-        className={`${isPlot ? "hidden" : "block"} text-base font-semibold mt-6 mb-2`}
-      >
+      <h2 className={`text-base font-semibold mt-6 mb-2`}>
         Step 2: Property Features
       </h2>
 
       {/* Property Features */}
       <div
-        className={`${isPlot ? "hidden" : "block"} grid gap-6 md:gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}
+        className={`grid gap-6 md:gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}
       >
         <div className={`${isRental ? "hidden" : "block"} w-full`}>
           <label
@@ -640,7 +638,6 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           </label>
           <input
             type="text"
-            required
             placeholder="Enter Feature Here."
             className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 placeholder:text-black"
             value={newProperty.sizeAreaFeature}
@@ -653,7 +650,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           />
         </div>
 
-        <div className={`${isPlot ? "hidden" : "block"} w-full`}>
+        <div className={` w-full`}>
           <label
             className={`${
               newProperty.parkingFeature ? "text-green-600" : "text-[#00000066]"
@@ -662,7 +659,6 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
             Parking Feature <span className="text-red-600">*</span>
           </label>
           <select
-            required
             className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
             value={newProperty.parkingFeature}
             onChange={(e) => {
@@ -695,7 +691,6 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
             Balcony / Terrace Feature <span className="text-red-600">*</span>
           </label>
           <select
-            required
             className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
             value={newProperty.terraceFeature}
             onChange={(e) => {
@@ -731,7 +726,6 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
           </label>
           <input
             type="text"
-            required
             placeholder="Enter Feature Here"
             className="w-full mt-[10px] text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-green-600 appearance-none placeholder:text-black"
             value={newProperty.ageOfPropertyFeature}
@@ -805,7 +799,7 @@ const StepTwo = ({ newProperty, setPropertyData }) => {
 
       {/* Property Features And Benefits */}
       <h2 className="text-base font-semibold mt-6 mb-2">
-        {isPlot ? "Step 2: " : "Step 3: "} Property Benefits
+        {"Step 3: "} Property Benefits
       </h2>
 
       {/* Property Features */}
