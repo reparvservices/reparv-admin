@@ -56,6 +56,7 @@ const menuItems = [
       { label: "Enquirers", to: "/enquirers" },
       { label: "Call Enquirers", to: "/call-enquirers" },
       { label: "Whatsapp Enquirers", to: "/whatsapp-enquirers" },
+      { label: "Advisor WhatsApp", to: "/advisor-whatsapp" },
       { label: "Digital Broker", to: "/digital-broker" },
       { label: "Meta Leads", to: "/meta-leads" },
     ],
