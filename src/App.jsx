@@ -44,6 +44,7 @@ import BlogFAQs from "./pages/BlogFAQ.jsx";
 import CallEnquirers from "./pages/CallEnquirers.jsx";
 import MetaLeads from "./pages/MetaLeads.jsx";
 import WhatsappEnquirers from "./pages/WhatsappEnquirers.jsx";
+import WhatsappChat from "./pages/WhatsappChat.jsx";
 import ContactUsMessages from "./pages/ContactUsMessages.jsx";
 import Subscribers from "./pages/Subscribers.jsx";
 
@@ -60,6 +61,7 @@ const App = () => {
           <Route path="/enquirers" element={<Enquirers />} />
           <Route path="/call-enquirers" element={<CallEnquirers />} />
           <Route path="/whatsapp-enquirers" element={<WhatsappEnquirers />} />
+          <Route path="/whatsapp-chat" element={<WhatsappChat />} />
           <Route path="/meta-leads" element={<MetaLeads />} />
           <Route path="/digital-broker" element={<DigitalBroker />} />
           <Route path="/properties" element={<Properties />} />
