@@ -149,7 +149,7 @@ const Enquirers = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
@@ -172,7 +172,7 @@ const Enquirers = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) throw new Error("Failed to fetch Enquirers.");
       const data = await response.json();
@@ -239,7 +239,7 @@ const Enquirers = () => {
     } catch (err) {
       console.error("Error fetching properties:", err);
       setError(
-        err.message || "Something went wrong while fetching properties."
+        err.message || "Something went wrong while fetching properties.",
       );
       setProperties([]);
     }
@@ -256,7 +256,7 @@ const Enquirers = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok)
         throw new Error("Failed to fetch enquirers property list.");
@@ -282,7 +282,7 @@ const Enquirers = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ propertyId }),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -338,7 +338,7 @@ const Enquirers = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ visitDate, visitRemark, enquiryStatus }),
-          }
+          },
         );
         const data = await response.json();
         console.log(response);
@@ -375,7 +375,7 @@ const Enquirers = () => {
             method: "POST",
             credentials: "include",
             body: formData,
-          }
+          },
         );
         const data = await response.json();
         if (response.ok) {
@@ -410,7 +410,7 @@ const Enquirers = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ followUpRemark, visitDate, enquiryStatus }),
-          }
+          },
         );
         const data = await response.json();
         if (response.ok) {
@@ -441,7 +441,7 @@ const Enquirers = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ cancelledRemark, enquiryStatus }),
-          }
+          },
         );
         const data = await response.json();
         if (response.ok) {
@@ -459,7 +459,7 @@ const Enquirers = () => {
 
     if (
       !window.confirm(
-        "Are you sure you want to change into this Enquiry status?"
+        "Are you sure you want to change into this Enquiry status?",
       )
     ) {
       return;
@@ -475,7 +475,7 @@ const Enquirers = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ enquiryStatus }),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -498,7 +498,7 @@ const Enquirers = () => {
     if (
       !window.confirm(
         "Are you sure you want to assign Enquiry to " +
-          salesPersonAssign.salesperson
+          salesPersonAssign.salesperson,
       )
     )
       return;
@@ -514,7 +514,7 @@ const Enquirers = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(salesPersonAssign),
-        }
+        },
       );
       const data = await response.json();
       console.log(response);
@@ -578,7 +578,7 @@ const Enquirers = () => {
         alert(
           newEnquiry.enquirersid
             ? "Enquiry updated successfully!"
-            : "Enquiry added successfully!"
+            : "Enquiry added successfully!",
         );
       }
 
@@ -738,7 +738,7 @@ const Enquirers = () => {
         }
         return acc;
       },
-      { New: 0, Alloted: 0, Assign: 0 }
+      { New: 0, Alloted: 0, Assign: 0 },
     );
   };
 
@@ -780,8 +780,12 @@ const Enquirers = () => {
       item.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.contact?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.assign?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.projectPartnerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.projectPartnerContact?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.projectPartnerName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      item.projectPartnerContact
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       item.territoryName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.source?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -795,7 +799,7 @@ const Enquirers = () => {
     const itemDate = parse(
       item.created_at,
       "dd MMM yyyy | hh:mm a",
-      new Date()
+      new Date(),
     );
 
     const matchesDate =
@@ -845,6 +849,73 @@ const Enquirers = () => {
     },
   };
 
+  /* ─── helpers ─── */
+  const fmt = (str = "") =>
+    str
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .trim();
+
+  const fmtVal = (str = "") =>
+    str
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .trim();
+
+  const parseFields = (lead) => {
+    try {
+      const p =
+        typeof lead.raw_payload === "string"
+          ? JSON.parse(lead.raw_payload)
+          : lead.raw_payload;
+      return Array.isArray(p?.field_data) ? p.field_data : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const FieldPills = ({ lead }) => {
+    const fields = parseFields(lead).filter(
+      (f) => !SKIP.has(f.name) && f.values?.[0],
+    );
+    if (!fields.length)
+      return (
+        <span style={{ fontSize: 12, color: "#cbd5e1" }}>No form data</span>
+      );
+    return (
+      <div
+        style={{ display: "flex", flexWrap: "wrap", gap: 6, padding: "4px 0" }}
+      >
+        {fields.map((f) => (
+          <div
+            key={f.name}
+            style={{
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: 8,
+              padding: "4px 10px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 9,
+                color: "#94a3b8",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              {fmt(f.name)}
+            </div>
+            <div style={{ fontSize: 11, color: "#1e293b", fontWeight: 700 }}>
+              {fmtVal(f.values[0])}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const columns = [
     {
       name: "SN",
@@ -854,14 +925,14 @@ const Enquirers = () => {
             row.status === "New"
               ? "bg-[#EAFBF1] text-[#0BB501]"
               : row.status === "Visit Scheduled"
-              ? "bg-[#E9F2FF] text-[#0068FF]"
-              : row.status === "Token"
-              ? "bg-[#FFF8DD] text-[#FFCA00]"
-              : row.status === "Cancelled"
-              ? "bg-[#FFEAEA] text-[#ff2323]"
-              : row.status === "Follow Up"
-              ? "bg-[#F4F0FB] text-[#5D00FF]"
-              : "text-[#000000]"
+                ? "bg-[#E9F2FF] text-[#0068FF]"
+                : row.status === "Token"
+                  ? "bg-[#FFF8DD] text-[#FFCA00]"
+                  : row.status === "Cancelled"
+                    ? "bg-[#FFEAEA] text-[#ff2323]"
+                    : row.status === "Follow Up"
+                      ? "bg-[#F4F0FB] text-[#5D00FF]"
+                      : "text-[#000000]"
           }`}
         >
           {index + 1}
@@ -878,14 +949,14 @@ const Enquirers = () => {
             row.status === "New"
               ? "bg-[#EAFBF1] text-[#0BB501]"
               : row.status === "Visit Scheduled"
-              ? "bg-[#E9F2FF] text-[#0068FF]"
-              : row.status === "Token"
-              ? "bg-[#FFF8DD] text-[#FFCA00]"
-              : row.status === "Cancelled"
-              ? "bg-[#FFEAEA] text-[#ff2323]"
-              : row.status === "Follow Up"
-              ? "bg-[#F4F0FB] text-[#5D00FF]"
-              : "text-[#000000]"
+                ? "bg-[#E9F2FF] text-[#0068FF]"
+                : row.status === "Token"
+                  ? "bg-[#FFF8DD] text-[#FFCA00]"
+                  : row.status === "Cancelled"
+                    ? "bg-[#FFEAEA] text-[#ff2323]"
+                    : row.status === "Follow Up"
+                      ? "bg-[#F4F0FB] text-[#5D00FF]"
+                      : "text-[#000000]"
           }`}
         >
           {row.status}
@@ -916,7 +987,7 @@ const Enquirers = () => {
               onClick={() => {
                 window.open(
                   "https://www.reparv.in/property-info/" + row.seoSlug,
-                  "_blank"
+                  "_blank",
                 );
               }}
               className="w-full h-[100%] object-cover cursor-pointer"
@@ -939,6 +1010,12 @@ const Enquirers = () => {
       name: "Contact",
       selector: (row) => row.contact,
       minWidth: "150px",
+    },
+    {
+      name: "Form Responses",
+      cell: (row) => <FieldPills lead={row} />,
+      minWidth: "320px",
+      wrap: true,
     },
     {
       name: "Source",
@@ -1110,6 +1187,7 @@ const Enquirers = () => {
           <div className="flex xl:hidden flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
             <DownloadCSV data={filteredData} filename={"Enquirers.csv"} />
             <AddButton label={"Add "} func={setShowEnquiryForm} />
+            <Loader />
           </div>
         </div>
 
@@ -1653,7 +1731,7 @@ const Enquirers = () => {
                           (!salesPersonAssign.state ||
                             sp.state === salesPersonAssign.state) &&
                           (!salesPersonAssign.city ||
-                            sp.city === salesPersonAssign.city)
+                            sp.city === salesPersonAssign.city),
                       )
                       .map((sp) => ({
                         value: {
@@ -1680,7 +1758,7 @@ const Enquirers = () => {
                           .find(
                             (opt) =>
                               opt.value.salespersonid ===
-                              salesPersonAssign.salespersonid
+                              salesPersonAssign.salespersonid,
                           ) || null
                       : null
                   }
@@ -2297,14 +2375,14 @@ const Enquirers = () => {
                             remark?.status === "New"
                               ? "bg-[#EAFBF1] text-[#0BB501]"
                               : remark?.status === "Visit Scheduled"
-                              ? "bg-[#E9F2FF] text-[#0068FF]"
-                              : remark?.status === "Token"
-                              ? "bg-[#FFF8DD] text-[#FFCA00]"
-                              : remark?.status === "Cancelled"
-                              ? "bg-[#FFEAEA] text-[#ff2323]"
-                              : remark?.status === "Follow Up"
-                              ? "bg-[#F4F0FB] text-[#5D00FF]"
-                              : "text-[#000000]"
+                                ? "bg-[#E9F2FF] text-[#0068FF]"
+                                : remark?.status === "Token"
+                                  ? "bg-[#FFF8DD] text-[#FFCA00]"
+                                  : remark?.status === "Cancelled"
+                                    ? "bg-[#FFEAEA] text-[#ff2323]"
+                                    : remark?.status === "Follow Up"
+                                      ? "bg-[#F4F0FB] text-[#5D00FF]"
+                                      : "text-[#000000]"
                           }`}
                         >
                           {new Date(remark?.created_at).toLocaleDateString(
@@ -2313,7 +2391,7 @@ const Enquirers = () => {
                               day: "2-digit",
                               month: "short",
                               year: "numeric",
-                            }
+                            },
                           )}
                           {" - "} {remark?.status}
                         </span>
@@ -2324,14 +2402,14 @@ const Enquirers = () => {
                             remark?.status === "New"
                               ? " text-[#0BB501]"
                               : remark?.status === "Visit Scheduled"
-                              ? " text-[#0068FF]"
-                              : remark?.status === "Token"
-                              ? " text-[#FFCA00]"
-                              : remark?.status === "Cancelled"
-                              ? " text-[#ff2323]"
-                              : remark?.status === "Follow Up"
-                              ? " text-[#5D00FF]"
-                              : "text-[#000000]"
+                                ? " text-[#0068FF]"
+                                : remark?.status === "Token"
+                                  ? " text-[#FFCA00]"
+                                  : remark?.status === "Cancelled"
+                                    ? " text-[#ff2323]"
+                                    : remark?.status === "Follow Up"
+                                      ? " text-[#5D00FF]"
+                                      : "text-[#000000]"
                           }`}
                         >
                           {remark?.visitdate}

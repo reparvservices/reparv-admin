@@ -218,6 +218,7 @@ export default function MetaLeads() {
           return db - da;
         });
         setDatas(sorted);
+        console.log(sorted);
       }
     } catch (e) {
       console.error(e);
