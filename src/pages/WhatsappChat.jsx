@@ -23,6 +23,10 @@ const WhatsappChat = () => {
   const isFetchingMessagesRef = useRef(false);
   const isFetchingConversationsRef = useRef(false);
   const pollAbortRef = useRef({ messages: null, conversations: null });
+  /** Always current — avoids stale closures + async fetch applying to the wrong thread. */
+  const selectedPhoneRef = useRef(selectedPhone);
+  selectedPhoneRef.current = selectedPhone;
+  const didInitialConversationPickRef = useRef(false);
 
   const parseMysqlDateTime = (s) => {
     if (!s) return null;
@@ -96,9 +100,6 @@ const WhatsappChat = () => {
           }
         }
       }, 0);
-      if (!selectedPhone && (data?.conversations || []).length > 0) {
-        setSelectedPhone((data?.conversations || [])[0]?.phone_e164 || null);
-      }
     } catch (e) {
       console.error(e);
       // Ignore abort errors (happens during fast polling / switching)
@@ -145,6 +146,9 @@ const WhatsappChat = () => {
       if (!res.ok) throw new Error(data?.message || "Failed to fetch messages");
 
       const incoming = data?.messages || [];
+      // Ignore responses if user switched chats while this request was in flight.
+      if (phone !== selectedPhoneRef.current) return;
+
       if (replace) {
         setMessages(incoming);
       } else {
@@ -176,6 +180,18 @@ const WhatsappChat = () => {
     fetchConversations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Pick the first thread once when the list loads — must NOT live inside the polling
+  // fetchConversations (stale closure would reset selection to row 1 every few seconds).
+  useEffect(() => {
+    if (didInitialConversationPickRef.current) return;
+    if (!conversations.length) return;
+    if (selectedPhone != null) return;
+    const first = conversations[0]?.phone_e164;
+    if (first == null || first === "") return;
+    setSelectedPhone(String(first));
+    didInitialConversationPickRef.current = true;
+  }, [conversations, selectedPhone]);
 
   useEffect(() => {
     if (!selectedPhone) return;
@@ -366,9 +382,13 @@ const WhatsappChat = () => {
 
                   return (
                     <button
-                      key={c.phone_e164}
+                      key={String(c.phone_e164)}
                       type="button"
-                      onClick={() => setSelectedPhone(c.phone_e164)}
+                      onClick={() => {
+                        const p = c.phone_e164;
+                        if (p == null || p === "") return;
+                        setSelectedPhone(String(p));
+                      }}
                       className={`w-full text-left p-3 rounded-2xl transition mb-2 border ${
                         isActive
                           ? "border-green-500 bg-green-50"
