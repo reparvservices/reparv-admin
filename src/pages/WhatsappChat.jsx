@@ -20,6 +20,9 @@ const WhatsappChat = () => {
   const lastOpenedAtRef = useRef({}); // phone -> Date.now() when opened
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [mobileListOpen, setMobileListOpen] = useState(true);
+  const isFetchingMessagesRef = useRef(false);
+  const isFetchingConversationsRef = useRef(false);
+  const pollAbortRef = useRef({ messages: null, conversations: null });
 
   const parseMysqlDateTime = (s) => {
     if (!s) return null;
@@ -58,13 +61,23 @@ const WhatsappChat = () => {
     });
   }, [conversations, search]);
 
-  const fetchConversations = async () => {
+  const fetchConversations = async ({ silent = false } = {}) => {
+    if (isFetchingConversationsRef.current) return;
     try {
-      setLoading?.(true);
+      isFetchingConversationsRef.current = true;
+      if (!silent) setLoading?.(true);
+
+      if (pollAbortRef.current.conversations) {
+        pollAbortRef.current.conversations.abort();
+      }
+      const controller = new AbortController();
+      pollAbortRef.current.conversations = controller;
+
       const res = await fetch(`${URI}/admin/whatsapp-chat/conversations`, {
         method: "GET",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Failed to fetch");
@@ -88,26 +101,46 @@ const WhatsappChat = () => {
       }
     } catch (e) {
       console.error(e);
-      setError(e.message || "Failed to load conversations");
+      // Ignore abort errors (happens during fast polling / switching)
+      if (e?.name !== "AbortError") {
+        setError(e.message || "Failed to load conversations");
+      }
     } finally {
-      setLoading?.(false);
+      if (!silent) setLoading?.(false);
+      isFetchingConversationsRef.current = false;
     }
   };
 
-  const fetchMessages = async (phone, { afterId = null, replace = false } = {}) => {
+  const fetchMessages = async (
+    phone,
+    { afterId = null, replace = false, silent = false } = {},
+  ) => {
     if (!phone) return;
+    if (isFetchingMessagesRef.current) return;
 
     const qs = new URLSearchParams();
     qs.set("phone", phone);
     if (afterId && Number.isFinite(afterId)) qs.set("afterId", String(afterId));
 
     try {
-      setLoadingMessages(true);
-      const res = await fetch(`${URI}/admin/whatsapp-chat/messages?${qs.toString()}`, {
+      isFetchingMessagesRef.current = true;
+      if (!silent) setLoadingMessages(true);
+
+      if (pollAbortRef.current.messages) {
+        pollAbortRef.current.messages.abort();
+      }
+      const controller = new AbortController();
+      pollAbortRef.current.messages = controller;
+
+      const res = await fetch(
+        `${URI}/admin/whatsapp-chat/messages?${qs.toString()}`,
+        {
         method: "GET",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-      });
+          signal: controller.signal,
+        },
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Failed to fetch messages");
 
@@ -130,9 +163,12 @@ const WhatsappChat = () => {
       if (maxId) lastMessageIdRef.current[phone] = maxId;
     } catch (e) {
       console.error(e);
-      setError(e.message || "Failed to load messages");
+      if (e?.name !== "AbortError") {
+        setError(e.message || "Failed to load messages");
+      }
     } finally {
-      setLoadingMessages(false);
+      if (!silent) setLoadingMessages(false);
+      isFetchingMessagesRef.current = false;
     }
   };
 
@@ -153,14 +189,24 @@ const WhatsappChat = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPhone]);
 
-  // Poll so new webhook messages appear in the UI.
+  // Always poll conversation list in background (keeps sidebar live).
+  useEffect(() => {
+    const t = setInterval(() => {
+      fetchConversations({ silent: true });
+    }, 5000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Poll messages for the currently opened chat (fast + silent, WhatsApp-like).
   useEffect(() => {
     if (!selectedPhone) return;
     const t = setInterval(() => {
+      // If tab is hidden, slow down by skipping (prevents waste + stale UI)
+      if (typeof document !== "undefined" && document.hidden) return;
       const lastId = lastMessageIdRef.current[selectedPhone] || 0;
-      fetchMessages(selectedPhone, { afterId: lastId, replace: false });
-      fetchConversations();
-    }, 5000);
+      fetchMessages(selectedPhone, { afterId: lastId, replace: false, silent: true });
+    }, 2000);
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPhone]);

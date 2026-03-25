@@ -874,6 +874,9 @@ const Enquirers = () => {
     }
   };
 
+  // Fields that are already shown in table columns (avoid duplicates in "Form Responses")
+  const SKIP = new Set(["inbox_url", "full_name", "phone_number"]);
+
   const FieldPills = ({ lead }) => {
     const fields = parseFields(lead).filter(
       (f) => !SKIP.has(f.name) && f.values?.[0],
