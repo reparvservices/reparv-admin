@@ -22,6 +22,7 @@ import propertyPicture from "../assets/propertyPicture.svg";
 import FormatPrice from "../components/FormatPrice";
 import { getImageURI } from "../utils/helper";
 import { formatNumber } from "../utils/formatNumber";
+import DashboardSummaryCard from "../components/dashboard/DashboardSummaryCard";
 
 function Dashboard() {
   const { URI, setLoading, showCustomer, setShowCustomer } = useAuth();
@@ -287,6 +288,18 @@ function Dashboard() {
 
   return (
     <div className="overview overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start">
+      <DashboardSummaryCard
+        data={{
+          totalRevenue: "₹1,02,000",
+          netProfitLoss: "-₹3,779.66",
+          totalDeals: 8,
+          activeDeals: 4,
+          totalExpenses: "₹90,220.34",
+          marketingSpend: "₹43,220.34",
+          salesCommission: "₹23,000",
+          roi: "-8.74%",
+        }}
+      />
       <div className="overview-card-container gap-2 sm:gap-3 px-4 md:px-0 w-full grid place-items-center grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-5">
         {[
           {
