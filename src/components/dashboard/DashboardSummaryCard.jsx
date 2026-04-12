@@ -51,14 +51,6 @@ export default function DashboardSummaryCard({ data }) {
           </h3>
         </div>
 
-        {/* Active Deals */}
-        <div className="bg-green-50 rounded-lg border p-4">
-          <p className="text-xs text-gray-500 mb-1">Active Deals</p>
-          <h3 className="text-lg font-bold text-green-700">
-            {data.activeDeals}
-          </h3>
-        </div>
-
         {/* Total Expenses */}
         <div className="bg-red-50 rounded-lg border p-4">
           <p className="text-xs text-gray-500 mb-1">Total Expenses</p>

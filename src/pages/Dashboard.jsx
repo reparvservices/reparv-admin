@@ -300,7 +300,7 @@ function Dashboard() {
           roi: "-8.74%",
         }}
       />
-      <div className="overview-card-container gap-2 sm:gap-3 px-4 md:px-0 w-full grid place-items-center grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-5">
+      <div className="overview-card-container gap-2 sm:gap-3 px-4 md:px-0 w-full hidden place-items-center grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-5">
         {[
           {
             label: "Total Deal Amount",
