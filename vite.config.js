@@ -28,13 +28,16 @@ export default defineConfig({
           if (id.includes("@mui") || id.includes("@emotion")) {
             return;
           }
+          // Do not merge React/react-dom/router/scheduler into a manual chunk: it can
+          // yield duplicate or mis-ordered modules and "Cannot set properties of undefined
+          // (setting 'Children')" in production.
           if (
-            id.includes("react-dom") ||
-            id.includes("/react/") ||
+            id.includes("node_modules/react-dom/") ||
+            id.includes("node_modules/react/") ||
             id.includes("react-router") ||
-            id.includes("scheduler")
+            id.includes("node_modules/scheduler/")
           ) {
-            return "react-core";
+            return;
           }
           if (id.includes("react-icons")) {
             return "icons";
