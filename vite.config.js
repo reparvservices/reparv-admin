@@ -9,8 +9,10 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
+          // Do not assign CKEditor to a manual chunk: its graph has circular deps;
+          // forcing one chunk causes "Cannot access 'X' before initialization" in production.
           if (id.includes("@ckeditor") || id.includes("ckeditor")) {
-            return "ckeditor";
+            return;
           }
           if (
             id.includes("leaflet") ||
