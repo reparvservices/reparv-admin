@@ -24,8 +24,9 @@ export default defineConfig({
           ) {
             return "maps";
           }
+          // MUI + Emotion: same TDZ risk as CKEditor if forced into one chunk.
           if (id.includes("@mui") || id.includes("@emotion")) {
-            return "mui";
+            return;
           }
           if (
             id.includes("react-dom") ||
