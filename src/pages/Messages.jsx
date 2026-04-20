@@ -12,6 +12,7 @@ const Messages = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/messages", {
         method: "GET",
@@ -24,9 +25,10 @@ const Messages = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   // Delete record
   const del = async (id) => {
@@ -46,7 +48,6 @@ const Messages = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Message :", error);
     }
   };
 
@@ -60,7 +61,6 @@ const Messages = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -68,7 +68,6 @@ const Messages = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -100,7 +99,6 @@ const Messages = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -208,7 +206,6 @@ const Messages = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

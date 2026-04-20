@@ -1,62 +1,84 @@
 import "./App.css";
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import Layout from "./components/layout/Layout.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import Enquirers from "./pages/Enquirers.jsx";
-import DigitalBroker from "./pages/DigitalBroker.jsx";
-import Map from "./pages/Map.jsx";
-import Calender from "./pages/Calender.jsx";
-import Customers from "./pages/Customers.jsx";
-import Ticketing from "./pages/Ticketing.jsx";
-import MarketingContent from "./pages/MarketingContent.jsx";
-import Login from "./pages/Login.jsx";
-import Employee from "./pages/Employee.jsx";
-import Builders from "./pages/Builders.jsx";
-import Promoter from "./pages/Promoter.jsx";
-import SalesPerson from "./pages/SalesPerson.jsx";
-import OnBoardingPartner from "./pages/OnBoardingPartner.jsx";
-import ProjectPartner from "./pages/ProjectPartner.jsx";
-import TerritoryPartner from "./pages/TerritoryPartner.jsx";
-import GuestUser from "./pages/guestUser.jsx";
-import Subscription from "./pages/Subscription.jsx";
-import Properties from "./pages/Properties.jsx";
-import Role from "./pages/Role.jsx";
-import Department from "./pages/Department.jsx";
-import ErrorPage from "./pages/ErrorPage.jsx";
-import Slider from "./pages/Slider.jsx";
-import Testimonial from "./pages/Testimonial.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
-import Blogs from "./pages/Blogs.jsx";
-import News from "./pages/News.jsx";
-import ApkUpload from "./pages/ApkUpload.jsx";
-import UsersLoanEligibility from "./pages/UsersLoanEligibility.jsx";
-import UpdateEMI from "./components/usersLoanEligibility/UpdateEMI.jsx";
-import Trends from "./pages/Trends.jsx";
-//import BrandAccessories from "./pages/BrandAccessories.jsx";
-import PropertyAuthority from "./pages/PropertyAuthority.jsx";
-import SubscriptionDiscount from "./pages/SubscriptionDiscount.jsx";
-import PropertiesFlatAndPlotInfo from "./pages/PropertiesFlatAndPlotInfo.jsx";
-import AdsManager from "./pages/AdsManager.jsx";
-import Messages from "./pages/Messages.jsx";
-import ScheduledRequests from "./pages/ScheduledRequests.jsx";
-import FAQs from "./pages/FAQs.jsx";
-import BlogFAQs from "./pages/BlogFAQ.jsx";
-import CallEnquirers from "./pages/CallEnquirers.jsx";
-import MetaLeads from "./pages/MetaLeads.jsx";
-import WhatsappEnquirers from "./pages/WhatsappEnquirers.jsx";
-import WhatsappChat from "./pages/WhatsappChat.jsx";
-import ContactUsMessages from "./pages/ContactUsMessages.jsx";
-import Subscribers from "./pages/Subscribers.jsx";
+
+const Layout = lazy(() => import("./components/layout/Layout.jsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
+const Enquirers = lazy(() => import("./pages/Enquirers.jsx"));
+const DigitalBroker = lazy(() => import("./pages/DigitalBroker.jsx"));
+const Map = lazy(() => import("./pages/Map.jsx"));
+const Calender = lazy(() => import("./pages/Calender.jsx"));
+const Customers = lazy(() => import("./pages/Customers.jsx"));
+const Ticketing = lazy(() => import("./pages/Ticketing.jsx"));
+const MarketingContent = lazy(() => import("./pages/MarketingContent.jsx"));
+const Login = lazy(() => import("./pages/Login.jsx"));
+const Employee = lazy(() => import("./pages/Employee.jsx"));
+const Builders = lazy(() => import("./pages/Builders.jsx"));
+const Promoter = lazy(() => import("./pages/Promoter.jsx"));
+const SalesPerson = lazy(() => import("./pages/SalesPerson.jsx"));
+const OnBoardingPartner = lazy(() => import("./pages/OnBoardingPartner.jsx"));
+const ProjectPartner = lazy(() => import("./pages/ProjectPartner.jsx"));
+const TerritoryPartner = lazy(() => import("./pages/TerritoryPartner.jsx"));
+const GuestUser = lazy(() => import("./pages/guestUser.jsx"));
+const Subscription = lazy(() => import("./pages/Subscription.jsx"));
+const Properties = lazy(() => import("./pages/Properties.jsx"));
+const Role = lazy(() => import("./pages/Role.jsx"));
+const Department = lazy(() => import("./pages/Department.jsx"));
+const ErrorPage = lazy(() => import("./pages/ErrorPage.jsx"));
+const Slider = lazy(() => import("./pages/Slider.jsx"));
+const Testimonial = lazy(() => import("./pages/Testimonial.jsx"));
+const Blogs = lazy(() => import("./pages/Blogs.jsx"));
+const News = lazy(() => import("./pages/News.jsx"));
+const ApkUpload = lazy(() => import("./pages/ApkUpload.jsx"));
+const UsersLoanEligibility = lazy(() =>
+  import("./pages/UsersLoanEligibility.jsx")
+);
+const UpdateEMI = lazy(() =>
+  import("./components/usersLoanEligibility/UpdateEMI.jsx")
+);
+const Trends = lazy(() => import("./pages/Trends.jsx"));
+const PropertyAuthority = lazy(() => import("./pages/PropertyAuthority.jsx"));
+const SubscriptionDiscount = lazy(() =>
+  import("./pages/SubscriptionDiscount.jsx")
+);
+const PropertiesFlatAndPlotInfo = lazy(() =>
+  import("./pages/PropertiesFlatAndPlotInfo.jsx")
+);
+const AdsManager = lazy(() => import("./pages/AdsManager.jsx"));
+const Messages = lazy(() => import("./pages/Messages.jsx"));
+const ScheduledRequests = lazy(() => import("./pages/ScheduledRequests.jsx"));
+const FAQs = lazy(() => import("./pages/FAQs.jsx"));
+const BlogFAQs = lazy(() => import("./pages/BlogFAQ.jsx"));
+const CallEnquirers = lazy(() => import("./pages/CallEnquirers.jsx"));
+const MetaLeads = lazy(() => import("./pages/MetaLeads.jsx"));
+const WhatsappEnquirers = lazy(() => import("./pages/WhatsappEnquirers.jsx"));
+const WhatsappChat = lazy(() => import("./pages/WhatsappChat.jsx"));
+const ContactUsMessages = lazy(() => import("./pages/ContactUsMessages.jsx"));
+const Subscribers = lazy(() => import("./pages/Subscribers.jsx"));
 
 const App = () => {
   return (
     <>
       <ScrollToTop />
       <Routes>
-        {/* Login Page */}
-        <Route path="" element={<Login />} />
+        <Route
+          path=""
+          element={
+            <Suspense fallback={null}>
+              <Login />
+            </Suspense>
+          }
+        />
 
-        <Route path="/" element={<Layout />}>
+        <Route
+          path="/"
+          element={
+            <Suspense fallback={null}>
+              <Layout />
+            </Suspense>
+          }
+        >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/enquirers" element={<Enquirers />} />
           <Route path="/call-enquirers" element={<CallEnquirers />} />
@@ -81,8 +103,14 @@ const App = () => {
           <Route path="/projectpartner" element={<ProjectPartner />} />
           <Route path="/territorypartner" element={<TerritoryPartner />} />
           <Route path="/messages" element={<Messages />} />
-          <Route path="/contact-us-messages" element={<ContactUsMessages />} />
-          <Route path="/scheduled-requests" element={<ScheduledRequests />} />
+          <Route
+            path="/contact-us-messages"
+            element={<ContactUsMessages />}
+          />
+          <Route
+            path="/scheduled-requests"
+            element={<ScheduledRequests />}
+          />
           <Route path="/subscription-pricing" element={<Subscription />} />
           <Route
             path="/subscription-discount"
@@ -91,7 +119,10 @@ const App = () => {
           <Route path="/employees" element={<Employee />} />
           <Route path="/role" element={<Role />} />
           <Route path="/department" element={<Department />} />
-          <Route path="/property-authorities" element={<PropertyAuthority />} />
+          <Route
+            path="/property-authorities"
+            element={<PropertyAuthority />}
+          />
           <Route path="/tickets" element={<Ticketing />} />
           <Route path="/slider" element={<Slider />} />
           <Route path="/testimonial" element={<Testimonial />} />
@@ -110,12 +141,17 @@ const App = () => {
           <Route path="/news" element={<News />} />
           <Route path="/trends" element={<Trends />} />
           <Route path="/subscribers" element={<Subscribers />} />
-          {/*<Route path="/brand-accessories" element={<BrandAccessories />} />*/}
           <Route path="/marketing-content" element={<MarketingContent />} />
         </Route>
 
-        {/* 404 */}
-        <Route path="*" element={<ErrorPage />} />
+        <Route
+          path="*"
+          element={
+            <Suspense fallback={null}>
+              <ErrorPage />
+            </Suspense>
+          }
+        />
       </Routes>
     </>
   );

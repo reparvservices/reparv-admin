@@ -69,19 +69,18 @@ const PropertiesFlatAndPlotInfo = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch roles.");
       const data = await response.json();
-      //console.log(data.propertyCategory);
       if (data.propertyCategory?.toLowerCase().includes("flat")) {
         setCategory("Flat");
       } else {
         setCategory("Plot");
       }
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         URI + "/admin/property/additional-info/" + propertyid,
@@ -98,9 +97,10 @@ const PropertiesFlatAndPlotInfo = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //View data
   const view = async (id) => {
@@ -120,7 +120,6 @@ const PropertiesFlatAndPlotInfo = () => {
       setInfo(data);
       setShowInfo(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -185,7 +184,6 @@ const PropertiesFlatAndPlotInfo = () => {
       setShowInfoForm(false);
       fetchData();
     } catch (err) {
-      console.error("Error saving :", err);
     } finally {
       setLoading(false);
     }
@@ -209,7 +207,6 @@ const PropertiesFlatAndPlotInfo = () => {
       setNewInfo(data);
       setShowInfoForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -233,7 +230,6 @@ const PropertiesFlatAndPlotInfo = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -258,7 +254,6 @@ const PropertiesFlatAndPlotInfo = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -275,7 +270,6 @@ const PropertiesFlatAndPlotInfo = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -283,7 +277,6 @@ const PropertiesFlatAndPlotInfo = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -300,7 +293,6 @@ const PropertiesFlatAndPlotInfo = () => {
         }
       );
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -308,7 +300,6 @@ const PropertiesFlatAndPlotInfo = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -348,7 +339,6 @@ const PropertiesFlatAndPlotInfo = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -610,7 +600,6 @@ const PropertiesFlatAndPlotInfo = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

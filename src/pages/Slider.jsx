@@ -18,7 +18,6 @@ const Slider = () => {
     showAddMobileImage,
     setShowAddMobileImage,
   } = useAuth();
-  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const [data, setData] = useState([]);
   const [sliderId, setSliderId] = useState("");
@@ -26,6 +25,7 @@ const Slider = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/slider", {
         method: "GET",
@@ -38,9 +38,10 @@ const Slider = () => {
       const data = await response.json();
       setData(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //Slider Images Uploader
   const [images, setImages] = useState([]);
@@ -84,7 +85,6 @@ const Slider = () => {
       setShowSliderForm(false);
       await fetchData();
     } catch (err) {
-      console.error("Error saving Slider Images:", err);
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,6 @@ const Slider = () => {
       setShowAddMobileImage(false);
       await fetchData();
     } catch (err) {
-      console.error("Error saving small screen slider image:", err);
     } finally {
       setLoading(false);
     }
@@ -158,7 +157,6 @@ const Slider = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -175,7 +173,6 @@ const Slider = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -183,7 +180,6 @@ const Slider = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -212,7 +208,6 @@ const Slider = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -261,7 +256,7 @@ const Slider = () => {
           />
         </div>
       ),
-      maxWidth: "340px",
+      style: { maxWidth: "340px" },
     },
     {
       name: "Mobile Image",
@@ -307,7 +302,6 @@ const Slider = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

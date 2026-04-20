@@ -46,10 +46,8 @@ const Map = () => {
       if (!response.ok) throw new Error("Failed to fetch cities.");
 
       const data = await response.json();
-      //console.log(data);
       setCities(data); // Sets the cities array
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -69,10 +67,8 @@ const Map = () => {
       );
       if (!response.ok) throw new Error("Failed to fetch properties.");
       const data = await response.json();
-      //console.log(data);
       setProperties(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     } finally {
       setLoading(false);
     }
@@ -100,7 +96,6 @@ const Map = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -124,7 +119,6 @@ const Map = () => {
             imageSrc = `${ImageURI}${parsed[0]}`;
           }
         } catch (e) {
-          console.warn("Invalid or null frontView:", row.frontView);
         }
 
         return (

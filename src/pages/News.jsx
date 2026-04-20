@@ -10,8 +10,7 @@ import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../components/Loader";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import LazyCKEditor from "../components/LazyCKEditor";
 import DownloadCSV from "../components/DownloadCSV";
 import { getImageURI } from "../utils/helper";
 import { FaEye, FaHeart, FaShareAlt } from "react-icons/fa";
@@ -89,7 +88,6 @@ const News = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -107,12 +105,12 @@ const News = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/news", {
         method: "GET",
@@ -123,12 +121,12 @@ const News = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch News.");
       const data = await response.json();
-      console.log(data);
       setNews(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //fetch data on form
   const edit = async (id) => {
@@ -156,7 +154,6 @@ const News = () => {
       // Only show form after blog data is loaded
       setShowNewsForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -213,7 +210,6 @@ const News = () => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving news:", err);
     } finally {
       setLoading(false);
     }
@@ -233,7 +229,6 @@ const News = () => {
         },
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -241,7 +236,6 @@ const News = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -262,7 +256,6 @@ const News = () => {
       setSeoDescription(data.seoDescription);
       setShowSeoForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -280,7 +273,6 @@ const News = () => {
         body: JSON.stringify({ seoSlug, seoTitle, seoDescription }),
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -292,7 +284,6 @@ const News = () => {
       setSeoDescription("");
       await fetchData();
     } catch (error) {
-      console.error("Error adding Seo Details :", error);
     } finally {
       setLoading(false);
     }
@@ -320,7 +311,6 @@ const News = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting News:", error);
     } finally {
       setLoading(false);
     }
@@ -396,7 +386,6 @@ const News = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -492,15 +481,13 @@ const News = () => {
       name: "News Title",
       selector: (row) => row.title,
       sortable: true,
-      minWidth: "150px",
-      maxWidth: "250px",
+      style: { minWidth: "150px", maxWidth: "250px" },
     },
     {
       name: "Description",
       selector: (row) => row.description,
       sortable: true,
-      minWidth: "350px",
-      maxWidth: "600px",
+      style: { minWidth: "350px", maxWidth: "600px" },
     },
     {
       name: "Action",
@@ -535,7 +522,6 @@ const News = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 
@@ -821,8 +807,7 @@ const News = () => {
 
                 <div className="border rounded blog-content ck-content">
                   {showNewsForm && (
-                    <CKEditor
-                      editor={ClassicEditor}
+                    <LazyCKEditor
                       data={newNews.content}
                       onChange={(e, editor) =>
                         setNewNews({

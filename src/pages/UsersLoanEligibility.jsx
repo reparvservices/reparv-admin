@@ -35,6 +35,7 @@ const UsersLoanEligibility = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`${URI}/admin/emi/${loanApproved}`, {
         method: "GET",
@@ -47,12 +48,10 @@ const UsersLoanEligibility = () => {
       if (!response.ok) throw new Error("Failed to fetch Users");
 
       const result = await response.json();
-      console.log("Fetched Users Data:", result);
 
       setUsers(result?.data ?? []);
       setStatusCounts(result?.statusCounts ?? {});
     } catch (err) {
-      console.error("Error fetching partner data:", err);
       setUsers([]); // clear previous data on error
       setStatusCounts({}); // clear previous counts on error
     }
@@ -73,7 +72,6 @@ const UsersLoanEligibility = () => {
       setFormData(data);
       setShowEMIForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -94,7 +92,6 @@ const UsersLoanEligibility = () => {
         },
       );
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -102,7 +99,6 @@ const UsersLoanEligibility = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -120,7 +116,6 @@ const UsersLoanEligibility = () => {
         body: JSON.stringify({ status }),
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -131,7 +126,6 @@ const UsersLoanEligibility = () => {
       setShowEMI(false);
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -156,7 +150,6 @@ const UsersLoanEligibility = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -223,7 +216,6 @@ const UsersLoanEligibility = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -352,7 +344,6 @@ const UsersLoanEligibility = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

@@ -10,8 +10,7 @@ import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../components/Loader";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import LazyCKEditor from "../components/LazyCKEditor";
 import DownloadCSV from "../components/DownloadCSV";
 import { getImageURI } from "../utils/helper";
 
@@ -54,6 +53,7 @@ const Trends = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/trend", {
         method: "GET",
@@ -64,12 +64,12 @@ const Trends = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch trends.");
       const data = await response.json();
-      //console.log(data);
       setTrends(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //fetch data on form
   const edit = async (id) => {
@@ -93,7 +93,6 @@ const Trends = () => {
       // Only show form after blog data is loaded
       setShowTrendForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -138,7 +137,6 @@ const Trends = () => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving trend:", err);
     } finally {
       setLoading(false);
     }
@@ -158,7 +156,6 @@ const Trends = () => {
         },
       });
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -166,7 +163,6 @@ const Trends = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -182,13 +178,11 @@ const Trends = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch trend.");
       const data = await response.json();
-      console.log(data);
       setSeoSlug(data.seoSlug);
       setSeoTittle(data.seoTittle);
       setSeoDescription(data.seoDescription);
       setShowSeoForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -206,7 +200,6 @@ const Trends = () => {
         body: JSON.stringify({ seoSlug, seoTittle, seoDescription }),
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -218,7 +211,6 @@ const Trends = () => {
       setSeoDescription("");
       await fetchData();
     } catch (error) {
-      console.error("Error adding Seo Details :", error);
     } finally {
       setLoading(false);
     }
@@ -246,7 +238,6 @@ const Trends = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Trend:", error);
     } finally {
       setLoading(false);
     }
@@ -305,7 +296,6 @@ const Trends = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -370,8 +360,7 @@ const Trends = () => {
       name: "Trend Name",
       selector: (row) => row.trendName,
       sortable: true,
-      minWidth: "150px",
-      maxWidth: "250px",
+      style: { minWidth: "150px", maxWidth: "250px" },
     },
     {
       name: "Action",
@@ -403,7 +392,6 @@ const Trends = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 
@@ -584,9 +572,8 @@ const Trends = () => {
                 </label>
                 <div className="border border-[#00000033] rounded-[4px] overflow-hidden">
                   {showTrendForm && newTrend.content !== undefined && (
-                    <CKEditor
+                    <LazyCKEditor
                       key={newTrend.id || "new"}
-                      editor={ClassicEditor}
                       data={newTrend.content}
                       onChange={(e, editor) => {
                         setNewTrend({ ...newTrend, content: editor.getData() });

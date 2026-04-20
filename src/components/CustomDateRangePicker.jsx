@@ -129,7 +129,6 @@ const CustomDateRangePicker = ({ range = [{}], setRange }) => {
               <button
                 className="px-3 py-1 text-white text-sm bg-green-500 rounded-md hover:bg-green-600"
                 onClick={() => {
-                  console.log("Applied", range);
                   setIsOpen(false);
                 }}
               >

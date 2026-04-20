@@ -90,7 +90,6 @@ const TerritoryPartner = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -106,15 +105,14 @@ const TerritoryPartner = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
-      console.log(data);
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${URI}/admin/territorypartner/${selectedPartnerLister}`,
@@ -130,13 +128,13 @@ const TerritoryPartner = () => {
       if (!response.ok) throw new Error("Failed to fetch Territory Partners.");
 
       const result = await response.json();
-      //console.log("Fetched Territory Partner Data:", result);
 
       setDatas(result);
     } catch (err) {
-      console.error("Error fetching territory partners:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   // **Fetch Data from API for Update Property in the Enquiry**
   const fetchProjectPartnerList = async (id) => {
@@ -157,7 +155,6 @@ const TerritoryPartner = () => {
       setProjectPartnerList(list);
       setShowAssignProjectPartnerForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -204,7 +201,6 @@ const TerritoryPartner = () => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving Partner:", err);
     } finally {
       setLoading(false);
     }
@@ -222,11 +218,9 @@ const TerritoryPartner = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Partner.");
       const data = await response.json();
-      console.log(data);
       setNewPartner(data);
       setShowPartnerForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -242,11 +236,9 @@ const TerritoryPartner = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Partner.");
       const data = await response.json();
-      console.log(data);
       setPartner(data);
       setShowPartner(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -276,7 +268,6 @@ const TerritoryPartner = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Partner:", error);
     } finally {
       setLoading(false);
     }
@@ -299,7 +290,6 @@ const TerritoryPartner = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -307,7 +297,6 @@ const TerritoryPartner = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -337,7 +326,6 @@ const TerritoryPartner = () => {
 
       fetchData();
     } catch (error) {
-      console.error("Error updating payment:", error);
     } finally {
       setLoading(false);
     }
@@ -360,7 +348,6 @@ const TerritoryPartner = () => {
       const data = await response.json();
       setFollowUpList(data);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -398,7 +385,6 @@ const TerritoryPartner = () => {
       setFollowUp("");
       setFollowUpText("");
     } catch (error) {
-      console.error("Error adding FollowUp:", error);
     } finally {
       setLoading(false);
     }
@@ -426,7 +412,6 @@ const TerritoryPartner = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -438,7 +423,6 @@ const TerritoryPartner = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -474,7 +458,6 @@ const TerritoryPartner = () => {
       setSelectedPartnerLister("Project Partner");
       //fetchData();
     } catch (error) {
-      console.error("Error updating project partner:", error);
       alert(`Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -589,7 +572,6 @@ const TerritoryPartner = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -816,7 +798,6 @@ const TerritoryPartner = () => {
           fetchProjectPartnerList(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 
@@ -1850,7 +1831,6 @@ const TerritoryPartner = () => {
                       />
                     ));
                   } catch (err) {
-                    console.error("Invalid JSON in adharimage:", err);
                     return null;
                   }
                 })()}
@@ -1879,7 +1859,6 @@ const TerritoryPartner = () => {
                       />
                     ));
                   } catch (err) {
-                    console.error("Invalid JSON in panimage:", err);
                     return null;
                   }
                 })()}
@@ -1908,7 +1887,6 @@ const TerritoryPartner = () => {
                       />
                     ));
                   } catch (err) {
-                    console.error("Invalid JSON in reraimage:", err);
                     return null;
                   }
                 })()}

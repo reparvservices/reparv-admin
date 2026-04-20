@@ -56,10 +56,8 @@ function Dashboard() {
       });
       if (!response.ok) throw new Error("Failed to fetch Count.");
       const data = await response.json();
-      console.log(data);
       setOverviewCountData(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -92,7 +90,6 @@ function Dashboard() {
       const data = await response.json();
       setCustomers(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     } finally {
       setLoading(false);
     }
@@ -114,7 +111,6 @@ function Dashboard() {
       await fetchPaymentData(id, data);
       setShowCustomer(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -133,7 +129,6 @@ function Dashboard() {
       calculateBalance(data, customer);
       setPaymentList(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -191,7 +186,6 @@ function Dashboard() {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -229,7 +223,6 @@ function Dashboard() {
             imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
-          console.warn("Invalid or null frontView:", row.frontView);
         }
 
         return (

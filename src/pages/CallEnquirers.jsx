@@ -12,6 +12,7 @@ const CallEnquirers = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/call-enquirers", {
         method: "GET",
@@ -24,9 +25,10 @@ const CallEnquirers = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   // Delete record
   const del = async (id) => {
@@ -46,7 +48,6 @@ const CallEnquirers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Enquiry :", error);
     }
   };
 
@@ -60,7 +61,6 @@ const CallEnquirers = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -68,7 +68,6 @@ const CallEnquirers = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -101,7 +100,6 @@ const CallEnquirers = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -203,7 +201,6 @@ const CallEnquirers = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

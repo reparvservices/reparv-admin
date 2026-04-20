@@ -64,6 +64,7 @@ const Subscription = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/subscription/pricing", {
         method: "GET",
@@ -76,9 +77,10 @@ const Subscription = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   // Add or Update Subscription Record with Images
   const addOrUpdate = async (e) => {
@@ -155,7 +157,6 @@ const Subscription = () => {
       setShowSubscriptionForm(false);
       fetchData(); // Refresh the list
     } catch (err) {
-      console.error("Error saving subscription:", err);
       alert(err.message || "Something went wrong while saving.");
     } finally {
       setLoading(false);
@@ -177,7 +178,6 @@ const Subscription = () => {
       setNewSubscription(data);
       setShowSubscriptionForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -196,7 +196,6 @@ const Subscription = () => {
       setSubscriptionPlan(data);
       setShowSubscriptionPlan(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -218,7 +217,6 @@ const Subscription = () => {
         }
       );
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -226,7 +224,6 @@ const Subscription = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error Highlighting :", error);
     }
   };
 
@@ -248,7 +245,6 @@ const Subscription = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -256,7 +252,6 @@ const Subscription = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -282,7 +277,6 @@ const Subscription = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error while changing status:", error);
     }
   };
 
@@ -314,7 +308,6 @@ const Subscription = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -409,7 +402,6 @@ const Subscription = () => {
           break;
 
         default:
-          console.log("Invalid action");
       }
     };
 

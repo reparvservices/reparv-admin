@@ -74,7 +74,6 @@ const Promoter = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -90,15 +89,14 @@ const Promoter = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
-      console.log(data);
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${URI}/admin/promoter/`,
@@ -114,14 +112,14 @@ const Promoter = () => {
       if (!response.ok) throw new Error("Failed to fetch promoter.");
 
       const result = await response.json();
-      console.log("Fetched promoter Data:", result);
 
       // Set the table data
       setDatas(result);
     } catch (err) {
-      console.error("Error fetching promoter data:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   const add = async (e) => {
     e.preventDefault();
@@ -163,7 +161,6 @@ const Promoter = () => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving Promoter:", err);
     } finally {
       setLoading(false);
     }
@@ -181,11 +178,9 @@ const Promoter = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Promoter.");
       const data = await response.json();
-      console.log(data);
       setNewPartner(data);
       setShowPartnerForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -201,11 +196,9 @@ const Promoter = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Promoter.");
       const data = await response.json();
-      console.log(data);
       setPartner(data);
       setShowPartner(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -232,7 +225,6 @@ const Promoter = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Promoter:", error);
     } finally {
       setLoading(false);
     }
@@ -251,7 +243,6 @@ const Promoter = () => {
         },
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -259,7 +250,6 @@ const Promoter = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -281,7 +271,6 @@ const Promoter = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -292,7 +281,6 @@ const Promoter = () => {
       setShowPaymentIdForm(false);
       fetchData();
     } catch (error) {
-      console.error("Error updating payment Id :", error);
     } finally {
       setLoading(false);
     }
@@ -315,7 +303,6 @@ const Promoter = () => {
       const data = await response.json();
       setFollowUpList(data);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -350,7 +337,6 @@ const Promoter = () => {
       setFollowUp("");
       setFollowUpText("");
     } catch (error) {
-      console.error("Error adding FollowUp:", error);
     } finally {
       setLoading(false);
     }
@@ -376,7 +362,6 @@ const Promoter = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -388,7 +373,6 @@ const Promoter = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
-      console.error("Error assigning login:", error);
     } finally {
       setLoading(false);
     }
@@ -498,7 +482,6 @@ const Promoter = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -684,7 +667,6 @@ const Promoter = () => {
           setGiveAccess(true);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

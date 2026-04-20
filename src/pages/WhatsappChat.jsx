@@ -101,7 +101,6 @@ const WhatsappChat = () => {
         }
       }, 0);
     } catch (e) {
-      console.error(e);
       // Ignore abort errors (happens during fast polling / switching)
       if (e?.name !== "AbortError") {
         setError(e.message || "Failed to load conversations");
@@ -166,7 +165,6 @@ const WhatsappChat = () => {
         incoming.length > 0 ? Math.max(...incoming.map((m) => m.id)) : lastMessageIdRef.current[phone] || 0;
       if (maxId) lastMessageIdRef.current[phone] = maxId;
     } catch (e) {
-      console.error(e);
       if (e?.name !== "AbortError") {
         setError(e.message || "Failed to load messages");
       }
@@ -296,7 +294,6 @@ const WhatsappChat = () => {
       // Refetch from start of this conversation to avoid duplicates with optimistic UI.
       await fetchMessages(selectedPhone, { replace: true });
     } catch (e2) {
-      console.error(e2);
       setError(e2.message || "Send failed");
     } finally {
       setLoading?.(false);

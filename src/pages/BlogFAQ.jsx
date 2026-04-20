@@ -26,6 +26,7 @@ const BlogFAQs = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/faqs/get/all/" + blogId, {
         method: "GET",
@@ -38,9 +39,10 @@ const BlogFAQs = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   const addOrUpdate = async (e) => {
     e.preventDefault();
@@ -55,7 +57,7 @@ const BlogFAQs = () => {
     try {
       setLoading(true);
 
-      console.log("Sending Payload:", payload); // 🔍 DEBUG
+       // 🔍 DEBUG
 
       const response = await fetch(URI + `/admin/faqs/${endpoint}`, {
         method: payload.id ? "PUT" : "POST",
@@ -82,7 +84,6 @@ const BlogFAQs = () => {
       setShowFAQForm(false);
       fetchData();
     } catch (err) {
-      console.error("Error saving :", err);
     } finally {
       setLoading(false);
     }
@@ -101,7 +102,6 @@ const BlogFAQs = () => {
       setNewFAQ(data);
       setShowFAQForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -124,7 +124,6 @@ const BlogFAQs = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -139,7 +138,6 @@ const BlogFAQs = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -147,7 +145,6 @@ const BlogFAQs = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error status changing :", error);
     }
   };
 
@@ -181,7 +178,6 @@ const BlogFAQs = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },

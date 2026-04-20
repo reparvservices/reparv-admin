@@ -20,6 +20,7 @@ const ApkUpload = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/apk", {
         method: "GET",
@@ -32,9 +33,10 @@ const ApkUpload = () => {
       const data = await response.json();
       setApks(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //Add or update record
   const addOrUpdate = async (e) => {
@@ -74,7 +76,6 @@ const ApkUpload = () => {
       setShowApkUploadForm(false);
       fetchData();
     } catch (err) {
-      console.error("Error saving:", err);
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,6 @@ const ApkUpload = () => {
       setNewApk(data);
       setShowApkUploadForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -117,7 +117,6 @@ const ApkUpload = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -139,7 +138,6 @@ const ApkUpload = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -167,7 +165,6 @@ const ApkUpload = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -234,7 +231,6 @@ const ApkUpload = () => {
     },
   ];
   // const handleMethod = () => {
-  //   console.log("add");
   // };
 
   return (

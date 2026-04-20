@@ -77,7 +77,6 @@ const OnBoardingPartner = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -93,15 +92,14 @@ const OnBoardingPartner = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
-      console.log(data);
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${URI}/admin/partner/${selectedPartnerLister}`,
@@ -117,10 +115,8 @@ const OnBoardingPartner = () => {
       if (!response.ok) throw new Error("Failed to fetch Partner");
 
       const result = await response.json();
-      //console.log("Fetched Partner Data:", result);
       setDatas(result);
     } catch (err) {
-      console.error("Error fetching partner data:", err);
       setDatas([]);
     }
   };
@@ -165,7 +161,6 @@ const OnBoardingPartner = () => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving Partner:", err);
     } finally {
       setLoading(false);
     }
@@ -183,11 +178,9 @@ const OnBoardingPartner = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Partner.");
       const data = await response.json();
-      console.log(data);
       setNewPartner(data);
       setShowPartnerForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -206,7 +199,6 @@ const OnBoardingPartner = () => {
       setPartner(data);
       setShowPartner(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -233,7 +225,6 @@ const OnBoardingPartner = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting On boarding Partner:", error);
     } finally {
       setLoading(false);
     }
@@ -253,7 +244,6 @@ const OnBoardingPartner = () => {
         },
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -261,7 +251,6 @@ const OnBoardingPartner = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -283,7 +272,6 @@ const OnBoardingPartner = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -294,7 +282,6 @@ const OnBoardingPartner = () => {
       setShowPaymentIdForm(false);
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -314,7 +301,6 @@ const OnBoardingPartner = () => {
       const data = await response.json();
       setFollowUpList(data);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -347,7 +333,6 @@ const OnBoardingPartner = () => {
       setFollowUp("");
       setFollowUpText("");
     } catch (error) {
-      console.error("Error adding FollowUp:", error);
     } finally {
       setLoading(false);
     }
@@ -377,7 +362,6 @@ const OnBoardingPartner = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -389,7 +373,6 @@ const OnBoardingPartner = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -496,7 +479,6 @@ const OnBoardingPartner = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -682,7 +664,6 @@ const OnBoardingPartner = () => {
           setGiveAccess(true);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 
@@ -1577,7 +1558,6 @@ const OnBoardingPartner = () => {
                       />
                     ));
                   } catch (err) {
-                    console.error("Invalid JSON in adharimage:", err);
                     return null;
                   }
                 })()}
@@ -1606,7 +1586,6 @@ const OnBoardingPartner = () => {
                       />
                     ));
                   } catch (err) {
-                    console.error("Invalid JSON in panimage:", err);
                     return null;
                   }
                 })()}

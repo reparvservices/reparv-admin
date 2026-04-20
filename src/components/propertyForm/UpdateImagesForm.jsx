@@ -166,7 +166,6 @@ const UpdateImagesForm = ({
       await fetchImages(propertyId);
       //setShowUpdateImagesForm();
     } catch (err) {
-      console.error("Error saving property images:", err);
       if (err.response?.data?.error) {
         alert("Upload failed: " + err.response.data.error);
       } else {
@@ -196,7 +195,6 @@ const UpdateImagesForm = ({
         alert(result.message || "Failed to delete images");
       }
     } catch (err) {
-      console.error("Image delete error:", err);
       alert("Error occurred while deleting images.");
     }
   };

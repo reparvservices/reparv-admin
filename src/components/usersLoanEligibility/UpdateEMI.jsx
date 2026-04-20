@@ -57,7 +57,6 @@ function UpdateEMI() {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -73,10 +72,8 @@ function UpdateEMI() {
       });
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
-      console.log(data);
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -93,9 +90,7 @@ function UpdateEMI() {
       if (!response.ok) throw new Error("Failed to fetch User.");
       const data = await response.json();
       setFormData(data);
-      console.log(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -152,7 +147,6 @@ function UpdateEMI() {
       alert("Data Updated SuccessFully!");
       navigate("/users-loan-eligibility");
     } catch (err) {
-      console.error("Error Submit Form:", err);
     } finally {
       setLoading(false);
     }

@@ -80,7 +80,6 @@ const Employee = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -101,12 +100,12 @@ const Employee = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
   // *Fetch Data from API*
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/employees/get/all/" + selectedLister, {
         method: "GET",
@@ -121,9 +120,10 @@ const Employee = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //fetch data on form
   const viewEmployee = async (id) => {
@@ -140,7 +140,6 @@ const Employee = () => {
       setEmployee(data);
       setShowEmployee(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -158,7 +157,6 @@ const Employee = () => {
       const data = await response.json();
       setTask({ ...task, menus: JSON.parse(data.menus) });
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -176,7 +174,6 @@ const Employee = () => {
       const data = await response.json();
       setMenus(data); // Store the fetched data
     } catch (err) {
-      console.error("Error fetching Menus:", err);
     }
   };
 
@@ -194,7 +191,6 @@ const Employee = () => {
       const data = await response.json();
       setRoleData(data); // Store the fetched data
     } catch (err) {
-      console.error("Error fetching roles:", err);
     }
   };
 
@@ -212,7 +208,6 @@ const Employee = () => {
       const data = await response.json();
       setDepartmentData(data); // Store the fetched data
     } catch (err) {
-      console.error("Error fetching departments:", err);
     }
   };
 
@@ -263,7 +258,6 @@ const Employee = () => {
 
       await fetchData(); // Ensure latest data is fetched
     } catch (err) {
-      console.error("Error saving employee:", err);
     } finally {
       setLoading(false);
     }
@@ -283,7 +277,6 @@ const Employee = () => {
       setEmployeeData(data);
       setShowEplDetailsForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -307,7 +300,6 @@ const Employee = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -326,7 +318,6 @@ const Employee = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -334,7 +325,6 @@ const Employee = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -365,7 +355,6 @@ const Employee = () => {
       setShowAssignTaskForm(false);
       fetchData();
     } catch (error) {
-      console.error("Error assigning tasks :", error);
     } finally {
       setLoading(false);
     }
@@ -393,7 +382,6 @@ const Employee = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -405,7 +393,6 @@ const Employee = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
-      console.error("Error assign login :", error);
     } finally {
       setLoading(false);
     }
@@ -486,7 +473,6 @@ const Employee = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -642,7 +628,6 @@ const Employee = () => {
           setGiveAccess(true);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

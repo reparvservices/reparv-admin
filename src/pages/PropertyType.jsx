@@ -16,7 +16,6 @@ const PropertyType = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleMethod = () => {
-    console.log("Handle Click");
   };
 
   const fetchDatas = async () => {
@@ -32,7 +31,6 @@ const PropertyType = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -61,7 +59,6 @@ const PropertyType = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },

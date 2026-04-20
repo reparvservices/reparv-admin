@@ -36,7 +36,6 @@ const CalendarScheduler = () => {
       const data = await response.json();
       setMeetings(data);
     } catch (err) {
-      console.error("Error fetching Meetings:", err);
     }
   };
 
@@ -59,11 +58,9 @@ const CalendarScheduler = () => {
       if (!response.ok) throw new Error("Failed to fetch notes");
 
       const data = await response.json();
-      //console.log(data);
 
       setNotes(data);
     } catch (err) {
-      console.error("Error fetching Notes:", err);
     }
   };
 
@@ -90,7 +87,6 @@ const CalendarScheduler = () => {
       setShowNotePopup(false);
       fetchNotes(); // Refresh notes
     } catch (error) {
-      console.error("Error saving note:", error);
     }
   };
 
@@ -115,7 +111,6 @@ const CalendarScheduler = () => {
         alert(data.message || "Failed to delete note");
       }
     } catch (err) {
-      console.error("Error deleting note:", err);
     }
   };
 

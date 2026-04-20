@@ -20,7 +20,6 @@ const TicketingFilter = ({selectedFilter, setSelectedFilter}) => {
   const handleFilterClick = (filter) => {
     setSelectedFilter(filter);
     setIsOpen(false);
-    console.log("Selected Filter:", filter);
   };
 
   return (

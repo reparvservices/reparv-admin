@@ -12,6 +12,7 @@ const Subscribers = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/subscribers", {
         method: "GET",
@@ -24,9 +25,10 @@ const Subscribers = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   // Delete record
   const del = async (id) => {
@@ -46,7 +48,6 @@ const Subscribers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Subscriber :", error);
     }
   };
 
@@ -60,7 +61,6 @@ const Subscribers = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -68,7 +68,6 @@ const Subscribers = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -99,7 +98,6 @@ const Subscribers = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -178,7 +176,6 @@ const Subscribers = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

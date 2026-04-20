@@ -21,7 +21,7 @@ export default function PaymentUpdateModal({
   partnerType,
   updatePaymentId,
 }) {
-  const { URI, loading } = useAuth();
+  const { URI } = useAuth();
 
   const [plans, setPlans] = useState([]);
 
@@ -58,7 +58,6 @@ export default function PaymentUpdateModal({
       const data = await response.json();
       setPlans(data);
     } catch (err) {
-      console.error("Error fetching plans:", err);
     }
   };
 
@@ -381,10 +380,9 @@ export default function PaymentUpdateModal({
           <div className="flex justify-end mt-6">
             <button
               type="submit"
-              disabled={loading}
               className="px-4 py-2 text-white bg-green-700 rounded disabled:opacity-50"
             >
-              {loading ? "Processing..." : "Submit Payment"}
+              Submit Payment
             </button>
           </div>
         </form>

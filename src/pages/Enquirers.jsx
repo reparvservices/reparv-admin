@@ -39,7 +39,6 @@ const Enquirers = () => {
     enquiryFilter,
     setEnquiryFilter,
   } = useAuth();
-  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
   const [datas, setDatas] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("");
@@ -134,7 +133,6 @@ const Enquirers = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -153,10 +151,8 @@ const Enquirers = () => {
       );
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
-      console.log(data);
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -178,7 +174,6 @@ const Enquirers = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     } finally {
       setLoading(false);
     }
@@ -198,7 +193,6 @@ const Enquirers = () => {
       const list = await response.json();
       setRemarkList(list);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -234,10 +228,8 @@ const Enquirers = () => {
         setProperties([]);
       } else {
         setProperties(list.data);
-        //console.log(list);
       }
     } catch (err) {
-      console.error("Error fetching properties:", err);
       setError(
         err.message || "Something went wrong while fetching properties.",
       );
@@ -264,7 +256,6 @@ const Enquirers = () => {
       setPropertyList(list);
       setShowEnquirerPropertyForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -285,7 +276,6 @@ const Enquirers = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -295,7 +285,6 @@ const Enquirers = () => {
       setShowEnquirerPropertyForm(false);
       fetchData();
     } catch (error) {
-      console.error("Error Updating Property to Enquiry :", error);
     } finally {
       setLoading(false);
     }
@@ -315,7 +304,6 @@ const Enquirers = () => {
       const data = await response.json();
       setSalesPersonList(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -341,14 +329,12 @@ const Enquirers = () => {
           },
         );
         const data = await response.json();
-        console.log(response);
         if (response.ok) {
           alert(`Success: ${data.message}`);
         } else {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
-        console.error("Error while Add Visit Scheduled:", error);
       } finally {
         setLoading(false);
       }
@@ -390,7 +376,6 @@ const Enquirers = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
-        console.error("Error while Add Token:", error);
       } finally {
         setLoading(false);
       }
@@ -421,7 +406,6 @@ const Enquirers = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
-        console.error("Error while Add Follow Up Remark:", error);
       } finally {
         setLoading(false);
       }
@@ -451,7 +435,6 @@ const Enquirers = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
-        console.error("Error while Add Cancelled Remark:", error);
       } finally {
         setLoading(false);
       }
@@ -478,7 +461,6 @@ const Enquirers = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
         setShowEnquiryStatusForm(false);
@@ -487,7 +469,6 @@ const Enquirers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error changing status:", error);
     } finally {
       setLoading(false);
     }
@@ -517,7 +498,6 @@ const Enquirers = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -531,7 +511,6 @@ const Enquirers = () => {
       setShowAssignSalesForm(false);
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -551,7 +530,6 @@ const Enquirers = () => {
       setEnquiry(data);
       setShowEnquiry(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -600,7 +578,6 @@ const Enquirers = () => {
 
       await fetchData();
     } catch (err) {
-      console.error("Error saving enquiry:", err);
     } finally {
       setLoading(false);
     }
@@ -621,7 +598,6 @@ const Enquirers = () => {
       setNewEnquiry(data);
       setShowEnquiryUpdateForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -647,7 +623,6 @@ const Enquirers = () => {
 
       alert(data.message);
     } catch (error) {
-      console.error(error);
       alert("Upload failed!");
     }
   };
@@ -674,7 +649,6 @@ const Enquirers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Enquiry:", error);
     } finally {
       setLoading(false);
     }
@@ -837,7 +811,6 @@ const Enquirers = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -965,7 +938,7 @@ const Enquirers = () => {
           {row.status}
         </span>
       ),
-      minWidth: "150px",
+      style: { minWidth: "150px" },
     },
 
     {
@@ -975,11 +948,13 @@ const Enquirers = () => {
 
         try {
           const parsed = JSON.parse(row.frontView);
-          if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${getImageURI(parsed[0])}`;
+          if (Array.isArray(parsed) && parsed[0] != null && parsed[0] !== "") {
+            const key =
+              typeof parsed[0] === "string" ? parsed[0] : String(parsed[0]);
+            const resolved = getImageURI(key);
+            if (resolved) imageSrc = resolved;
           }
         } catch (e) {
-          console.warn("Invalid or null frontView:", row.frontView);
         }
 
         return (
@@ -1007,17 +982,17 @@ const Enquirers = () => {
       name: "Customer",
       selector: (row) => row.customer,
       sortable: true,
-      minWidth: "150px",
+      style: { minWidth: "150px" },
     },
     {
       name: "Contact",
       selector: (row) => row.contact,
-      minWidth: "150px",
+      style: { minWidth: "150px" },
     },
     {
       name: "Form Responses",
       cell: (row) => <FieldPills lead={row} />,
-      minWidth: "320px",
+      style: { minWidth: "320px" },
       wrap: true,
     },
     {
@@ -1035,7 +1010,7 @@ const Enquirers = () => {
         </div>
       ),
       omit: false,
-      minWidth: "180px",
+      style: { minWidth: "180px" },
     },
     {
       name: "Project Partner",
@@ -1051,7 +1026,7 @@ const Enquirers = () => {
             (row.projectPartnerContact ? row.projectPartnerContact : "Assign")}
         </span>
       ),
-      minWidth: "180px",
+      style: { minWidth: "180px" },
     },
     {
       name: "Sales Partner",
@@ -1066,7 +1041,7 @@ const Enquirers = () => {
           {row.assign}
         </span>
       ),
-      minWidth: "180px",
+      style: { minWidth: "180px" },
     },
     {
       name: "Territory Partner",
@@ -1082,7 +1057,7 @@ const Enquirers = () => {
             (row.territoryContact ? row.territoryContact : "Assign")}
         </span>
       ),
-      minWidth: "180px",
+      style: { minWidth: "180px" },
     },
     {
       name: "Action",
@@ -1127,7 +1102,6 @@ const Enquirers = () => {
           deleteEnquiry(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 
