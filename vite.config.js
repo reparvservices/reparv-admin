@@ -45,8 +45,10 @@ export default defineConfig({
           if (id.includes("date-fns")) {
             return "date-fns";
           }
+          // react-data-table + styled-components peer: forced chunk breaks default export interop
+          // ("io is not a function" / styled is undefined when split from vendor).
           if (id.includes("react-data-table")) {
-            return "datatables";
+            return;
           }
           if (id.includes("react-select")) {
             return "react-select";
