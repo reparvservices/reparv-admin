@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, NavLink } from "react-router-dom";
+import React, { useEffect, useState, Suspense } from "react";
+import { useLocation, NavLink, Outlet } from "react-router-dom";
 import reparvMainLogo from "../../assets/layout/reparvMainLogo.svg";
-import { Outlet } from "react-router-dom";
 import { IoMenu } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
 import Profile from "../Profile";
@@ -125,6 +124,7 @@ const menuItems = [
     dropdown: [
       { label: "Subscription Pricing", to: "/subscription-pricing" },
       { label: "Subscription Discount", to: "/subscription-discount" },
+      { label: "Subscription Features", to: "/subscription-features" },
     ],
   },
 
@@ -584,7 +584,9 @@ function Layout() {
           className="flex-1 md:p-4 md:pl-0 md:pt-0 overflow-scroll scrollbar-hide"
           onClick={() => isSidebarOpen && setIsSidebarOpen(false)}
         >
-          <Outlet />
+          <Suspense fallback={null}>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
       {showProfile && <Profile />}

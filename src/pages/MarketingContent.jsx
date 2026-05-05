@@ -35,6 +35,7 @@ const MarketingContent = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/marketing-content", {
         method: "GET",
@@ -47,9 +48,10 @@ const MarketingContent = () => {
       const data = await response.json();
       setData(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //Add or update record
   const addOrUpdate = async (e) => {
@@ -94,7 +96,6 @@ const MarketingContent = () => {
       fetchData();
       setShowContentUploadForm(false);
     } catch (err) {
-      console.error("Error saving:", err);
     } finally {
       setLoading(false);
     }
@@ -115,7 +116,6 @@ const MarketingContent = () => {
       setNewContent(data);
       setShowContentUploadForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -141,7 +141,6 @@ const MarketingContent = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -208,7 +207,6 @@ const MarketingContent = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

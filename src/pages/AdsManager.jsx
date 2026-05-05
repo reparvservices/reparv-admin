@@ -10,8 +10,6 @@ import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../components/Loader";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import DownloadCSV from "../components/DownloadCSV";
 import Select from "react-select";
 import FilterBar from "../components/adsManager/FilterBar";
@@ -79,7 +77,6 @@ const AdsManager = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -100,7 +97,6 @@ const AdsManager = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -122,7 +118,6 @@ const AdsManager = () => {
       const list = await response.json();
       setProjectPartnerList(list);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -142,7 +137,6 @@ const AdsManager = () => {
       if (!response.ok)
         throw new Error("Failed to fetch Project Partner Data.");
       const data = await response.json();
-      console.log(data);
       setProjectPartner(data);
       if (!data?.planId) {
         alert(data?.fullname + "'s Subscription Plan Not Active! ");
@@ -163,12 +157,12 @@ const AdsManager = () => {
         });
       }
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/ads-manager", {
         method: "GET",
@@ -179,12 +173,12 @@ const AdsManager = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Ads Manager.");
       const data = await response.json();
-      console.log(data);
       setAdsManagers(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //fetch data on form
   const view = async (id) => {
@@ -200,11 +194,9 @@ const AdsManager = () => {
       const data = await response.json();
 
       setAdsManager(data);
-      console.log(data);
       // Only show form after data is loaded
       setShowAdsManager(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -226,7 +218,6 @@ const AdsManager = () => {
       // Only show form after data is loaded
       setShowAdsManagerForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -276,7 +267,6 @@ const AdsManager = () => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving Ads Manager:", err);
     } finally {
       setLoading(false);
     }
@@ -296,7 +286,6 @@ const AdsManager = () => {
         },
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -304,7 +293,6 @@ const AdsManager = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -330,7 +318,6 @@ const AdsManager = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Ads Manager:", error);
     } finally {
       setLoading(false);
     }
@@ -353,7 +340,6 @@ const AdsManager = () => {
       // Only show form after data is loaded
       setShowAdURLForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -385,7 +371,6 @@ const AdsManager = () => {
       setAdURL("");
       await fetchData();
     } catch (error) {
-      console.error("Error updating Ad URL:", error);
       alert(error.message || "Failed to update Ad URL");
     } finally {
       setLoading(false);
@@ -408,7 +393,6 @@ const AdsManager = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -416,7 +400,6 @@ const AdsManager = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -522,7 +505,6 @@ const AdsManager = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -699,7 +681,6 @@ const AdsManager = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

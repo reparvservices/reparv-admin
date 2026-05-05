@@ -54,13 +54,13 @@ const SubscriptionDiscount = () => {
       setIsSame(data.unique);
       setMessage(data.message);
     } catch (error) {
-      console.error("Error:", error);
       setMessage("Something went wrong");
     }
   };
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/subscription/discount", {
         method: "GET",
@@ -73,9 +73,10 @@ const SubscriptionDiscount = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   // **Fetch Data from API**
   const fetchPlans = async () => {
@@ -93,9 +94,7 @@ const SubscriptionDiscount = () => {
       if (!response.ok) throw new Error("Failed to fetch plans.");
       const data = await response.json();
       setPlans(data);
-      console.log(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -138,7 +137,6 @@ const SubscriptionDiscount = () => {
       setShowDiscountForm(false);
       fetchData();
     } catch (err) {
-      console.error("Error saving :", err);
     } finally {
       setLoading(false);
     }
@@ -159,7 +157,6 @@ const SubscriptionDiscount = () => {
       setNewDiscount(data);
       setShowDiscountForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -178,7 +175,6 @@ const SubscriptionDiscount = () => {
       setDiscount(data);
       setShowDiscount(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -198,7 +194,6 @@ const SubscriptionDiscount = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -206,7 +201,6 @@ const SubscriptionDiscount = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -232,7 +226,6 @@ const SubscriptionDiscount = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error while changing status:", error);
     }
   };
 
@@ -277,7 +270,6 @@ const SubscriptionDiscount = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -384,7 +376,6 @@ const SubscriptionDiscount = () => {
           break;
 
         default:
-          console.log("Invalid action");
       }
     };
 

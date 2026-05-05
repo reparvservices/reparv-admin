@@ -18,6 +18,7 @@ const Role = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/roles", {
         method: "GET",
@@ -30,9 +31,10 @@ const Role = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //Add or update record
   const addOrUpdate = async (e) => {
@@ -63,7 +65,6 @@ const Role = () => {
       setShowRoleForm(false);
       fetchData();
     } catch (err) {
-      console.error("Error saving :", err);
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,6 @@ const Role = () => {
       setNewRole(data);
       setShowRoleForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -106,7 +106,6 @@ const Role = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -121,7 +120,6 @@ const Role = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -129,7 +127,6 @@ const Role = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -160,7 +157,6 @@ const Role = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -215,7 +211,6 @@ const Role = () => {
     },
   ];
   // const handleMethod = () => {
-  //   console.log("add");
   // };
 
   return (

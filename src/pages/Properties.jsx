@@ -361,7 +361,6 @@ const Properties = () => {
       const data = await response.json();
       setAuthorities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -379,7 +378,6 @@ const Properties = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -398,10 +396,8 @@ const Properties = () => {
       );
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
-      //console.log(data);
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -419,7 +415,6 @@ const Properties = () => {
       const data = await response.json();
       setBuilderData(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -437,7 +432,6 @@ const Properties = () => {
       const data = await response.json();
       setPropertyTypeData(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
   */
@@ -460,7 +454,6 @@ const Properties = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     } finally {
       setLoading(false);
     }
@@ -479,10 +472,8 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch property.");
       const data = await response.json();
       setPropertyData(data);
-      console.log(data);
       setShowPropertyForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -506,7 +497,6 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -525,7 +515,6 @@ const Properties = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -533,7 +522,6 @@ const Properties = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -549,7 +537,6 @@ const Properties = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -557,7 +544,6 @@ const Properties = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -576,7 +562,6 @@ const Properties = () => {
         },
       );
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -584,7 +569,6 @@ const Properties = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error hot Dealingg :", error);
     }
   };
 
@@ -607,7 +591,6 @@ const Properties = () => {
       setLongitude(data.longitude);
       setShowPropertyLocationForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -626,7 +609,6 @@ const Properties = () => {
         },
       );
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -634,7 +616,6 @@ const Properties = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error Reparv Assured :", error);
     }
   };
 
@@ -658,7 +639,6 @@ const Properties = () => {
         },
       );
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -669,7 +649,6 @@ const Properties = () => {
       setLongitude("");
       await fetchData();
     } catch (error) {
-      console.error("Error adding property Location:", error);
     } finally {
       setLoading(false);
     }
@@ -692,10 +671,8 @@ const Properties = () => {
         brochureFile: data.brochureFile,
         videoLink: data.videoLink,
       });
-      console.log(data);
       setShowVideoUploadForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -773,7 +750,6 @@ const Properties = () => {
       setVideoUpload({ videoLink: "" });
       await fetchData();
     } catch (error) {
-      console.error("Error uploading brochure or video link:", error);
       alert("Something went wrong while uploading. Please try again.");
     } finally {
       setLoading(false);
@@ -799,7 +775,6 @@ const Properties = () => {
       setPropertyDescription(data.propertyDescription);
       setShowSeoForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -826,7 +801,6 @@ const Properties = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -840,7 +814,6 @@ const Properties = () => {
       setPropertyDescription("");
       await fetchData();
     } catch (error) {
-      console.error("Error adding Seo Details reason:", error);
     } finally {
       setLoading(false);
     }
@@ -863,7 +836,6 @@ const Properties = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -873,7 +845,6 @@ const Properties = () => {
       setRejectReason("");
       await fetchData();
     } catch (error) {
-      console.error("Error adding reject reason:", error);
     } finally {
       setLoading(false);
     }
@@ -905,10 +876,8 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch property.");
       const data = await response.json();
       setPropertyImageData(data);
-      //console.log(data);
       setShowUpdateImagesForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -945,7 +914,6 @@ const Properties = () => {
       setShowUpdateImagesForm(false);
       await fetchData(); // Refresh data
     } catch (err) {
-      console.error("Error saving property:", err);
     } finally {
       setLoading(false);
     }
@@ -976,7 +944,6 @@ const Properties = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        console.error("Server responded with an error:", data);
         alert(data.message || "CSV upload failed due to a server error.");
         return;
       }
@@ -985,7 +952,6 @@ const Properties = () => {
       setShowAdditionalInfoForm(false);
       setFile(null); // Clear selected file
     } catch (error) {
-      console.error("Upload error:", error);
       alert("An unexpected error occurred while uploading the CSV file.");
     }
   };
@@ -1015,7 +981,6 @@ const Properties = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        console.error("Server responded with an error:", data);
         alert(data.message || "CSV upload failed due to a server error.");
         return;
       }
@@ -1024,7 +989,6 @@ const Properties = () => {
       setShowNewPlotAdditionalInfoForm(false);
       setFile(null); // Clear selected file
     } catch (error) {
-      console.error("Upload error:", error);
       alert("An unexpected error occurred while uploading the CSV file.");
     }
   };
@@ -1108,7 +1072,6 @@ const Properties = () => {
 
       await fetchData();
     } catch (err) {
-      console.error("Error saving property:", err);
     } finally {
       setLoading(false);
     }
@@ -1135,7 +1098,6 @@ const Properties = () => {
       });
       setShowCommissionForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -1156,7 +1118,6 @@ const Properties = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -1172,7 +1133,6 @@ const Properties = () => {
       });
       await fetchData();
     } catch (error) {
-      console.error("Error adding property commission reason:", error);
     } finally {
       setLoading(false);
     }
@@ -1198,7 +1158,6 @@ const Properties = () => {
       setPropertyKey(id);
       setShowTopPicksForm(true);
     } catch (err) {
-      console.error("Error fetching top picks:", err);
     }
   };
 
@@ -1246,7 +1205,6 @@ const Properties = () => {
 
       await fetchData();
     } catch (error) {
-      console.error("Error adding top picks:", error);
     } finally {
       setLoading(false);
     }
@@ -1273,7 +1231,6 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -1292,9 +1249,7 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch Project Partner.");
       const data = await response.json();
       setProjectPartnerList(data);
-      //console.log(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -1322,7 +1277,6 @@ const Properties = () => {
         },
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -1336,7 +1290,6 @@ const Properties = () => {
       setShowChangeProjectPartnerForm(false);
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -1480,7 +1433,6 @@ const Properties = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -1527,7 +1479,6 @@ const Properties = () => {
             imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
-          console.warn("Invalid or null frontView:", row.frontView);
         }
 
         return (
@@ -1780,7 +1731,6 @@ const Properties = () => {
           setShowChangeProjectPartnerForm(true);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

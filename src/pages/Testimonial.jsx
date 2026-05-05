@@ -36,6 +36,7 @@ const Testimonial = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/testimonial", {
         method: "GET",
@@ -48,9 +49,10 @@ const Testimonial = () => {
       const data = await response.json();
       setData(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   const addOrUpdate = async (e) => {
     e.preventDefault();
@@ -98,7 +100,6 @@ const Testimonial = () => {
 
       await fetchData();
     } catch (err) {
-      console.error("Error saving employee:", err);
     } finally {
       setLoading(false);
     }
@@ -118,7 +119,6 @@ const Testimonial = () => {
       setNewFeedback(data);
       setShowFeedbackForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -141,7 +141,6 @@ const Testimonial = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -162,7 +161,6 @@ const Testimonial = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -170,7 +168,6 @@ const Testimonial = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -201,7 +198,6 @@ const Testimonial = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -256,19 +252,19 @@ const Testimonial = () => {
       name: "Client Name",
       selector: (row) => row.client,
       sortable: true,
-      maxWidth: "250px",
+      style: { maxWidth: "250px" },
     },
     {
       name: "Message",
       selector: (row) => row.message,
       sortable: true,
-      maxWidth: "250px",
+      style: { maxWidth: "250px" },
     },
     {
       name: "Video URL",
       selector: (row) => row.url,
       sortable: true,
-      maxWidth: "300px",
+      style: { maxWidth: "300px" },
     },
     {
       name: "Action",
@@ -292,7 +288,6 @@ const Testimonial = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

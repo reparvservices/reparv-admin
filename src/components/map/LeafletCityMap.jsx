@@ -106,7 +106,7 @@ function FlyToCity({ selectedCity }) {
           map.flyTo(coords, 11, { duration: 2 });
         }
       })
-      .catch((err) => console.error("Geocoding error:", err));
+      .catch(() => {});
   }, [selectedCity, map]);
 
   return null;

@@ -10,8 +10,7 @@ import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../components/Loader";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import LazyCKEditor from "../components/LazyCKEditor";
 import DownloadCSV from "../components/DownloadCSV";
 import { getImageURI } from "../utils/helper";
 
@@ -74,6 +73,7 @@ const Blogs = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/blog", {
         method: "GET",
@@ -84,12 +84,12 @@ const Blogs = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch Blogs.");
       const data = await response.json();
-      console.log(data);
       setBlogs(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //fetch data on form
   const edit = async (id) => {
@@ -116,7 +116,6 @@ const Blogs = () => {
       setShowBlogForm(true);
       setShowBlogForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -169,7 +168,6 @@ const Blogs = () => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving blog:", err);
     } finally {
       setLoading(false);
     }
@@ -189,7 +187,6 @@ const Blogs = () => {
         },
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -197,7 +194,6 @@ const Blogs = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -218,7 +214,6 @@ const Blogs = () => {
       setSeoDescription(data.seoDescription);
       setShowSeoForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -236,7 +231,6 @@ const Blogs = () => {
         body: JSON.stringify({ seoSlug, seoTittle, seoDescription }),
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -248,7 +242,6 @@ const Blogs = () => {
       setSeoDescription("");
       await fetchData();
     } catch (error) {
-      console.error("Error adding Seo Details :", error);
     } finally {
       setLoading(false);
     }
@@ -276,7 +269,6 @@ const Blogs = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Blog:", error);
     } finally {
       setLoading(false);
     }
@@ -345,7 +337,6 @@ const Blogs = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -442,15 +433,13 @@ const Blogs = () => {
       name: "Blog Title",
       selector: (row) => row.tittle,
       sortable: true,
-      minWidth: "150px",
-      maxWidth: "250px",
+      style: { minWidth: "150px", maxWidth: "250px" },
     },
     {
       name: "Description",
       selector: (row) => row.description,
       sortable: true,
-      minWidth: "350px",
-      maxWidth: "600px",
+      style: { minWidth: "350px", maxWidth: "600px" },
     },
     {
       name: "",
@@ -485,7 +474,6 @@ const Blogs = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 
@@ -725,9 +713,8 @@ const Blogs = () => {
 
                 <div className="border border-[#00000033] rounded-[4px] blog-content ck-content overflow-hidden">
                   {showBlogForm && newBlog.content !== undefined && (
-                    <CKEditor
+                    <LazyCKEditor
                       key={newBlog.id || "new"}
-                      editor={ClassicEditor}
                       data={newBlog.content}
                       onChange={(event, editor) => {
                         setNewBlog({ ...newBlog, content: editor.getData() });

@@ -84,7 +84,6 @@ function LocationMarker({ onLocationSelect, URI }) {
         geocodeCache[cacheKey] = pincode;
         onLocationSelect({ latitude: lat, longitude: lng, pincode });
       } catch (err) {
-        console.error("Reverse geocoding error:", err);
         onLocationSelect({ latitude: lat, longitude: lng, pincode: "" });
       }
     },
@@ -146,11 +145,7 @@ export default function LocationPicker({
             geocodeCache[query] = newCoords;
           }
         })
-        .catch((err) => {
-          if (err.name !== "AbortError") {
-            console.error("Geocoding error:", err);
-          }
-        })
+        .catch(() => {})
         .finally(() => {
           isFetching.current = false;
         });

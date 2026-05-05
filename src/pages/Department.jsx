@@ -22,6 +22,7 @@ const Department = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/departments", {
         method: "GET",
@@ -34,9 +35,10 @@ const Department = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   //Add or update record
   const addOrUpdate = async (e) => {
@@ -70,7 +72,6 @@ const Department = () => {
       setShowDepartmentForm(false);
       fetchData();
     } catch (err) {
-      console.error("Error saving :", err);
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,6 @@ const Department = () => {
       setNewDepartment(data);
       setShowDepartmentForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -113,7 +113,6 @@ const Department = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -130,7 +129,6 @@ const Department = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -138,7 +136,6 @@ const Department = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -169,7 +166,6 @@ const Department = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -225,7 +221,6 @@ const Department = () => {
     },
   ];
   // const handleMethod = () => {
-  //   console.log("add");
   // };
 
   return (

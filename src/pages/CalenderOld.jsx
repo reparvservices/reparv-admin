@@ -19,6 +19,7 @@ const CalendarScheduler = () => {
 
   //Fetch Data
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/calender/meetings", {
         method: "GET",
@@ -30,11 +31,11 @@ const CalendarScheduler = () => {
       if (!response.ok) throw new Error("Failed to fetch Meetings.");
       const data = await response.json();
       setMeetings(data);
-      console.log(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   // Add meeting status dots
   const tileContent = ({ date, view }) => {

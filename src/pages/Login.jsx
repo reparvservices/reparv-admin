@@ -46,7 +46,6 @@ function Login() {
       );
 
       if (response.data.token) {
-        console.log("Login Successful", response.data);
         localStorage.setItem("adminUser", JSON.stringify(response.data.user));
         storeTokenInCookie(response.data.userToken);
         navigate("/dashboard", { replace: true });

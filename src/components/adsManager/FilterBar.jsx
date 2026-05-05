@@ -21,11 +21,9 @@ export default function FilterBar({ onResults, filters, setFilters }) {
       });
 
       const data = await res.json();
-      //console.log(data);
 
       setPlanNames(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error fetching plans:", err);
     }
   };
 
@@ -37,11 +35,9 @@ export default function FilterBar({ onResults, filters, setFilters }) {
       });
 
       const data = await res.json();
-      //console.log(data);
 
       setCities(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error fetching cities:", err);
     }
   };
 
@@ -58,11 +54,9 @@ export default function FilterBar({ onResults, filters, setFilters }) {
       );
 
       const data = await res.json();
-      //console.log(data);
 
       setProjectPartners(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error fetching project partners:", err);
     }
   };
 
@@ -85,11 +79,9 @@ export default function FilterBar({ onResults, filters, setFilters }) {
       });
 
       const data = await res.json();
-      //console.log("Fetched Properties:", data);
 
       setProperties(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error fetching properties:", err);
     }
   };
 

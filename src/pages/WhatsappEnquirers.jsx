@@ -12,6 +12,7 @@ const WhatsappEnquirers = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/whatsapp-enquirers", {
         method: "GET",
@@ -24,9 +25,10 @@ const WhatsappEnquirers = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   // Delete record
   const del = async (id) => {
@@ -49,7 +51,6 @@ const WhatsappEnquirers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Enquiry :", error);
     }
   };
 
@@ -66,7 +67,6 @@ const WhatsappEnquirers = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -74,7 +74,6 @@ const WhatsappEnquirers = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -107,7 +106,6 @@ const WhatsappEnquirers = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -170,13 +168,13 @@ const WhatsappEnquirers = () => {
         </div>
       ),
       sortable: true,
-      minWidth: "150px",
+      style: { minWidth: "150px" },
     },
     {
       name: "Contact",
       selector: (row) => row.contact,
       sortable: true,
-      minWidth: "150px",
+      style: { minWidth: "150px" },
     },
     {
       name: "Type",
@@ -188,7 +186,7 @@ const WhatsappEnquirers = () => {
         </span>
       ),
       sortable: true,
-      minWidth: "150px",
+      style: { minWidth: "150px" },
     },
     {
       name: "Category",
@@ -221,7 +219,6 @@ const WhatsappEnquirers = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

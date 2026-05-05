@@ -93,7 +93,6 @@ const Ticketing = () => {
       const data = await response.json();
       setData(data);
     } catch (err) {
-      console.error("Error fetching:", err);
     } finally {
       setLoading(false);
     }
@@ -113,7 +112,6 @@ const Ticketing = () => {
       const data = await response.json();
       setAdminData(data);
     } catch (err) {
-      console.error("Error fetching Admins:", err);
     }
   };
 
@@ -131,7 +129,6 @@ const Ticketing = () => {
       const data = await response.json();
       setDepartmentData(data);
     } catch (err) {
-      console.error("Error fetching departments:", err);
     }
   };
 
@@ -149,7 +146,6 @@ const Ticketing = () => {
       const data = await response.json();
       setEmployeeData(data);
     } catch (err) {
-      console.error("Error fetching departments:", err);
     }
   };
 
@@ -191,7 +187,6 @@ const Ticketing = () => {
 
       await fetchData();
     } catch (err) {
-      console.error("Error saving employee:", err);
     } finally {
       setLoading(false);
     }
@@ -216,10 +211,8 @@ const Ticketing = () => {
         // Check if update happened
         alert("Status Changed Successfully to " + label);
       } else {
-        console.log("No status change detected.");
       }
     } catch (err) {
-      console.error("Error updating status:", err);
     } finally {
       fetchData();
     }
@@ -241,7 +234,6 @@ const Ticketing = () => {
       setTicketResponse(data.response ? data.response : "");
       setShowTicketForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -260,7 +252,6 @@ const Ticketing = () => {
       setTicket(data);
       setShowTicket(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -280,7 +271,6 @@ const Ticketing = () => {
       setTicketResponse(data.response ? data.response : "");
       setSelectedStatus(data.status);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -309,7 +299,6 @@ const Ticketing = () => {
       alert("Response added successfully");
       setShowResponseForm(false);
     } catch (err) {
-      console.error("Error updating ticket response:", err);
       alert("Failed to add response");
     } finally {
       setLoading(false);
@@ -334,7 +323,6 @@ const Ticketing = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -401,7 +389,6 @@ const Ticketing = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -488,8 +475,7 @@ const Ticketing = () => {
     {
       name: "Description",
       selector: (row) => row.details,
-      minWidth: "300px",
-      maxWidth: "350px",
+      style: { minWidth: "300px", maxWidth: "350px" },
     },
     {
       name: "Ticket Response",
@@ -554,7 +540,6 @@ const Ticketing = () => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 
@@ -605,7 +590,6 @@ const Ticketing = () => {
           changeStatus(id, "In Progress");
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

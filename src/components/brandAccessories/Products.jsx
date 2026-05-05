@@ -71,6 +71,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/brand-accessories/products", {
         method: "GET",
@@ -81,10 +82,10 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       });
       if (!response.ok) throw new Error("Failed to fetch product.");
       const data = await response.json();
-      console.log(data);
       setProducts(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,7 +109,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       await fetchStockList(id);
       setShowProduct(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -126,10 +126,8 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       );
       if (!response.ok) throw new Error("Failed to fetch Stock List.");
       const data = await response.json();
-      //console.log(data);
       setStockList(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -152,7 +150,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       setNewProduct(data);
       setShowProductForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -219,7 +216,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving product:", err);
     } finally {
       setLoading(false);
     }
@@ -244,7 +240,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       setNewStock(data);
       setShowStockForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -289,7 +284,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error adding Stock:", err);
     } finally {
       setLoading(false);
     }
@@ -308,7 +302,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
         credentials: "include",
       });
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -316,7 +309,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error in Changing status :", error);
     }
   };
 
@@ -346,7 +338,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Product:", error);
     } finally {
       setLoading(false);
     }
@@ -402,7 +393,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -468,8 +458,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       name: "Product Name",
       selector: (row) => row.productName,
       sortable: true,
-      minWidth: "180px",
-      maxWidth: "200px",
+      style: { minWidth: "180px", maxWidth: "200px" },
     },
     {
       name: "GST %",
@@ -479,20 +468,17 @@ const Products = ({ selectedTable, setSelectedTable }) => {
     {
       name: "Unit Price",
       selector: (row) => <FormatPrice price={row.productPrice} />,
-      minWidth: "150px",
-      maxWidth: "200px",
+      style: { minWidth: "150px", maxWidth: "200px" },
     },
     {
       name: "Selling Price",
       selector: (row) => <FormatPrice price={row.sellingPrice} />,
-      minWidth: "150px",
-      maxWidth: "200px",
+      style: { minWidth: "150px", maxWidth: "200px" },
     },
     {
       name: "Quantity",
       selector: (row) => row.totalQuantity + " Units",
-      minWidth: "150px",
-      maxWidth: "200px",
+      style: { minWidth: "150px", maxWidth: "200px" },
     },
     {
       name: "Action",
@@ -525,7 +511,6 @@ const Products = ({ selectedTable, setSelectedTable }) => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

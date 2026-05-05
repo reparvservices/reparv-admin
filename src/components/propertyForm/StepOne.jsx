@@ -107,7 +107,6 @@ const StepOne = ({
       setIsSame(data.unique);
       setMessage(data.message);
     } catch (error) {
-      console.error("Error:", error);
       setMessage("Something went wrong");
     }
   };

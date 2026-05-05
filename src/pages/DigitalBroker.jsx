@@ -136,7 +136,6 @@ const DigitalBroker = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -155,10 +154,8 @@ const DigitalBroker = () => {
       );
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
-      console.log(data);
       setCities(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -180,7 +177,6 @@ const DigitalBroker = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     } finally {
       setLoading(false);
     }
@@ -200,7 +196,6 @@ const DigitalBroker = () => {
       const list = await response.json();
       setRemarkList(list);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -236,10 +231,8 @@ const DigitalBroker = () => {
         setProperties([]);
       } else {
         setProperties(list.data);
-        //console.log(list);
       }
     } catch (err) {
-      console.error("Error fetching properties:", err);
       setError(
         err.message || "Something went wrong while fetching properties."
       );
@@ -266,7 +259,6 @@ const DigitalBroker = () => {
       setPropertyList(list);
       setShowEnquirerPropertyForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -287,7 +279,6 @@ const DigitalBroker = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -297,7 +288,6 @@ const DigitalBroker = () => {
       setShowEnquirerPropertyForm(false);
       fetchData();
     } catch (error) {
-      console.error("Error Updating Property to Enquiry :", error);
     } finally {
       setLoading(false);
     }
@@ -317,7 +307,6 @@ const DigitalBroker = () => {
       const data = await response.json();
       setSalesPersonList(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -343,14 +332,12 @@ const DigitalBroker = () => {
           }
         );
         const data = await response.json();
-        console.log(response);
         if (response.ok) {
           alert(`Success: ${data.message}`);
         } else {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
-        console.error("Error while Add Visit Scheduled:", error);
       } finally {
         setLoading(false);
       }
@@ -392,7 +379,6 @@ const DigitalBroker = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
-        console.error("Error while Add Token:", error);
       } finally {
         setLoading(false);
       }
@@ -423,7 +409,6 @@ const DigitalBroker = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
-        console.error("Error while Add Follow Up Remark:", error);
       } finally {
         setLoading(false);
       }
@@ -453,7 +438,6 @@ const DigitalBroker = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
-        console.error("Error while Add Cancelled Remark:", error);
       } finally {
         setLoading(false);
       }
@@ -480,7 +464,6 @@ const DigitalBroker = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
         setShowEnquiryStatusForm(false);
@@ -489,7 +472,6 @@ const DigitalBroker = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error changing status:", error);
     } finally {
       setLoading(false);
     }
@@ -519,7 +501,6 @@ const DigitalBroker = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -533,7 +514,6 @@ const DigitalBroker = () => {
       setShowAssignSalesForm(false);
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -553,7 +533,6 @@ const DigitalBroker = () => {
       setEnquiry(data);
       setShowEnquiry(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -605,7 +584,6 @@ const DigitalBroker = () => {
 
       await fetchData();
     } catch (err) {
-      console.error("Error saving enquiry:", err);
     } finally {
       setLoading(false);
     }
@@ -626,7 +604,6 @@ const DigitalBroker = () => {
       setNewEnquiry(data);
       setShowEnquiryUpdateForm(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -652,7 +629,6 @@ const DigitalBroker = () => {
 
       alert(data.message);
     } catch (error) {
-      console.error(error);
       alert("Upload failed!");
     }
   };
@@ -679,7 +655,6 @@ const DigitalBroker = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Enquiry:", error);
     } finally {
       setLoading(false);
     }
@@ -790,7 +765,6 @@ const DigitalBroker = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -862,7 +836,6 @@ const DigitalBroker = () => {
             imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
-          console.warn("Invalid or null frontView:", row.frontView);
         }
 
         return (
@@ -1009,7 +982,6 @@ const DigitalBroker = () => {
           deleteEnquiry(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

@@ -39,6 +39,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${URI}/admin/brand-accessories/product/orders/get/${selectedPartner}`,
@@ -52,10 +53,10 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
       );
       if (!response.ok) throw new Error("Failed to fetch Orders.");
       const data = await response.json();
-      //console.log(data);
       setOrders(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,12 +75,10 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
       );
       if (!response.ok) throw new Error("Failed to fetch order.");
       const data = await response.json();
-      console.log(data);
       setOrder(data);
       //setShowOrder(true);
       setSelectedStatus(data?.orderStatus);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -99,7 +98,6 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
         }
       );
       const data = await response.json();
-      //console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -108,7 +106,6 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
       setShowStatusForm(false);
       await fetchData();
     } catch (error) {
-      console.error("Error changing status :", error);
     }
   };
 
@@ -137,7 +134,6 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting Order:", error);
     } finally {
       setLoading(false);
     }
@@ -216,7 +212,6 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -277,29 +272,25 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
       name: "Product",
       selector: (row) => row.productName,
       sortable: true,
-      minWidth: "150px",
-      maxWidth: "200px",
+      style: { minWidth: "150px", maxWidth: "200px" },
     },
     {
       name: "Size",
       selector: (row) => row.productSize,
       sortable: true,
-      minWidth: "100px",
-      maxWidth: "150px",
+      style: { minWidth: "100px", maxWidth: "150px" },
     },
     {
       name: "Quantity",
       selector: (row) => row.orderQuantity + " Units",
       sortable: true,
-      minWidth: "150px",
-      maxWidth: "180px",
+      style: { minWidth: "150px", maxWidth: "180px" },
     },
     {
       name:"Bill Amount",
       selector: (row) => <FormatPrice price={parseInt(row.billAmount)} />,
       sortable: true,
-      minWidth: "150px",
-      maxWidth: "170px",
+      style: { minWidth: "150px", maxWidth: "170px" },
     },
     {
       name: "Partner",
@@ -358,7 +349,6 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
           del(id);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

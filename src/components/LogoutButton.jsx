@@ -17,7 +17,6 @@ function LogoutButton() {
       localStorage.removeItem("user");
       navigate("/", { replace: true });
     } catch (error) {
-      console.log("Logout failed:", error);
     }
   };
 

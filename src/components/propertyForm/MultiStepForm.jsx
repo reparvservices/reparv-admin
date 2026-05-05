@@ -151,7 +151,6 @@ const MultiStepForm = ({
       setShowPropertyForm(false);
       await fetchData();
     } catch (err) {
-      console.error("Error saving property:", err);
       alert("Something Went Wrong Please try again!");
     } finally {
       setLoading(false);

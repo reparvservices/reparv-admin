@@ -90,7 +90,6 @@ export default function PropertyTypeMultiSelect({
     } else {
       updated.push(value); // add if not exists
     }
-    console.log(updated);
     setPropertyData({ ...newProperty, propertyType: updated });
   };
 

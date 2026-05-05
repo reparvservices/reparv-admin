@@ -78,7 +78,6 @@ const Customers = () => {
       const data = await response.json();
       setCustomers(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     } finally {
       setLoading(false);
     }
@@ -100,7 +99,6 @@ const Customers = () => {
       await fetchPaymentData(id, data);
       setShowCustomer(true);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -119,7 +117,6 @@ const Customers = () => {
       calculateBalance(data, customer);
       setPaymentList(data);
     } catch (err) {
-      console.error("Error fetching :", err);
     }
   };
 
@@ -158,7 +155,6 @@ const Customers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error adding Payment:", error);
     } finally {
       setLoading(false);
     }
@@ -214,7 +210,6 @@ const Customers = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -252,7 +247,6 @@ const Customers = () => {
             imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
-          console.warn("Invalid or null frontView:", row.frontView);
         }
 
         return (
@@ -325,7 +319,6 @@ const Customers = () => {
           setShowCustomerPaymentForm(true);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 

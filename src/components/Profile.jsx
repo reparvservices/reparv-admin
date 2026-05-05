@@ -4,7 +4,8 @@ import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import Loader from "./Loader";
 import { IoMdClose } from "react-icons/io";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaUserCircle } from "react-icons/fa";
+import { getImageURI } from "../utils/helper";
 
 const Profile = () => {
   const { showProfile, setShowProfile, setLoading, URI } = useAuth();
@@ -17,8 +18,6 @@ const Profile = () => {
     role: "",
     userimage: "",
   });
-  const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
-
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -59,7 +58,6 @@ const Profile = () => {
       setNewUser(data);
       setUser(data);
     } catch (err) {
-      console.error("Error fetching profile:", err);
     }
   };
 
@@ -97,7 +95,6 @@ const Profile = () => {
       });
       await fetchProfile();
     } catch (err) {
-      console.error("Error Updating Profile", err);
     } finally {
       setLoading(false);
     }
@@ -133,7 +130,6 @@ const Profile = () => {
       }
   
       const data = await response.json();
-      console.log("Password changed successfully:", data);
   
       // Update user state
       fetchProfile();
@@ -142,7 +138,6 @@ const Profile = () => {
       setShowChangePass(false);
       setErrorMessage(""); 
     } catch (err) {
-      console.error("Error changing password:", err);
       setErrorMessage(err.message || "Password change failed. Please try again.");
     } finally {
       setLoading(false);
@@ -154,6 +149,8 @@ const Profile = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  const profilePhoto = getImageURI(user?.userimage);
 
   return (
     <div
@@ -169,11 +166,15 @@ const Profile = () => {
           />
         </div>
         <div className="profileImgContainer w-[320px] h-[325px] bg-[#FFFFFF] flex flex-col items-center justify-center p-5 gap-3 rounded-[20px] shadow-[#0000001A] ">
-          <img
-            src={`${ImageURI}${user?.userimage}`}
-            alt=""
-            className="w-[200px] h-[200px] rounded-[50%]"
-          />
+          {profilePhoto ? (
+            <img
+              src={profilePhoto}
+              alt=""
+              className="w-[200px] h-[200px] rounded-[50%] object-cover"
+            />
+          ) : (
+            <FaUserCircle className="w-[200px] h-[200px] text-gray-300" />
+          )}
           <h2 className="text-[18px] leading-5 font-semibold text-[#076300]">
             {user?.name}
           </h2>

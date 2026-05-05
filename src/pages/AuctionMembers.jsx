@@ -16,6 +16,7 @@ const AuctionMembers = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI+"/admin/auctionmember",{
         method: "GET",
@@ -28,12 +29,12 @@ const AuctionMembers = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching employees:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   const handleMethod = () => {
-    console.log("handle Click");
   };
 
   const filteredData = datas.filter((item) =>

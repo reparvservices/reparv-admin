@@ -40,6 +40,7 @@ const GuestUser = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(URI + "/admin/guestuser", {
         method: "GET",
@@ -52,9 +53,10 @@ const GuestUser = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
-      console.error("Error fetching :", err);
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   const add = async (e) => {
     e.preventDefault();
@@ -93,7 +95,6 @@ const GuestUser = () => {
         await fetchData();
       }
     } catch (err) {
-      console.error("Error saving Partner:", err);
     } finally {
       setLoading(false);
     }
@@ -111,11 +112,9 @@ const GuestUser = () => {
       });
       if (!response.ok) throw new Error("Failed to fetch User.");
       const data = await response.json();
-      console.log(data);
       setNewPartner(data);
       setShowPartnerForm(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -134,7 +133,6 @@ const GuestUser = () => {
       setPartner(data);
       setShowPartner(true);
     } catch (err) {
-      console.error("Error fetching:", err);
     }
   };
 
@@ -160,7 +158,6 @@ const GuestUser = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error deleting User:", error);
     } finally {
       setLoading(false);
     }
@@ -180,7 +177,6 @@ const GuestUser = () => {
         },
       });
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -188,7 +184,6 @@ const GuestUser = () => {
       }
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     }
   };
 
@@ -212,7 +207,6 @@ const GuestUser = () => {
         }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
         alert(`Success: ${data.message}`);
       } else {
@@ -224,7 +218,6 @@ const GuestUser = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
-      console.error("Error deleting :", error);
     } finally {
       setLoading(false);
     }
@@ -288,7 +281,6 @@ const GuestUser = () => {
         fontSize: "14px",
         fontWeight: "600",
         backgroundColor: "#F9FAFB",
-        backgroundColor: "#00000007",
         color: "#374151",
       },
     },
@@ -410,7 +402,6 @@ const GuestUser = () => {
           setGiveAccess(true);
           break;
         default:
-          console.log("Invalid action");
       }
     };
 
@@ -905,7 +896,6 @@ const GuestUser = () => {
                       />
                     ));
                   } catch (err) {
-                    console.error("Invalid JSON in adharimage:", err);
                     return null;
                   }
                 })()}
@@ -934,7 +924,6 @@ const GuestUser = () => {
                       />
                     ));
                   } catch (err) {
-                    console.error("Invalid JSON in panimage:", err);
                     return null;
                   }
                 })()}
