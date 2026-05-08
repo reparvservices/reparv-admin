@@ -46,7 +46,7 @@ export default function PaymentUpdateModal({
   const fetchData = async () => {
     try {
       const response = await fetch(
-        URI + "/admin/subscription/pricing/plans/" + partnerType,
+        URI + "/admin/subscription/plans/partner/" + partnerType,
         {
           method: "GET",
           credentials: "include",

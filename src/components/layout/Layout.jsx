@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useLocation, NavLink, Outlet } from "react-router-dom";
 import reparvMainLogo from "../../assets/layout/reparvMainLogo.svg";
 import { IoMenu } from "react-icons/io5";
@@ -6,32 +6,18 @@ import { IoMdClose } from "react-icons/io";
 import Profile from "../Profile";
 import { useAuth } from "../../store/auth";
 import LogoutButton from "../LogoutButton";
-import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
+import { RiArrowDropDownLine } from "react-icons/ri";
 import { FaUserCircle } from "react-icons/fa";
-import { PiArrowElbowDownRightBold } from "react-icons/pi";
 
 import { MdDashboard } from "react-icons/md";
 import { IoIosListBox } from "react-icons/io";
 import { HiUsers } from "react-icons/hi2";
 import { PiBuildingsFill } from "react-icons/pi";
-import { FaMapLocationDot } from "react-icons/fa6";
 import { RiAdvertisementFill } from "react-icons/ri";
 import { FaUserTie } from "react-icons/fa";
-import { FaBuildingUser } from "react-icons/fa6";
-import { FaUsersGear } from "react-icons/fa6";
 import { FaHandshake } from "react-icons/fa";
-import { BiCalendar, BiSolidDiamond } from "react-icons/bi";
-import { TbRosetteDiscountCheckFilled } from "react-icons/tb";
-import { FaClipboardUser } from "react-icons/fa6";
-import { FaUserCog } from "react-icons/fa";
-import { PiBuildingOfficeFill } from "react-icons/pi";
+import { BiSolidDiamond } from "react-icons/bi";
 import { FaTicket } from "react-icons/fa6";
-import { MdVerifiedUser } from "react-icons/md";
-import { FaBloggerB } from "react-icons/fa";
-import { FaArrowTrendUp } from "react-icons/fa6";
-import { TbLayoutSidebarRightCollapseFilled } from "react-icons/tb";
-import { MdFeedback } from "react-icons/md";
-import { GrDocumentVideo } from "react-icons/gr";
 import { FaPhotoVideo } from "react-icons/fa";
 
 const menuItems = [
@@ -287,7 +273,6 @@ function Layout() {
     setShowAdURLForm,
     showTopPicksForm,
     setShowTopPicksForm,
-    isLoggedIn,
   } = useAuth();
 
   const overlays = [
@@ -378,16 +363,40 @@ function Layout() {
   const [openSubscriptionPlans, setOpenSubscriptionPlans] = useState(false);
   const [openManageReparv, setOpenManageReparv] = useState(false);
 
-  const getNavLinkClass = (path) => {
-    return location.pathname === path
-      ? "font-semibold bg-[#E3FFDF] shadow-[0px_1px_0px_0px_rgba(0,_0,_0,_0.1)]"
-      : "";
-  };
+  const isPathActive = (path) =>
+    path && (location.pathname === path || location.pathname.startsWith(`${path}/`));
+
+  const leafLinkClass = ({ isActive }) =>
+    [
+      "block rounded-xl px-3 py-2 text-[13px] font-medium transition-colors duration-150",
+      isActive
+        ? "bg-[#E3FFDF] text-[#076300] shadow-[inset_0_0_0_1px_rgba(7,99,0,0.12)]"
+        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+    ].join(" ");
 
   const getHeading = (label) => {
     setHeading(label);
     localStorage.setItem("head", label);
   };
+
+  useEffect(() => {
+    const path = location.pathname;
+    const routeActive = (route) =>
+      route && (path === route || path.startsWith(`${route}/`));
+    menuItems.forEach((item) => {
+      if (!item.dropdown) return;
+      const hit = item.dropdown.some((sub) => routeActive(sub.to));
+      if (!hit) return;
+      if (item.label === "Leads") setOpenLeads(true);
+      if (item.label === "Visitors") setOpenVisitors(true);
+      if (item.label === "Projects") setOpenProjects(true);
+      if (item.label === "Employees") setOpenEmployees(true);
+      if (item.label === "Partners") setOpenPartners(true);
+      if (item.label === "Promotions") setOpenPromotions(true);
+      if (item.label === "Subscription Plans") setOpenSubscriptionPlans(true);
+      if (item.label === "Manage Reparv") setOpenManageReparv(true);
+    });
+  }, [location.pathname]);
 
   return (
     <div className="flex flex-col w-full h-screen bg-[#F5F5F6]">
@@ -416,26 +425,28 @@ function Layout() {
       </div>
 
       {/* Navbar */}
-      <div className="navbar hidden w-full h-[80px] md:flex items-center justify-center border-b-2">
-        <div className="navLogo w-[300px] h-[80px] flex items-center justify-center">
+      <div className="navbar hidden h-[72px] w-full shrink-0 items-center justify-center border-b border-gray-200/90 bg-white md:flex">
+        <div className="navLogo flex h-[72px] w-[260px] shrink-0 items-center justify-center border-r border-gray-100 bg-[#FAFAFA]">
           <img
             src={reparvMainLogo}
             alt="Reparv Logo"
-            className="w-[100px] mb-2"
+            className="mb-0.5 w-[92px]"
           />
         </div>
 
-        <div className="navHeading w-full h-16 flex items-center justify-between text-lg font-semibold">
-          <div className="left-heading h-8 flex gap-4 items-center justify-between text-[20px] leading-[19.36px] text-black">
-            <IoMenu
-              onClick={() => {
-                setIsShortbar(!isShortBar);
-              }}
-              className="w-8 h-8 cursor-pointer active:scale-95"
-            />{" "}
-            <p>{heading}</p>
+        <div className="navHeading flex h-full w-full min-w-0 items-center justify-between px-6 text-lg font-semibold">
+          <div className="left-heading flex min-w-0 items-center gap-3 text-[18px] font-semibold tracking-tight text-gray-900">
+            <button
+              type="button"
+              aria-label={isShortBar ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={() => setIsShortbar(!isShortBar)}
+              className="flex size-10 shrink-0 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 active:scale-[0.98]"
+            >
+              <IoMenu className="size-6" />
+            </button>
+            <p className="truncate">{heading}</p>
           </div>
-          <div className="right-heading w-[135px] h-[40px] flex items-center justify-between mr-8">
+          <div className="right-heading flex h-10 shrink-0 items-center gap-4">
             <FaUserCircle
               onClick={() => {
                 setShowProfile("true");
@@ -447,141 +458,202 @@ function Layout() {
         </div>
       </div>
 
-      {/* Sidebar */}
-      <div className="flex overflow-y-scroll scrollbar-hide">
-        <div
-          className={`w-64 ${
-            isShortBar ? "md:w-[16px] " : "md:w-60"
-          } h-full fixed overflow-y-scroll scrollbar-hide bg-white shadow-md md:shadow-none md:static top-0 left-0 z-[55] md:bg-[#F5F5F6] transition-transform duration-300 transform ${
-            isSidebarOpen
-              ? "translate-x-0"
-              : "-translate-x-full md:translate-x-0"
-          }`}
+      {/* Sidebar + main */}
+      <div className="relative flex flex-1 min-h-0 overflow-hidden">
+        {isSidebarOpen ? (
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="fixed inset-0 z-[54] bg-gray-900/35 backdrop-blur-[1px] md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        ) : null}
+        <aside
+          className={[
+            "flex h-full min-h-0 flex-col border-r border-gray-200/90 bg-white shadow-[2px_0_24px_-16px_rgba(0,0,0,0.08)]",
+            "fixed z-[55] transition-[transform,width] duration-300 ease-out md:static md:translate-x-0",
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full",
+            isShortBar ? "w-[76px] md:w-[76px]" : "w-[min(100vw-3rem,280px)] md:w-[260px]",
+          ].join(" ")}
         >
-          <div className="flex flex-col items-center gap-2 p-4 md:gap-2">
+          <div className="scrollbar-hide flex flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden px-2.5 py-3 md:px-3">
             <img
               src={reparvMainLogo}
-              alt="Reparv Logo"
-              className="md:hidden block"
+              alt="Reparv"
+              className="mx-auto mb-2 h-9 w-auto shrink-0 object-contain md:hidden"
             />
-            {/* Navigation Links */}
-            {menuItems.map((item, index) => (
-              <div key={index} className="w-full">
-                {/* Parent menu button */}
-                <NavLink
-                  to={!item?.dropdown && item.to}
-                  onClick={() => {
-                    if (item.dropdown) {
-                      if (item.label === "Leads") setOpenLeads(!openLeads);
-                      if (item.label === "Visitors")
-                        setOpenVisitors(!openVisitors);
-                      if (item.label === "Projects")
-                        setOpenProjects(!openProjects);
-                      if (item.label === "Employees")
-                        setOpenEmployees(!openEmployees);
-                      if (item.label === "Partners")
-                        setOpenPartners(!openPartners);
-                      if (item.label === "Promotions")
-                        setOpenPromotions(!openPromotions);
-                      if (item.label === "Subscription Plans")
-                        setOpenSubscriptionPlans(!openSubscriptionPlans);
-                      if (item.label === "Manage Reparv")
-                        setOpenManageReparv(!openManageReparv);
-                    }
-                    if (!item.dropdown) setIsSidebarOpen(false);
-                    if (!item.dropdown) getHeading(item.label);
-                  }}
-                  className={`group flex items-center gap-3 w-full p-3 rounded-[20px] cursor-pointer transition-all duration-300 text-black ${getNavLinkClass(
-                    item.to,
-                  )}`}
-                >
-                  <div className="min-w-8 min-h-8 md:min-w-10 md:min-h-10 flex items-center justify-center rounded-[12px] bg-white">
-                    {item.icon}
-                  </div>
 
+            <nav className="flex flex-col gap-0.5" aria-label="Main navigation">
+              {menuItems.map((item, index) => {
+                const dropdownOpen =
+                  (item.label === "Leads" && openLeads) ||
+                  (item.label === "Visitors" && openVisitors) ||
+                  (item.label === "Projects" && openProjects) ||
+                  (item.label === "Employees" && openEmployees) ||
+                  (item.label === "Partners" && openPartners) ||
+                  (item.label === "Promotions" && openPromotions) ||
+                  (item.label === "Subscription Plans" &&
+                    openSubscriptionPlans) ||
+                  (item.label === "Manage Reparv" && openManageReparv);
+
+                const toggleDropdown = () => {
+                  if (item.label === "Leads") setOpenLeads((o) => !o);
+                  if (item.label === "Visitors") setOpenVisitors((o) => !o);
+                  if (item.label === "Projects") setOpenProjects((o) => !o);
+                  if (item.label === "Employees") setOpenEmployees((o) => !o);
+                  if (item.label === "Partners") setOpenPartners((o) => !o);
+                  if (item.label === "Promotions") setOpenPromotions((o) => !o);
+                  if (item.label === "Subscription Plans")
+                    setOpenSubscriptionPlans((o) => !o);
+                  if (item.label === "Manage Reparv")
+                    setOpenManageReparv((o) => !o);
+                };
+
+                const childActive =
+                  item.dropdown?.some((sub) => isPathActive(sub.to)) ?? false;
+
+                const parentActive =
+                  !item.dropdown && isPathActive(item.to)
+                    ? true
+                    : item.dropdown
+                      ? childActive
+                      : false;
+
+                const iconShell = (
                   <span
-                    className={`text-sm md:text-base max-w-[80px] ${
-                      isShortBar ? "md:hidden" : "block"
-                    }`}
+                    className={[
+                      "flex size-9 shrink-0 items-center justify-center rounded-[11px] border transition-colors duration-150 md:size-10",
+                      parentActive
+                        ? "border-[#076300]/25 bg-[#076300]/10 text-[#076300]"
+                        : "border-gray-100 bg-gray-50 text-gray-600 group-hover:border-gray-200 group-hover:bg-white group-hover:text-gray-800",
+                    ].join(" ")}
                   >
-                    {item.label}
+                    {item.icon}
                   </span>
+                );
 
-                  {item.dropdown && (
-                    <div className="w-full flex items-end justify-end text-xs">
-                      {(item.label === "Leads" && openLeads) ||
-                      (item.label === "Visitors" && openVisitors) ||
-                      (item.label === "Projects" && openProjects) ||
-                      (item.label === "Employees" && openEmployees) ||
-                      (item.label === "Partners" && openPartners) ||
-                      (item.label === "Promotions" && openPromotions) ||
-                      (item.label === "Subscription Plans" &&
-                        openSubscriptionPlans) ||
-                      (item.label === "Manage Reparv" && openManageReparv) ? (
-                        <RiArrowDropUpLine
-                          size={25}
-                          className="min-w-[30px] text-right"
-                        />
-                      ) : (
-                        <RiArrowDropDownLine
-                          size={25}
-                          className="min-w-[30px]"
-                        />
-                      )}
-                    </div>
-                  )}
-                </NavLink>
-
-                {/* Dropdown items */}
-                {item.dropdown && (
-                  <div
-                    className={`flex ${
-                      (item.label === "Leads" && openLeads) ||
-                      (item.label === "Visitors" && openVisitors) ||
-                      (item.label === "Projects" && openProjects) ||
-                      (item.label === "Employees" && openEmployees) ||
-                      (item.label === "Partners" && openPartners) ||
-                      (item.label === "Promotions" && openPromotions) ||
-                      (item.label === "Subscription Plans" &&
-                        openSubscriptionPlans) ||
-                      (item.label === "Manage Reparv" && openManageReparv)
-                        ? "max-h-96 opacity-100"
-                        : "max-h-0 opacity-0 overflow-hidden"
-                    }`}
-                  >
-                    <div className="w-14 flex items-start justify-end">
-                      <PiArrowElbowDownRightBold
-                        size={20}
-                        className="mr-2 mt-1"
-                      />
-                    </div>
-                    <div className={`flex flex-col gap-1 transition-all`}>
-                      {item.dropdown.map((sub, i) => (
-                        <NavLink
-                          key={i}
-                          to={sub.to}
-                          onClick={() => {
-                            getHeading(sub.label);
-                            setIsSidebarOpen(false);
-                          }}
-                          className={`text-sm py-2 px-4 rounded-xl hover:bg-[#E3FFDF] ${getNavLinkClass(
-                            sub.to,
-                          )}`}
+                return (
+                  <div key={index} className="w-full">
+                    {item.dropdown ? (
+                      <button
+                        type="button"
+                        aria-expanded={dropdownOpen}
+                        onClick={() => {
+                          toggleDropdown();
+                        }}
+                        title={isShortBar ? item.label : undefined}
+                        className={[
+                          "group flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-left transition-colors duration-150 md:gap-3 md:px-2.5",
+                          parentActive
+                            ? "bg-[#E3FFDF] text-[#076300] shadow-[inset_0_0_0_1px_rgba(7,99,0,0.1)]"
+                            : "text-gray-800 hover:bg-gray-50",
+                          isShortBar ? "justify-center md:px-1.5" : "",
+                        ].join(" ")}
+                      >
+                        {iconShell}
+                        <span
+                          className={[
+                            "min-w-0 flex-1 text-left text-[13px] font-semibold leading-snug tracking-tight md:text-[14px]",
+                            isShortBar ? "md:sr-only" : "",
+                          ].join(" ")}
                         >
-                          {sub.label}
-                        </NavLink>
-                      ))}
-                    </div>
+                          {item.label}
+                        </span>
+                        <span
+                          className={[
+                            "flex shrink-0 text-gray-400 transition-transform duration-200",
+                            dropdownOpen ? "rotate-180" : "",
+                            isShortBar ? "md:hidden" : "",
+                          ].join(" ")}
+                        >
+                          <RiArrowDropDownLine size={22} className="-mr-1" />
+                        </span>
+                      </button>
+                    ) : (
+                      <NavLink
+                        to={item.to}
+                        title={isShortBar ? item.label : undefined}
+                        onClick={() => {
+                          setIsSidebarOpen(false);
+                          getHeading(item.label);
+                        }}
+                        className={({ isActive }) =>
+                          [
+                            "group flex w-full items-center gap-2.5 rounded-xl px-2 py-2 transition-colors duration-150 md:gap-3 md:px-2.5",
+                            isActive
+                              ? "bg-[#E3FFDF] text-[#076300] shadow-[inset_0_0_0_1px_rgba(7,99,0,0.1)]"
+                              : "text-gray-800 hover:bg-gray-50",
+                            isShortBar ? "justify-center md:px-1.5" : "",
+                          ].join(" ")
+                        }
+                      >
+                        {({ isActive }) => (
+                          <>
+                            <span
+                              className={[
+                                "flex size-9 shrink-0 items-center justify-center rounded-[11px] border transition-colors duration-150 md:size-10",
+                                isActive
+                                  ? "border-[#076300]/25 bg-[#076300]/10 text-[#076300]"
+                                  : "border-gray-100 bg-gray-50 text-gray-600 group-hover:border-gray-200 group-hover:bg-white group-hover:text-gray-800",
+                              ].join(" ")}
+                            >
+                              {item.icon}
+                            </span>
+                            <span
+                              className={[
+                                "min-w-0 flex-1 text-left text-[13px] font-semibold leading-snug tracking-tight md:text-[14px]",
+                                isShortBar ? "md:sr-only" : "",
+                              ].join(" ")}
+                            >
+                              {item.label}
+                            </span>
+                          </>
+                        )}
+                      </NavLink>
+                    )}
+
+                    {item.dropdown && (
+                      <div
+                        className={[
+                          "grid transition-[grid-template-rows,opacity] duration-200 ease-out",
+                          dropdownOpen
+                            ? "grid-rows-[1fr] opacity-100"
+                            : "grid-rows-[0fr] opacity-0",
+                          isShortBar ? "md:hidden" : "",
+                        ].join(" ")}
+                      >
+                        <div className="min-h-0 overflow-hidden">
+                          <div className="mt-1 flex gap-0 border-l-2 border-gray-100 pl-2.5 ml-4 md:ml-5">
+                            <div className="flex flex-1 flex-col gap-0.5 py-0.5">
+                              {item.dropdown.map((sub, i) => (
+                                <NavLink
+                                  key={i}
+                                  to={sub.to}
+                                  end
+                                  onClick={() => {
+                                    getHeading(sub.label);
+                                    setIsSidebarOpen(false);
+                                  }}
+                                  className={leafLinkClass}
+                                >
+                                  {sub.label}
+                                </NavLink>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
+            </nav>
           </div>
-        </div>
+        </aside>
 
         {/* Content Area */}
         <div
-          className="flex-1 md:p-4 md:pl-0 md:pt-0 overflow-scroll scrollbar-hide"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide bg-[#F5F5F6] md:p-4 md:pl-4 md:pt-0"
           onClick={() => isSidebarOpen && setIsSidebarOpen(false)}
         >
           <Suspense fallback={null}>

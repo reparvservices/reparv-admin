@@ -20,9 +20,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("adminUser");
   };
 
-  //const URI = "http://localhost:3000";
-  const URI = "https://aws-api.reparv.in";
-  //const URI = "https://api.reparv.in";
+  const URI = (
+    import.meta.env.VITE_API_BASE_URL || "https://aws-api.reparv.in"
+  ).replace(/\/+$/, "");
 
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("adminUser")),

@@ -1,5 +1,6 @@
 export default function DashboardSummaryCard({ data }) {
-  const isLoss = data.netProfitLoss.includes("-");
+  const safeData = data || {};
+  const isLoss = String(safeData.netProfitLoss || "").includes("-");
 
   return (
     <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-200 p-5 md:p-6 mt-4 md:mt-5">
@@ -16,7 +17,7 @@ export default function DashboardSummaryCard({ data }) {
               : "bg-green-100 text-green-600"
           }`}
         >
-          ROI: {data.roi}
+          ROI: {safeData.roi || "0.00%"}
         </span>
       </div>
 
@@ -27,7 +28,7 @@ export default function DashboardSummaryCard({ data }) {
         <div className="bg-violet-50 rounded-lg border p-4">
           <p className="text-xs text-gray-500 mb-1">Total Revenue</p>
           <h3 className="text-lg font-bold text-violet-700">
-            {data.totalRevenue}
+            {safeData.totalRevenue || "Rs0.00"}
           </h3>
         </div>
 
@@ -39,7 +40,7 @@ export default function DashboardSummaryCard({ data }) {
               isLoss ? "text-red-600" : "text-green-600"
             }`}
           >
-            {data.netProfitLoss}
+            {safeData.netProfitLoss || "Rs0.00"}
           </h3>
         </div>
 
@@ -47,7 +48,7 @@ export default function DashboardSummaryCard({ data }) {
         <div className="bg-blue-50 rounded-lg border p-4">
           <p className="text-xs text-gray-500 mb-1">Total Deals</p>
           <h3 className="text-lg font-bold text-blue-700">
-            {data.totalDeals}
+            {safeData.totalDeals || 0}
           </h3>
         </div>
 
@@ -55,7 +56,7 @@ export default function DashboardSummaryCard({ data }) {
         <div className="bg-red-50 rounded-lg border p-4">
           <p className="text-xs text-gray-500 mb-1">Total Expenses</p>
           <h3 className="text-lg font-bold text-red-600">
-            {data.totalExpenses}
+            {safeData.totalExpenses || "Rs0.00"}
           </h3>
         </div>
 
@@ -63,7 +64,7 @@ export default function DashboardSummaryCard({ data }) {
         <div className="bg-pink-50 rounded-lg border p-4">
           <p className="text-xs text-gray-500 mb-1">Marketing Spend</p>
           <h3 className="text-lg font-bold text-pink-600">
-            {data.marketingSpend}
+            {safeData.marketingSpend || "Rs0.00"}
           </h3>
         </div>
 
@@ -71,7 +72,7 @@ export default function DashboardSummaryCard({ data }) {
         <div className="bg-yellow-50 rounded-lg border p-4">
           <p className="text-xs text-gray-500 mb-1">Sales Commission</p>
           <h3 className="text-lg font-bold text-yellow-600">
-            {data.salesCommission}
+            {safeData.salesCommission || "Rs0.00"}
           </h3>
         </div>
 

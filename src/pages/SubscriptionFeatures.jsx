@@ -1,28 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+} from "react";
+import { createPortal } from "react-dom";
 import { CiSearch } from "react-icons/ci";
 import { useAuth } from "../store/auth";
 import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
-import { FiPlus, FiEye, FiEdit2, FiTrash2, FiMoreVertical } from "react-icons/fi";
+import {
+  FiPlus,
+  FiEye,
+  FiEdit2,
+  FiTrash2,
+  FiMoreVertical,
+  FiLayers,
+  FiRefreshCw,
+  FiCheckCircle,
+} from "react-icons/fi";
 
-// ─────────────────────────────────────────────
-// Inline Loader — shown only when loading=true
-// Does NOT rely on global setLoading from context
-// ─────────────────────────────────────────────
-const InlineLoader = ({ show }) => {
+const InlineLoader = ({ show, label = "Please wait…" }) => {
   if (!show) return null;
   return (
     <div className="flex items-center gap-2 text-sm text-gray-500">
       <svg
         className="animate-spin w-4 h-4 text-green-600"
-        xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
+        aria-hidden
       >
         <circle
           className="opacity-25"
-          cx="12" cy="12" r="10"
-          stroke="currentColor" strokeWidth="4"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
         />
         <path
           className="opacity-75"
@@ -30,94 +46,203 @@ const InlineLoader = ({ show }) => {
           d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
         />
       </svg>
-      <span>Please wait...</span>
+      <span>{label}</span>
     </div>
   );
 };
 
-// ─────────────────────────────────────────────
-// StatusBadge
-// ─────────────────────────────────────────────
-const StatusBadge = ({ status }) => (
-  <span
-    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-      status === "Active"
-        ? "bg-green-50 text-green-700"
-        : "bg-gray-100 text-gray-500"
-    }`}
-  >
-    <span
-      className={`w-1.5 h-1.5 rounded-full ${
-        status === "Active" ? "bg-green-500" : "bg-gray-400"
-      }`}
-    />
-    {status}
-  </span>
-);
-
-// ─────────────────────────────────────────────
-// Action Dropdown for table rows
-// ─────────────────────────────────────────────
-const ActionDropdown = ({ row, onView, onEdit, onDelete }) => {
-  const [open, setOpen] = useState(false);
-
+const StatusBadge = ({ status }) => {
+  const active = status === "Active";
   return (
-    <div className="relative inline-block">
-      {/* Visible button */}
-      <div
-        className="flex items-center justify-between px-2 py-1.5 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer min-w-[90px]"
-        onClick={() => setOpen((p) => !p)}
-      >
-        <span className="text-xs text-gray-600">Action</span>
-        <FiMoreVertical className="text-gray-500" size={13} />
-      </div>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+        active ? "bg-emerald-50 text-emerald-800" : "bg-gray-100 text-gray-600"
+      }`}
+    >
+      <span
+        className={`w-1.5 h-1.5 rounded-full ${
+          active ? "bg-emerald-500" : "bg-gray-400"
+        }`}
+      />
+      {status || "—"}
+    </span>
+  );
+};
 
-      {/* Transparent select on top for native behaviour fallback */}
-      {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-9 z-20 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[130px] py-1">
-            <button
-              onClick={() => { onView(row.id); setOpen(false); }}
-              className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              <FiEye size={13} /> View
-            </button>
-            <button
-              onClick={() => { onEdit(row); setOpen(false); }}
-              className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              <FiEdit2 size={13} /> Edit
-            </button>
-            <button
-              onClick={() => { onDelete(row.id); setOpen(false); }}
-              className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
-            >
-              <FiTrash2 size={13} /> Delete
-            </button>
-          </div>
-        </>
+const Banner = ({ type, message, onDismiss }) => {
+  if (!message) return null;
+  const styles =
+    type === "success"
+      ? "bg-emerald-50 text-emerald-900 border-emerald-200"
+      : "bg-red-50 text-red-900 border-red-200";
+  return (
+    <div
+      className={`flex items-start justify-between gap-3 rounded-xl border px-4 py-3 text-sm ${styles}`}
+      role="status"
+    >
+      <p className="leading-snug pr-2">{message}</p>
+      {onDismiss && (
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="shrink-0 text-current opacity-70 hover:opacity-100"
+          aria-label="Dismiss"
+        >
+          <IoMdClose size={18} />
+        </button>
       )}
     </div>
   );
 };
 
-// ─────────────────────────────────────────────
-// Add / Edit Popup Modal
-// ─────────────────────────────────────────────
-const FeatureFormPopup = ({ show, onClose, onSubmit, initial, loading }) => {
+const ACTION_MENU_MIN_W = 168;
+const ACTION_MENU_EST_H = 136;
+
+const ActionDropdown = ({ row, onView, onEdit, onDelete }) => {
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef(null);
+  const menuRef = useRef(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+
+  const close = useCallback(() => setOpen(false), []);
+
+  const computePosition = useCallback(() => {
+    const el = anchorRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const menuH = menuRef.current?.offsetHeight ?? ACTION_MENU_EST_H;
+    const menuW = Math.max(
+      menuRef.current?.offsetWidth ?? ACTION_MENU_MIN_W,
+      ACTION_MENU_MIN_W,
+    );
+    const pad = 8;
+    const spaceBelow = window.innerHeight - rect.bottom - pad;
+    const openUp = spaceBelow < menuH && rect.top - pad > menuH;
+    const top = openUp ? rect.top - menuH - 4 : rect.bottom + 4;
+    let left = rect.right - menuW;
+    left = Math.max(pad, Math.min(left, window.innerWidth - menuW - pad));
+    setCoords({ top, left });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open || !anchorRef.current) return;
+
+    computePosition();
+    const t = window.setTimeout(() => computePosition(), 0);
+    window.addEventListener("scroll", computePosition, true);
+    window.addEventListener("resize", computePosition);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("scroll", computePosition, true);
+      window.removeEventListener("resize", computePosition);
+    };
+  }, [open, computePosition]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, close]);
+
+  const menuPortal =
+    open &&
+    typeof document !== "undefined" &&
+    createPortal(
+      <>
+        <button
+          type="button"
+          className="fixed inset-0 z-[1000] cursor-default bg-transparent"
+          aria-label="Close menu"
+          onClick={close}
+        />
+        <div
+          ref={menuRef}
+          role="menu"
+          className="fixed z-[1001] bg-white border border-gray-200 rounded-xl shadow-xl min-w-[168px] py-1 overflow-hidden"
+          style={{ top: coords.top, left: coords.left }}
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              onView(row.id);
+              close();
+            }}
+            className="w-full flex items-center gap-2 text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            <FiEye size={14} /> View
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              onEdit(row);
+              close();
+            }}
+            className="w-full flex items-center gap-2 text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            <FiEdit2 size={14} /> Edit
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              onDelete(row);
+              close();
+            }}
+            className="w-full flex items-center gap-2 text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
+          >
+            <FiTrash2 size={14} /> Delete
+          </button>
+        </div>
+      </>,
+      document.body,
+    );
+
+  return (
+    <div className="relative inline-block text-left">
+      <button
+        ref={anchorRef}
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex items-center justify-between gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm text-xs text-gray-700 hover:bg-gray-50 min-w-[96px]"
+        onClick={() => setOpen((p) => !p)}
+      >
+        Actions
+        <FiMoreVertical className="text-gray-500" size={14} />
+      </button>
+      {menuPortal}
+    </div>
+  );
+};
+
+const FeatureFormModal = ({
+  show,
+  onClose,
+  onSubmit,
+  initial,
+  loading,
+  errorMessage,
+  onDismissError,
+}) => {
   const [form, setForm] = useState({
-    id: "", name: "", description: "", status: "Active",
+    id: "",
+    name: "",
+    description: "",
+    status: "Active",
   });
 
-  // Sync form when editing
   useEffect(() => {
     if (initial) {
       setForm({
-        id:          initial.id          || "",
-        name:        initial.name        || "",
-        description: initial.description || "",
-        status:      initial.status      || "Active",
+        id: initial.id ?? "",
+        name: initial.name ?? "",
+        description: initial.description ?? "",
+        status: initial.status ?? "Active",
       });
     } else {
       setForm({ id: "", name: "", description: "", status: "Active" });
@@ -126,69 +251,78 @@ const FeatureFormPopup = ({ show, onClose, onSubmit, initial, loading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.name.trim()) {
-      alert("Feature name is required!");
-      return;
-    }
+    if (!form.name.trim()) return;
     onSubmit(form);
   };
 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[61] bg-black/50 flex items-center justify-center px-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">
-            {form.id ? "Edit Feature" : "Add Feature"}
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/45 backdrop-blur-[2px]">
+      <div
+        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="feature-modal-title"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+          <h2
+            id="feature-modal-title"
+            className="text-lg font-semibold text-gray-900"
+          >
+            {form.id ? "Edit feature" : "New subscription feature"}
           </h2>
           <button
+            type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100"
           >
-            <IoMdClose size={20} />
+            <IoMdClose size={22} />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
-          {/* Feature Name */}
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          <Banner
+            type="error"
+            message={errorMessage}
+            onDismiss={onDismissError}
+          />
           <div>
-            <label className="block text-xs text-gray-500 font-medium mb-1.5">
-              Feature Name <span className="text-red-500">*</span>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">
+              Feature name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Real-time Dashboards"
-              className="w-full text-sm p-2.5 border border-gray-300 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+              autoComplete="off"
+              placeholder="e.g. Advanced analytics"
+              className="w-full text-sm px-3 py-2.5 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#076300]/30 focus:border-[#076300]"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
           </div>
 
-          {/* Description */}
           <div>
-            <label className="block text-xs text-gray-500 font-medium mb-1.5">
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">
               Description
             </label>
             <textarea
-              rows={3}
-              placeholder="Short description of this feature..."
-              className="w-full text-sm p-2.5 border border-gray-300 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+              rows={4}
+              placeholder="What this feature includes (shown in admin & plan mapping context)."
+              className="w-full text-sm px-3 py-2.5 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#076300]/30 focus:border-[#076300]"
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
             />
           </div>
 
-          {/* Status */}
           <div>
-            <label className="block text-xs text-gray-500 font-medium mb-1.5">
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">
               Status
             </label>
             <select
-              className="w-full text-sm p-2.5 border border-gray-300 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full text-sm px-3 py-2.5 border border-gray-300 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#076300]/30 focus:border-[#076300]"
               value={form.status}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
             >
@@ -197,23 +331,22 @@ const FeatureFormPopup = ({ show, onClose, onSubmit, initial, loading }) => {
             </select>
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100 mt-1">
-            <InlineLoader show={loading} />
+          <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-gray-100">
+            <InlineLoader show={loading} label="Saving…" />
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 text-sm bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2 text-sm font-medium rounded-xl text-white bg-[#076300] hover:bg-[#065000] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
-              {loading ? "Saving..." : form.id ? "Update" : "Save"}
+              {loading ? "Saving…" : form.id ? "Update feature" : "Create feature"}
             </button>
           </div>
         </form>
@@ -222,74 +355,71 @@ const FeatureFormPopup = ({ show, onClose, onSubmit, initial, loading }) => {
   );
 };
 
-// ─────────────────────────────────────────────
-// View Details Popup
-// ─────────────────────────────────────────────
-const ViewPopup = ({ show, feature, onClose, onEdit }) => {
+const ViewModal = ({ show, feature, onClose, onEdit }) => {
   if (!show || !feature) return null;
-
   return (
-    <div className="fixed inset-0 z-[61] bg-black/50 flex items-center justify-center px-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/45 backdrop-blur-[2px]">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">Feature Details</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <IoMdClose size={20} />
+          <h2 className="text-lg font-semibold text-gray-900">Feature details</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+          >
+            <IoMdClose size={22} />
           </button>
         </div>
-
-        <div className="px-6 py-5 flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="px-6 py-5 space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs text-gray-400 mb-1">Feature Name</p>
-              <p className="text-sm font-medium text-gray-800">{feature.name}</p>
+              <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                Name
+              </p>
+              <p className="text-base font-semibold text-gray-900 mt-0.5">
+                {feature.name}
+              </p>
             </div>
-            <div>
-              <p className="text-xs text-gray-400 mb-1">Status</p>
-              <StatusBadge status={feature.status} />
-            </div>
+            <StatusBadge status={feature.status} />
           </div>
-
-          {feature.description && (
+          {feature.description ? (
             <div>
-              <p className="text-xs text-gray-400 mb-1">Description</p>
-              <p className="text-sm text-gray-700 leading-relaxed">{feature.description}</p>
+              <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                Description
+              </p>
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {feature.description}
+              </p>
             </div>
+          ) : (
+            <p className="text-sm text-gray-400 italic">No description</p>
           )}
-
-          {/* Preview as checklist item */}
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-3">
-              Appears in plan as
+          <div className="rounded-xl bg-gray-50 border border-gray-100 p-4">
+            <p className="text-xs text-gray-500 font-medium mb-2">
+              Plan checklist preview
             </p>
             <div className="flex items-center gap-2">
-              <span className="w-4 h-4 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
-                <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                  <path
-                    d="M1 4l2 2 4-4"
-                    stroke="#16a34a"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <span className="text-sm text-gray-700">{feature.name}</span>
+              <FiCheckCircle className="text-emerald-600 shrink-0" size={18} />
+              <span className="text-sm text-gray-800">{feature.name}</span>
             </div>
           </div>
-
-          <div className="flex justify-end gap-3 pt-1">
+          <div className="flex justify-end gap-2 pt-1">
             <button
-              onClick={() => { onClose(); onEdit(feature); }}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Edit
-            </button>
-            <button
+              type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-sm border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
             >
               Close
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onEdit(feature);
+              }}
+              className="px-4 py-2 text-sm font-medium rounded-xl text-white bg-[#076300] hover:bg-[#065000]"
+            >
+              Edit
             </button>
           </div>
         </div>
@@ -298,333 +428,470 @@ const ViewPopup = ({ show, feature, onClose, onEdit }) => {
   );
 };
 
-// ─────────────────────────────────────────────
-// Main Component
-// ─────────────────────────────────────────────
+const DeleteConfirmModal = ({ show, feature, onClose, onConfirm, loading }) => {
+  if (!show || !feature) return null;
+  return (
+    <div className="fixed inset-0 z-[75] flex items-center justify-center p-4 bg-black/50">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl border border-gray-100 p-6">
+        <h3 className="text-base font-semibold text-gray-900">Delete feature?</h3>
+        <p className="text-sm text-gray-600 mt-2">
+          <span className="font-medium text-gray-800">{feature.name}</span> will
+          be removed. Plan–feature mappings for this item are also deleted on the
+          server.
+        </p>
+        <div className="flex justify-end gap-2 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="px-4 py-2 text-sm border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={loading}
+            className="px-4 py-2 text-sm font-medium rounded-xl text-white bg-red-600 hover:bg-red-700 disabled:opacity-50"
+          >
+            {loading ? "Deleting…" : "Delete"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SubscriptionFeatures = () => {
-  const { URI } = useAuth(); // ← only pull URI, do NOT pull setLoading
+  const { URI } = useAuth();
 
-  // ── Data ──
-  const [datas, setDatas]           = useState([]);
+  const [rows, setRows] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [fetching, setFetching] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [banner, setBanner] = useState({ type: "", message: "" });
 
-  // ── Local loading state (fixes loader running all the time) ──
-  const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [editing, setEditing] = useState(null);
+  const [viewFeature, setViewFeature] = useState(null);
+  const [showView, setShowView] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // ── Popup states ──
-  const [showForm, setShowForm]         = useState(false);
-  const [editingFeature, setEditingFeature] = useState(null); // null = add, object = edit
-  const [viewFeature, setViewFeature]   = useState(null);
-  const [showView, setShowView]         = useState(false);
+  const base = useMemo(
+    () => `${URI}/admin/subscription/features`,
+    [URI],
+  );
 
-  // ──────────────────────────────────────────
-  // Open helpers
-  // ──────────────────────────────────────────
+  const showBanner = useCallback((type, message) => {
+    setBanner({ type, message });
+    if (type === "success" && message) {
+      window.setTimeout(() => setBanner({ type: "", message: "" }), 4500);
+    }
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    setFetching(true);
+    try {
+      const res = await fetch(base, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to load features");
+      }
+      setRows(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+      showBanner("error", e.message || "Could not load features.");
+      setRows([]);
+    } finally {
+      setFetching(false);
+    }
+  }, [base, showBanner]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const filtered = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(
+      (item) =>
+        item.name?.toLowerCase().includes(q) ||
+        item.description?.toLowerCase().includes(q) ||
+        String(item.status || "")
+          .toLowerCase()
+          .includes(q),
+    );
+  }, [rows, searchTerm]);
+
+  const stats = useMemo(() => {
+    const total = rows.length;
+    const active = rows.filter((r) => r.status === "Active").length;
+    return { total, active, inactive: total - active };
+  }, [rows]);
+
   const openAdd = () => {
-    setEditingFeature(null);
+    setEditing(null);
+    setFormError("");
     setShowForm(true);
   };
 
   const openEdit = (feature) => {
-    setEditingFeature(feature);
+    setEditing(feature);
+    setFormError("");
     setShowForm(true);
   };
 
   const closeForm = () => {
+    setFormError("");
     setShowForm(false);
-    setEditingFeature(null);
+    setEditing(null);
   };
 
-  // ──────────────────────────────────────────
-  // API CALLS
-  // ──────────────────────────────────────────
-
-  // Fetch all features
-  const fetchData = async () => {
-    setFetching(true);
-    try {
-      const response = await fetch(URI + "/admin/subscription/features", {
-        method: "GET",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!response.ok) throw new Error("Failed to fetch features.");
-      const data = await response.json();
-      setDatas(data);
-    } catch (err) {
-      console.error("Error fetching features:", err);
-    } finally {
-      setFetching(false);
-    }
-  };
-
-  // Add or Update
   const handleSubmit = async (form) => {
-    const isEdit   = !!form.id;
-    const endpoint = isEdit ? `edit/${form.id}` : "add";
-    const method   = isEdit ? "PUT" : "POST";
+    const isEdit = Boolean(form.id);
+    const url = isEdit ? `${base}/edit/${form.id}` : `${base}/add`;
+    const method = isEdit ? "PUT" : "POST";
 
-    setLoading(true);
+    setSaving(true);
     try {
-      const response = await fetch(
-        `${URI}/admin/subscription/features/${endpoint}`,
-        {
-          method,
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name:        form.name.trim(),
-            description: form.description.trim(),
-            status:      form.status,
-          }),
-        }
+      const res = await fetch(url, {
+        method,
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          description: form.description.trim(),
+          status: form.status,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 409) {
+        const msg = data.message || "A feature with this name already exists.";
+        if (showForm) setFormError(msg);
+        else showBanner("error", msg);
+        return;
+      }
+      if (!res.ok) {
+        throw new Error(data.message || "Save failed");
+      }
+      showBanner(
+        "success",
+        isEdit ? "Feature updated successfully." : "Feature created successfully.",
       );
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to save feature.");
-
-      if (isEdit)                  alert("Feature updated successfully!");
-      else if (response.status === 202) alert("Feature already exists!");
-      else                         alert("Feature added successfully!");
-
       closeForm();
-      fetchData();
-    } catch (err) {
-      console.error("Error saving feature:", err);
-      alert(err.message || "Something went wrong while saving.");
+      await fetchData();
+    } catch (e) {
+      console.error(e);
+      const msg = e.message || "Something went wrong while saving.";
+      if (showForm) setFormError(msg);
+      else showBanner("error", msg);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  // View single feature
-  const view = async (id) => {
+  const viewById = async (id) => {
     try {
-      const response = await fetch(URI + `/admin/subscription/features/${id}`, {
+      const res = await fetch(`${base}/${id}`, {
         method: "GET",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
       });
-      if (!response.ok) throw new Error("Failed to fetch feature.");
-      const data = await response.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to load feature");
+      }
       setViewFeature(data);
       setShowView(true);
-    } catch (err) {
-      console.error("Error fetching feature:", err);
+    } catch (e) {
+      console.error(e);
+      showBanner("error", e.message || "Could not open feature.");
     }
   };
 
-  // Delete
-  const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this feature?")) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget?.id) return;
+    setDeleting(true);
     try {
-      const response = await fetch(
-        URI + `/admin/subscription/features/delete/${id}`,
-        { method: "DELETE", credentials: "include" }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        alert("Feature deleted successfully!");
-        fetchData();
-      } else {
-        alert(`Error: ${data.message}`);
+      const res = await fetch(`${base}/delete/${deleteTarget.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.message || "Delete failed");
       }
-    } catch (error) {
-      console.error("Error deleting:", error);
+      showBanner("success", "Feature deleted.");
+      setDeleteTarget(null);
+      await fetchData();
+    } catch (e) {
+      console.error(e);
+      showBanner("error", e.message || "Could not delete feature.");
+    } finally {
+      setDeleting(false);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // ── Filtered data ──
-  const filteredData = datas.filter(
-    (item) =>
-      item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.status?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // ── Table styles ──
   const customStyles = {
-    rows: {
-      style: {
-        padding: "5px 0",
-        fontSize: "14px",
-        fontWeight: 500,
-        color: "#111827",
-      },
-    },
     headCells: {
       style: {
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        fontSize: "14px",
+        fontSize: "12px",
         fontWeight: "600",
-        backgroundColor: "#F9FAFB",
-        color: "#374151",
+        textTransform: "uppercase",
+        letterSpacing: "0.04em",
+        color: "#6b7280",
+        backgroundColor: "#f9fafb",
+        borderBottom: "1px solid #e5e7eb",
+        paddingLeft: "16px",
+        paddingRight: "16px",
+      },
+    },
+    rows: {
+      style: {
+        fontSize: "14px",
+        color: "#111827",
+        borderBottom: "1px solid #f3f4f6",
+        minHeight: "56px",
       },
     },
     cells: {
-      style: { fontSize: "13px", color: "#1F2937" },
+      style: {
+        paddingLeft: "16px",
+        paddingRight: "16px",
+      },
     },
   };
 
   const columns = [
     {
-      name: "SN",
-      cell: (row, index) => (
-        <div className="relative group flex items-center w-full">
-          <span
-            className={`min-w-6 flex items-center justify-center px-2 py-1 rounded-md cursor-pointer text-xs font-medium ${
-              row.status === "Active"
-                ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-500"
-            }`}
-          >
-            {index + 1}
-          </span>
-          <div className="absolute w-[65px] text-center -top-10 left-7 -translate-x-1/2 px-2 py-1.5 rounded bg-black text-white text-xs hidden group-hover:block z-10 whitespace-nowrap">
-            {row.status}
-          </div>
-        </div>
+      name: "#",
+      width: "64px",
+      cell: (_, index) => (
+        <span className="text-xs font-medium text-gray-500 tabular-nums">
+          {index + 1}
+        </span>
       ),
-      width: "70px",
     },
     {
-      name: "Feature Name",
+      name: "Feature",
+      minWidth: "260px",
       cell: (row) => (
         <div>
           <div className="font-medium text-gray-900">{row.name}</div>
           {row.description && (
-            <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">
+            <div className="text-xs text-gray-500 mt-0.5 line-clamp-2 max-w-xl">
               {row.description}
             </div>
           )}
         </div>
       ),
-      minWidth: "220px",
     },
     {
       name: "Status",
+      width: "130px",
       cell: (row) => <StatusBadge status={row.status} />,
-      minWidth: "120px",
     },
     {
-      name: "Action",
+      name: "",
+      width: "120px",
+      right: true,
       cell: (row) => (
         <ActionDropdown
           row={row}
-          onView={view}
+          onView={viewById}
           onEdit={openEdit}
-          onDelete={del}
+          onDelete={setDeleteTarget}
         />
       ),
-      width: "130px",
     },
   ];
 
-  // ─────────────────────────────────────────────────────────────────
-  // RENDER
-  // ─────────────────────────────────────────────────────────────────
   return (
-    <div className="Subscription overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start">
-      <div className="w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white rounded-[24px]">
-
-        {/* Search + Add button row */}
-        <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-3">
-          <div className="search-bar w-full lg:w-[30%] min-w-[150px] xl:w-[289px] h-[36px] flex gap-[10px] rounded-[12px] p-[10px] items-center justify-start lg:justify-between bg-[#0000000A]">
-            <CiSearch />
-            <input
-              type="text"
-              placeholder="Search Feature"
-              className="w-[250px] h-[36px] text-sm text-black bg-transparent border-none outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <div className="w-full lg:w-auto flex justify-end">
-            <button
-              onClick={openAdd}
-              className="flex items-center gap-2 px-4 py-2 text-sm bg-[#076300] hover:bg-green-800 text-white font-medium rounded-lg transition-colors active:scale-[0.98]"
-            >
-              <FiPlus size={15} />
-              Add Feature
-            </button>
-          </div>
-        </div>
-
-        {/* Table heading */}
-        <h2 className="text-[16px] font-semibold">Subscription Features List</h2>
-
-        {/* Table */}
-        <div className="overflow-scroll scrollbar-hide">
-          {fetching ? (
-            <div className="flex items-center justify-center py-16 gap-3 text-gray-500 text-sm">
-              <svg
-                className="animate-spin w-5 h-5 text-green-600"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12" cy="12" r="10"
-                  stroke="currentColor" strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
-              Loading features...
-            </div>
-          ) : (
-            <DataTable
-              className="scrollbar-hide"
-              customStyles={customStyles}
-              columns={columns}
-              data={filteredData}
-              fixedHeader
-              fixedHeaderScrollHeight="60vh"
-              pagination
-              paginationPerPage={15}
-              paginationComponentOptions={{
-                rowsPerPageText: "Rows per page:",
-                rangeSeparatorText: "of",
-                selectAllRowsItem: true,
-                selectAllRowsItemText: "All",
-              }}
-              noDataComponent={
-                <div className="py-12 text-gray-400 text-sm">
-                  No features found.
+    <div className="w-full min-h-screen flex flex-col bg-[#f3f4f6]">
+      <div className="flex-1 px-4 md:px-6 py-6 max-w-[1400px] mx-auto w-full">
+        <div className="rounded-3xl bg-white border border-gray-200/80 shadow-sm overflow-hidden">
+          {/* Hero */}
+          <div className="relative px-6 md:px-8 pt-8 pb-6 md:pb-8 bg-gradient-to-br from-[#076300] via-[#0a7d04] to-[#0d4f0a] text-white">
+            <div className="absolute inset-0 opacity-[0.07] bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] pointer-events-none" />
+            <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+              <div className="flex gap-4">
+                <div className="hidden sm:flex h-14 w-14 rounded-2xl bg-white/15 backdrop-blur items-center justify-center border border-white/20">
+                  <FiLayers size={28} className="text-white" />
                 </div>
-              }
+                <div>
+                  <p className="text-white/80 text-sm font-medium">
+                    Subscription catalogue
+                  </p>
+                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-1">
+                    Subscription features
+                  </h1>
+                  <p className="text-white/85 text-sm mt-2 max-w-xl leading-relaxed">
+                    Define reusable features you can attach to plans via plan–feature
+                    mapping. Active items are ready to include in subscription
+                    offerings.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => fetchData()}
+                  disabled={fetching}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/25 text-white disabled:opacity-50"
+                >
+                  <FiRefreshCw
+                    className={fetching ? "animate-spin" : ""}
+                    size={16}
+                  />
+                  Refresh
+                </button>
+                <button
+                  type="button"
+                  onClick={openAdd}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white text-[#076300] hover:bg-gray-100 shadow-md"
+                >
+                  <FiPlus size={18} />
+                  Add feature
+                </button>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
+              {[
+                { label: "Total features", value: stats.total },
+                { label: "Active", value: stats.active },
+                { label: "Inactive", value: stats.inactive },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-2xl bg-white/10 backdrop-blur border border-white/20 px-4 py-3"
+                >
+                  <p className="text-xs text-white/75 font-medium uppercase tracking-wide">
+                    {s.label}
+                  </p>
+                  <p className="text-2xl font-bold tabular-nums mt-1">{s.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="px-4 md:px-8 py-6 space-y-4">
+            <Banner
+              type={banner.type}
+              message={banner.message}
+              onDismiss={() => setBanner({ type: "", message: "" })}
             />
-          )}
+
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div className="flex w-full md:max-w-md items-center gap-2 rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-2">
+                <CiSearch className="text-gray-400 shrink-0" size={20} />
+                <input
+                  type="search"
+                  placeholder="Search by name, description, or status…"
+                  className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none min-w-0"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <p className="text-xs text-gray-500 md:text-right">
+                API: <code className="text-gray-700">{`/admin/subscription/features`}</code>
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 overflow-hidden bg-white">
+              {fetching ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-500">
+                  <svg
+                    className="animate-spin w-8 h-8 text-[#076300]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                  <span className="text-sm">Loading features…</span>
+                </div>
+              ) : (
+                <DataTable
+                  columns={columns}
+                  data={filtered}
+                  customStyles={customStyles}
+                  fixedHeader
+                  fixedHeaderScrollHeight="520px"
+                  pagination
+                  paginationPerPage={12}
+                  paginationRowsPerPageOptions={[10, 12, 25, 50]}
+                  highlightOnHover
+                  pointerOnHover
+                  noDataComponent={
+                    <div className="py-16 text-center">
+                      <FiLayers className="mx-auto text-gray-300 mb-3" size={40} />
+                      <p className="text-gray-600 font-medium">No features yet</p>
+                      <p className="text-sm text-gray-400 mt-1 max-w-sm mx-auto">
+                        Create your first feature to use it when mapping subscription
+                        plans.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={openAdd}
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl text-white bg-[#076300] hover:bg-[#065000]"
+                      >
+                        <FiPlus size={16} /> Add feature
+                      </button>
+                    </div>
+                  }
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Add / Edit Popup */}
-      <FeatureFormPopup
+      <FeatureFormModal
         show={showForm}
         onClose={closeForm}
         onSubmit={handleSubmit}
-        initial={editingFeature}
-        loading={loading}
+        initial={editing}
+        loading={saving}
+        errorMessage={formError}
+        onDismissError={() => setFormError("")}
       />
 
-      {/* View Popup */}
-      <ViewPopup
+      <ViewModal
         show={showView}
         feature={viewFeature}
-        onClose={() => { setShowView(false); setViewFeature(null); }}
+        onClose={() => {
+          setShowView(false);
+          setViewFeature(null);
+        }}
         onEdit={openEdit}
+      />
+
+      <DeleteConfirmModal
+        show={Boolean(deleteTarget)}
+        feature={deleteTarget}
+        onClose={() => !deleting && setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        loading={deleting}
       />
     </div>
   );

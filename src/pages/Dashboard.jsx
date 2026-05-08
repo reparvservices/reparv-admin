@@ -24,6 +24,17 @@ import { getImageURI } from "../utils/helper";
 import { formatNumber } from "../utils/formatNumber";
 import DashboardSummaryCard from "../components/dashboard/DashboardSummaryCard";
 
+const toNumber = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const formatINR = (value) =>
+  `₹${toNumber(value).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 function Dashboard() {
   const { URI, setLoading, showCustomer, setShowCustomer } = useAuth();
   const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
@@ -279,19 +290,37 @@ function Dashboard() {
     fetchCountData();
   }, []);
 
+  const summaryData = (() => {
+    const totalRevenue = toNumber(overviewCountData?.totalDealAmount);
+    const totalDeals = toNumber(overviewCountData?.totalCustomer);
+    const salesCommission = toNumber(overviewCountData?.totalSalesCommission);
+    const territoryCommission = toNumber(overviewCountData?.totalTerritoryCommission);
+    const reparvCommission = toNumber(overviewCountData?.totalReparvCommission);
+    const tds = toNumber(overviewCountData?.totalTDS);
+    const totalCommission = toNumber(overviewCountData?.totalCommission);
+
+    const totalExpenses = tds + salesCommission + territoryCommission;
+    const marketingSpend = Math.max(0, totalCommission - reparvCommission);
+    const netProfitLoss = reparvCommission - totalExpenses;
+    const roi = totalRevenue > 0 ? (netProfitLoss / totalRevenue) * 100 : 0;
+
+    return {
+      totalRevenue: formatINR(totalRevenue),
+      netProfitLoss: `${netProfitLoss < 0 ? "-" : ""}${formatINR(
+        Math.abs(netProfitLoss),
+      )}`,
+      totalDeals,
+      totalExpenses: formatINR(totalExpenses),
+      marketingSpend: formatINR(marketingSpend),
+      salesCommission: formatINR(salesCommission),
+      roi: `${roi.toFixed(2)}%`,
+    };
+  })();
+
   return (
     <div className="overview overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start">
       <DashboardSummaryCard
-        data={{
-          totalRevenue: "₹1,02,000",
-          netProfitLoss: "-₹3,779.66",
-          totalDeals: 8,
-          activeDeals: 4,
-          totalExpenses: "₹90,220.34",
-          marketingSpend: "₹43,220.34",
-          salesCommission: "₹23,000",
-          roi: "-8.74%",
-        }}
+        data={summaryData}
       />
       <div className="overview-card-container gap-2 sm:gap-3 px-4 md:px-0 w-full hidden place-items-center grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-5">
         {[

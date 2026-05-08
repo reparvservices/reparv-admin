@@ -82,7 +82,7 @@ const SubscriptionDiscount = () => {
   const fetchPlans = async () => {
     try {
       const response = await fetch(
-        URI + "/admin/subscription/pricing/plans/" + newDiscount?.partnerType,
+        URI + "/admin/subscription/plans/partner/" + newDiscount?.partnerType,
         {
           method: "GET",
           credentials: "include", // Ensures cookies are sent
