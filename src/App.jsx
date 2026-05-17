@@ -22,6 +22,11 @@ const ProjectPartner = lazy(() => import("./pages/ProjectPartner.jsx"));
 const TerritoryPartner = lazy(() => import("./pages/TerritoryPartner.jsx"));
 const GuestUser = lazy(() => import("./pages/guestUser.jsx"));
 const Subscription = lazy(() => import("./pages/Subscription.jsx"));
+const UserSubscriptions = lazy(() => import("./pages/UserSubscriptions.jsx"));
+const GstBills = lazy(() => import("./pages/GstBills.jsx"));
+const SubscriptionAnalytics = lazy(() =>
+  import("./pages/SubscriptionAnalytics.jsx"),
+);
 const Properties = lazy(() => import("./pages/Properties.jsx"));
 const Role = lazy(() => import("./pages/Role.jsx"));
 const Department = lazy(() => import("./pages/Department.jsx"));
@@ -39,9 +44,6 @@ const UpdateEMI = lazy(() =>
 );
 const Trends = lazy(() => import("./pages/Trends.jsx"));
 const PropertyAuthority = lazy(() => import("./pages/PropertyAuthority.jsx"));
-const SubscriptionDiscount = lazy(() =>
-  import("./pages/SubscriptionDiscount.jsx")
-);
 const PropertiesFlatAndPlotInfo = lazy(() =>
   import("./pages/PropertiesFlatAndPlotInfo.jsx")
 );
@@ -113,10 +115,6 @@ const App = () => {
             element={<ScheduledRequests />}
           />
           <Route path="/subscription-pricing" element={<Subscription />} />
-          <Route
-            path="/subscription-discount"
-            element={<SubscriptionDiscount />}
-          />
           <Route path="/employees" element={<Employee />} />
           <Route path="/role" element={<Role />} />
           <Route path="/department" element={<Department />} />
@@ -143,6 +141,12 @@ const App = () => {
           <Route path="/trends" element={<Trends />} />
           <Route path="/subscribers" element={<Subscribers />} />
           <Route path="/subscription-features" element={<SubscriptionFeatures />} />
+          <Route path="/user-subscriptions" element={<UserSubscriptions />} />
+          <Route path="/gst-bills" element={<GstBills />} />
+          <Route
+            path="/subscription-analytics"
+            element={<SubscriptionAnalytics />}
+          />
           <Route path="/marketing-content" element={<MarketingContent />} />
         </Route>
 

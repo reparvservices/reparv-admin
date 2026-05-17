@@ -30,7 +30,15 @@ const ROLE_FROM_LABEL = {
 
 const TABS = ["Project Partner", "Territory Partner", "Sales Partner"];
 
+const GST_RATE = 18;
+
 const formatINR = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
+
+const calcGstFromBase = (base) => {
+  const b = Math.max(0, Number(base) || 0);
+  const gst = Math.round((b * GST_RATE) / 100);
+  return { base: b, gst, total: b + gst };
+};
 
 const monthlyPrice = (plan) => {
   const price = Number(plan.price || 0);
@@ -39,12 +47,18 @@ const monthlyPrice = (plan) => {
   return Math.round(price / Math.max(1, d));
 };
 
-const durationLabel = (duration, cycle) =>
-  `${duration} ${
-    cycle === "yearly"
-      ? `Year${duration > 1 ? "s" : ""}`
-      : `Month${duration > 1 ? "s" : ""}`
+const durationLabel = (duration, cycle, planType) => {
+  const d = Number(duration) || 1;
+  if (planType === "trial") {
+    return `${d} Day${d > 1 ? "s" : ""}`;
+  }
+  return `${d} ${
+    cycle === "yearly" ? `Year${d > 1 ? "s" : ""}` : `Month${d > 1 ? "s" : ""}`
   }`;
+};
+
+const isTrialPlanRow = (row) =>
+  String(row?.plan_type || "").toLowerCase() === "trial";
 
 const tableCustomStyles = {
   headCells: {
@@ -92,11 +106,19 @@ const Subscription = () => {
   const [form, setForm] = useState({
     partnerType: "Project Partner",
     planName: "",
-    totalPrice: "",
+    basePrice: "",
     billingCycle: "monthly",
-    duration: 1,
+    duration: 7,
     status: "Active",
+    planType: "paid",
   });
+
+  const isTrialForm = form.planType === "trial";
+
+  const pricePreview = useMemo(
+    () => calcGstFromBase(form.basePrice),
+    [form.basePrice],
+  );
 
   const fetchPlans = async () => {
     setLoading(true);
@@ -185,10 +207,11 @@ const Subscription = () => {
     setForm({
       partnerType: activeTab,
       planName: "",
-      totalPrice: "",
+      basePrice: "",
       billingCycle: "monthly",
-      duration: 1,
+      duration: 7,
       status: "Active",
+      planType: "paid",
     });
     setSelectedFeatures(new Set());
     setBannerPreview("");
@@ -197,13 +220,15 @@ const Subscription = () => {
   const openEdit = (plan) => {
     setEditing(plan);
     setPageMode("create");
+    const trial = isTrialPlanRow(plan);
     setForm({
       partnerType: ROLE_LABELS[plan.role] || activeTab,
       planName: plan.plan_name || "",
-      totalPrice: plan.price || "",
+      basePrice: trial ? "0" : plan.base_price || Math.round(Number(plan.price || 0) / 1.18) || "",
       billingCycle: plan.billing_cycle || "monthly",
-      duration: plan.duration || 1,
+      duration: plan.duration || (trial ? 7 : 1),
       status: plan.status || "Active",
+      planType: trial ? "trial" : "paid",
     });
     const existing = Array.isArray(plan.feature_ids)
       ? plan.feature_ids.map((id) => Number(id))
@@ -230,10 +255,30 @@ const Subscription = () => {
       setNotice({ type: "error", message: "Duration must be at least 1" });
       return;
     }
-    if (!Number(form.totalPrice) || Number(form.totalPrice) < 1) {
-      setNotice({ type: "error", message: "Total price must be at least 1" });
+    if (!isTrialForm && (!Number(form.basePrice) || Number(form.basePrice) < 1)) {
+      setNotice({ type: "error", message: "Base price (excl. GST) must be at least 1" });
       return;
     }
+
+    const role = ROLE_FROM_LABEL[form.partnerType];
+    const nameTrim = form.planName.trim();
+    const cycle = isTrialForm ? "monthly" : form.billingCycle || "monthly";
+    const duplicate = plans.some((p) => {
+      if (!p || p.role !== role) return false;
+      if (String(p.billing_cycle || "monthly") !== String(cycle)) return false;
+      if (String(p.plan_name || "").trim() !== nameTrim) return false;
+      if (editing && Number(p.id) === Number(editing.id)) return false;
+      return true;
+    });
+    if (duplicate) {
+      setNotice({
+        type: "error",
+        message:
+          "This plan name already exists for this partner type and billing period. Use a different name or billing period, or edit the existing plan.",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const endpoint = editing
@@ -244,9 +289,10 @@ const Subscription = () => {
         role: ROLE_FROM_LABEL[form.partnerType],
         plan_name: form.planName.trim(),
         duration: Number(form.duration),
-        price: Number(form.totalPrice),
-        billing_cycle: form.billingCycle,
+        base_price: isTrialForm ? 0 : Number(form.basePrice),
+        billing_cycle: cycle,
         status: form.status,
+        plan_type: form.planType,
         feature_ids: Array.from(selectedFeatures),
       };
 
@@ -257,7 +303,14 @@ const Subscription = () => {
         body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || "Failed to save plan");
+      if (!res.ok) {
+        const msg =
+          res.status === 409
+            ? data.message ||
+              "This plan name already exists for this partner type and billing period. Change the name or billing period."
+            : data.message || "Failed to save plan";
+        throw new Error(msg);
+      }
 
       setNotice({
         type: "success",
@@ -296,21 +349,52 @@ const Subscription = () => {
     {
       name: "Plan Name",
       selector: (row) => row.plan_name,
-      minWidth: "200px",
+      style: { minWidth: "200px" },
       cell: (row) => (
         <div>
-          <p className="font-semibold text-gray-900">{row.plan_name}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="font-semibold text-gray-900">{row.plan_name}</p>
+            {isTrialPlanRow(row) ? (
+              <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-violet-100 text-violet-800">
+                Trial
+              </span>
+            ) : null}
+          </div>
           <p className="text-xs text-gray-500">
-            {durationLabel(Number(row.duration || 1), row.billing_cycle)}
+            {durationLabel(Number(row.duration || 1), row.billing_cycle, row.plan_type)}
           </p>
         </div>
       ),
     },
-    { name: "Price", selector: (row) => `${formatINR(monthlyPrice(row))}/mo`, minWidth: "140px" },
-    { name: "Partner Type", selector: (row) => ROLE_LABELS[row.role], minWidth: "150px" },
+    {
+      name: "Base (excl. GST)",
+      selector: (row) => row.base_price || Math.round(Number(row.price || 0) / 1.18),
+      cell: (row) => formatINR(row.base_price || Math.round(Number(row.price || 0) / 1.18)),
+      style: { minWidth: "120px" },
+    },
+    {
+      name: "GST (18%)",
+      selector: (row) => row.gst_amount,
+      cell: (row) =>
+        formatINR(row.gst_amount ?? Number(row.price || 0) - Math.round(Number(row.price || 0) / 1.18)),
+      style: { minWidth: "100px" },
+    },
+    {
+      name: "Total",
+      selector: (row) => row.price,
+      cell: (row) => (
+        <span className="font-semibold text-gray-900">{formatINR(row.price)}</span>
+      ),
+      style: { minWidth: "100px" },
+    },
+    {
+      name: "Partner Type",
+      selector: (row) => ROLE_LABELS[row.role],
+      style: { minWidth: "150px" },
+    },
     {
       name: "Status",
-      minWidth: "120px",
+      style: { minWidth: "120px" },
       cell: (row) => (
         <span
           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -339,6 +423,24 @@ const Subscription = () => {
   if (pageMode === "create") {
     return (
       <div className="w-full min-h-screen bg-[#f7f8fa] p-4 md:p-6">
+        {notice.message ? (
+          <div
+            className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-3 text-sm ${
+              notice.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                : "border-red-200 bg-red-50 text-red-900"
+            }`}
+          >
+            <p>{notice.message}</p>
+            <button
+              type="button"
+              className="rounded px-2 py-1 text-xs hover:bg-black/5"
+              onClick={() => setNotice({ type: "", message: "" })}
+            >
+              Close
+            </button>
+          </div>
+        ) : null}
         <div className="sticky top-0 z-20 mb-4 flex items-center justify-between rounded-xl border border-gray-200 bg-white/95 px-3 py-2 backdrop-blur">
           <button
             type="button"
@@ -361,6 +463,46 @@ const Subscription = () => {
             <section className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5">
               <h3 className="mb-4 text-2xl font-semibold text-gray-900">Basic Plan Info</h3>
               <form className="space-y-4" onSubmit={submit}>
+                <div>
+                  <label className="mb-2 block text-xs text-gray-500">Plan type</label>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((s) => ({
+                          ...s,
+                          planType: "paid",
+                          basePrice: s.basePrice === "0" ? "" : s.basePrice,
+                        }))
+                      }
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold border ${
+                        !isTrialForm
+                          ? "bg-[#076300] text-white border-[#076300]"
+                          : "bg-white text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      Paid plan
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((s) => ({
+                          ...s,
+                          planType: "trial",
+                          basePrice: "0",
+                          duration: s.duration || 7,
+                        }))
+                      }
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold border ${
+                        isTrialForm
+                          ? "bg-violet-600 text-white border-violet-600"
+                          : "bg-white text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      Free trial
+                    </button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="mb-1 block text-xs text-gray-500">Partner Type</label>
@@ -373,22 +515,81 @@ const Subscription = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs text-gray-500">Plan Duration</label>
-                    <div className="flex gap-2">
-                      <input type="number" min={1} value={form.duration} onChange={(e) => setForm((s) => ({ ...s, duration: e.target.value }))} className="w-24 rounded-lg border border-gray-300 p-2.5 text-sm" />
-                      <select value={form.billingCycle} onChange={(e) => setForm((s) => ({ ...s, billingCycle: e.target.value }))} className="flex-1 rounded-lg border border-gray-300 p-2.5 text-sm">
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                      </select>
-                    </div>
+                    <label className="mb-1 block text-xs text-gray-500">
+                      {isTrialForm ? "Trial length (days)" : "Plan duration"}
+                    </label>
+                    {isTrialForm ? (
+                      <input
+                        type="number"
+                        min={1}
+                        value={form.duration}
+                        onChange={(e) =>
+                          setForm((s) => ({ ...s, duration: e.target.value }))
+                        }
+                        className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+                      />
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          min={1}
+                          value={form.duration}
+                          onChange={(e) =>
+                            setForm((s) => ({ ...s, duration: e.target.value }))
+                          }
+                          className="w-24 rounded-lg border border-gray-300 p-2.5 text-sm"
+                        />
+                        <select
+                          value={form.billingCycle}
+                          onChange={(e) =>
+                            setForm((s) => ({ ...s, billingCycle: e.target.value }))
+                          }
+                          className="flex-1 rounded-lg border border-gray-300 p-2.5 text-sm"
+                        >
+                          <option value="monthly">Monthly</option>
+                          <option value="yearly">Yearly</option>
+                        </select>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="mb-1 block text-xs text-gray-500">Plan Name</label>
                     <input value={form.planName} onChange={(e) => setForm((s) => ({ ...s, planName: e.target.value }))} placeholder="e.g. Professional Growth" className="w-full rounded-lg border border-gray-300 p-2.5 text-sm" required />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Must be unique for this partner type and billing period (monthly vs yearly count separately).
+                    </p>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs text-gray-500">Total Price</label>
-                    <input type="number" min={1} value={form.totalPrice} onChange={(e) => setForm((s) => ({ ...s, totalPrice: e.target.value }))} placeholder="0.00" className="w-full rounded-lg border border-gray-300 p-2.5 text-sm" required />
+                    <label className="mb-1 block text-xs text-gray-500">Base price (excl. GST)</label>
+                    {isTrialForm ? (
+                      <p className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-sm text-violet-900">
+                        Free trial — no payment. Partners get access for the trial period only.
+                      </p>
+                    ) : (
+                      <>
+                        <input
+                          type="number"
+                          min={1}
+                          value={form.basePrice}
+                          onChange={(e) =>
+                            setForm((s) => ({ ...s, basePrice: e.target.value }))
+                          }
+                          placeholder="e.g. 1000"
+                          className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+                          required
+                        />
+                        <div className="mt-2 rounded-lg bg-[#f6f4fb] border border-[#5E23DC]/10 px-3 py-2 text-xs text-gray-600 space-y-1">
+                          <p className="flex justify-between">
+                            <span>GST ({GST_RATE}%)</span>
+                            <span className="font-medium">{formatINR(pricePreview.gst)}</span>
+                          </p>
+                          <p className="flex justify-between font-semibold text-gray-900">
+                            <span>Total (charged)</span>
+                            <span>{formatINR(pricePreview.total)}</span>
+                          </p>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </form>
@@ -470,9 +671,12 @@ const Subscription = () => {
               </div>
               <div className="p-4">
                 <h4 className="text-3xl font-semibold text-gray-900">{form.planName || "Professional Growth"}</h4>
-                <p className="mt-1 text-5xl font-bold text-[#0f7a1f]">
-                  {formatINR(form.totalPrice)}
-                  <span className="text-base font-normal text-gray-600">/{form.billingCycle === "yearly" ? "yr" : "mo"}</span>
+                <p className="mt-1 text-4xl font-bold text-[#0f7a1f]">
+                  {formatINR(pricePreview.total)}
+                  <span className="text-base font-normal text-gray-600"> incl. GST</span>
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Base {formatINR(pricePreview.base)} + GST {formatINR(pricePreview.gst)}
                 </p>
                 <p className="mt-4 mb-2 text-[11px] uppercase tracking-wide text-gray-500">What’s Included</p>
                 <ul className="space-y-2">
@@ -569,36 +773,145 @@ const Subscription = () => {
 
         {viewMode === "card" ? (
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredPlans.map((plan) => {
                 const isPopular = plan.id === popularPlanId;
+                const featureNames = Array.isArray(plan.feature_names) ? plan.feature_names : [];
+                const cycleLabel = plan.billing_cycle === "yearly" ? "Yearly" : "Monthly";
                 return (
-                  <div key={plan.id} className={`rounded-2xl border bg-white ${isPopular ? "border-[#35a041] shadow-sm" : "border-gray-200"}`}>
-                    <div className="p-4 border-b border-gray-100">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className={`text-[10px] uppercase font-semibold rounded-full px-2 py-1 ${isPopular ? "bg-[#0f7a1f] text-white" : plan.status === "Active" ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>{isPopular ? "Most Popular" : plan.status}</span>
-                        <FiMoreVertical className="text-gray-400" />
+                  <article
+                    key={plan.id}
+                    className={`group relative flex flex-col overflow-hidden rounded-3xl bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ${
+                      isPopular
+                        ? "shadow-lg shadow-emerald-900/10 ring-2 ring-emerald-500/30"
+                        : "border border-gray-200/90 shadow-md shadow-gray-200/50 ring-1 ring-black/[0.04] hover:ring-emerald-500/15"
+                    }`}
+                  >
+                    {isPopular ? (
+                      <div
+                        className="h-1.5 w-full bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-400"
+                        aria-hidden
+                      />
+                    ) : (
+                      <div className="h-1 w-full bg-gradient-to-r from-gray-100 via-gray-50 to-transparent" aria-hidden />
+                    )}
+
+                    <div
+                      className={`px-5 pt-5 pb-4 ${
+                        isPopular
+                          ? "bg-gradient-to-b from-emerald-50/90 via-white to-white"
+                          : "bg-gradient-to-b from-gray-50/40 to-white"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {isPopular ? (
+                            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-emerald-700 to-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                              Most popular
+                            </span>
+                          ) : null}
+                          <span
+                            className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                              plan.status === "Active"
+                                ? "bg-emerald-100/80 text-emerald-800"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {plan.status}
+                          </span>
+                          <span className="inline-flex rounded-full border border-gray-200/80 bg-white/80 px-2.5 py-0.5 text-[11px] font-medium text-gray-600">
+                            {cycleLabel}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="rounded-lg p-1.5 text-gray-400 opacity-60 transition hover:bg-white/80 hover:text-gray-600 hover:opacity-100"
+                          aria-label="Plan options"
+                        >
+                          <FiMoreVertical size={18} />
+                        </button>
                       </div>
-                      <h3 className="text-4xl font-semibold text-gray-900">{plan.plan_name}</h3>
-                      <p className="text-5xl font-bold text-[#128527] mt-1">{formatINR(monthlyPrice(plan))}<span className="text-base font-medium text-gray-500">/mo</span></p>
-                      <p className="text-xs text-gray-400 mt-1">Billed {plan.billing_cycle} ({formatINR(Number(plan.price || 0))}/{durationLabel(Number(plan.duration || 1), plan.billing_cycle)})</p>
+
+                      <h3 className="mt-4 text-2xl font-bold leading-snug tracking-tight text-gray-900 md:text-[1.65rem]">
+                        {plan.plan_name}
+                      </h3>
+
+                      <div className="mt-4 flex items-baseline gap-1">
+                        <span className="text-4xl font-bold tabular-nums tracking-tight text-emerald-700 md:text-[2.75rem]">
+                          {formatINR(monthlyPrice(plan))}
+                        </span>
+                        <span className="text-sm font-medium text-gray-500">/mo</span>
+                      </div>
+                      <p className="mt-1.5 text-xs leading-relaxed text-gray-500">
+                        Effective monthly rate ·{" "}
+                        <span className="font-medium text-gray-600">
+                          {formatINR(Number(plan.price || 0))}
+                        </span>{" "}
+                        per {durationLabel(Number(plan.duration || 1), plan.billing_cycle).toLowerCase()}
+                      </p>
                     </div>
-                    <div className="p-4">
-                      <ul className="space-y-2 min-h-[124px]">
-                        {(Array.isArray(plan.feature_names) ? plan.feature_names : []).slice(0, 5).map((name) => (
-                          <li key={name} className="flex items-center gap-2 text-sm text-gray-700"><FiCheckCircle className="text-[#16a34a]" size={14} />{name}</li>
+
+                    <div className="flex flex-1 flex-col px-5 pb-5 pt-1">
+                      <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400">
+                        What&apos;s included
+                      </p>
+                      <ul className="min-h-[7.5rem] space-y-0 rounded-2xl bg-gray-50/70 p-3 ring-1 ring-gray-100/80">
+                        {featureNames.slice(0, 5).map((name) => (
+                          <li
+                            key={name}
+                            className="flex items-start gap-2.5 border-b border-gray-100/80 py-2.5 text-sm text-gray-700 last:border-0 last:pb-0 first:pt-0"
+                          >
+                            <FiCheckCircle
+                              className="mt-0.5 shrink-0 text-emerald-600"
+                              size={16}
+                              strokeWidth={2.25}
+                            />
+                            <span className="leading-snug">{name}</span>
+                          </li>
                         ))}
-                        {(Array.isArray(plan.feature_names) ? plan.feature_names : []).length > 5 ? (
-                          <li className="text-[#0f7a1f] text-sm font-semibold">+ more</li>
+                        {featureNames.length > 5 ? (
+                          <li className="pt-2 text-center text-xs font-semibold text-emerald-700">
+                            +{featureNames.length - 5} more features
+                          </li>
+                        ) : null}
+                        {featureNames.length === 0 ? (
+                          <li className="py-6 text-center text-sm text-gray-400">No features linked yet</li>
                         ) : null}
                       </ul>
-                      <div className="mt-4 flex items-center gap-2">
-                        <button className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700">{isPopular ? "Manage Plan" : "View Details"}</button>
-                        <button className="p-2 text-[#0f7a1f] hover:bg-gray-50 rounded-lg" onClick={() => openEdit(plan)}><FiEdit2 /></button>
-                        <button className="p-2 text-red-500 hover:bg-gray-50 rounded-lg" onClick={() => setConfirmDeleteId(plan.id)}><FiTrash2 /></button>
+
+                      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <button
+                          type="button"
+                          onClick={() => openEdit(plan)}
+                          className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                            isPopular
+                              ? "bg-gradient-to-r from-emerald-700 to-emerald-600 text-white shadow-md shadow-emerald-900/20 hover:from-emerald-800 hover:to-emerald-700"
+                              : "border border-gray-200 bg-white text-gray-800 shadow-sm hover:border-emerald-200 hover:bg-emerald-50/50"
+                          }`}
+                        >
+                          {isPopular ? "Manage plan" : "View & edit"}
+                        </button>
+                        <div className="flex shrink-0 justify-end gap-1 sm:justify-start">
+                          <button
+                            type="button"
+                            onClick={() => openEdit(plan)}
+                            className="rounded-xl border border-transparent p-2.5 text-emerald-700 transition hover:border-emerald-100 hover:bg-emerald-50"
+                            title="Edit plan"
+                          >
+                            <FiEdit2 size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeleteId(plan.id)}
+                            className="rounded-xl border border-transparent p-2.5 text-red-500 transition hover:border-red-100 hover:bg-red-50"
+                            title="Delete plan"
+                          >
+                            <FiTrash2 size={18} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </article>
                 );
               })}
             </div>

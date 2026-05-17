@@ -105,8 +105,6 @@ export const AuthProvider = ({ children }) => {
   const [showAuthorityForm, setShowAuthorityForm] = useState(false);
   const [showSubscriptionPlan, setShowSubscriptionPlan] = useState(false);
   const [showSubscriptionForm, setShowSubscriptionForm] = useState(false);
-  const [showDiscount, setShowDiscount] = useState(false);
-  const [showDiscountForm, setShowDiscountForm] = useState(false);
   const [showAssignProjectPartnerForm, setShowAssignProjectPartnerForm] =
     useState(false);
   const [showNotePopup, setShowNotePopup] = useState(false);
@@ -267,10 +265,6 @@ export const AuthProvider = ({ children }) => {
         setShowSubscriptionPlan,
         showSubscriptionForm,
         setShowSubscriptionForm,
-        showDiscount,
-        setShowDiscount,
-        showDiscountForm,
-        setShowDiscountForm,
         showAssignProjectPartnerForm,
         setShowAssignProjectPartnerForm,
         showNotePopup,

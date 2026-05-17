@@ -109,8 +109,10 @@ const menuItems = [
     icon: <BiSolidDiamond size={21} />,
     dropdown: [
       { label: "Subscription Pricing", to: "/subscription-pricing" },
-      { label: "Subscription Discount", to: "/subscription-discount" },
       { label: "Subscription Features", to: "/subscription-features" },
+      { label: "User Subscriptions", to: "/user-subscriptions" },
+      { label: "GST Bills", to: "/gst-bills" },
+      { label: "Subscription Analytics", to: "/subscription-analytics" },
     ],
   },
 
@@ -251,10 +253,6 @@ function Layout() {
     setShowInfo,
     showInfoForm,
     setShowInfoForm,
-    showDiscount,
-    setShowDiscount,
-    showDiscountForm,
-    setShowDiscountForm,
     showAssignProjectPartnerForm,
     setShowAssignProjectPartnerForm,
     showEMI,
@@ -336,8 +334,6 @@ function Layout() {
     { state: showSubscriptionForm, setter: setShowSubscriptionForm },
     { state: showInfo, setter: setShowInfo },
     { state: showInfoForm, setter: setShowInfoForm },
-    { state: showDiscount, setter: setShowDiscount },
-    { state: showDiscountForm, setter: setShowDiscountForm },
     {
       state: showAssignProjectPartnerForm,
       setter: setShowAssignProjectPartnerForm,
