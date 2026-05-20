@@ -16,7 +16,9 @@ import { RxCross2 } from "react-icons/rx";
 import { MdDone } from "react-icons/md";
 import { MdMoneyOffCsred } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
-import PaymentUpdateModal from "../components/PaymentUpdateModal";
+import AssignEnterpriseModal from "../components/AssignEnterpriseModal";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { countPartnerBuckets, resolvePartnerBucket } from "../utils/partnerSubscriptionBucket";
 
 const ProjectPartner = () => {
   const {
@@ -47,6 +49,8 @@ const ProjectPartner = () => {
   );
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showAssignEnterprise, setShowAssignEnterprise] = useState(false);
+  const [assignPartnerName, setAssignPartnerName] = useState("");
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [newPartner, setNewPartner] = useState({
@@ -70,6 +74,33 @@ const ProjectPartner = () => {
   const [followUp, setFollowUp] = useState("");
   const [followUpText, setFollowUpText] = useState("");
   const [followUpList, setFollowUpList] = useState([]);
+  const [confirmDialog, setConfirmDialog] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [pageNotice, setPageNotice] = useState({ type: "", message: "" });
+
+  const showNotice = (type, message) => {
+    setPageNotice({ type, message });
+    window.setTimeout(() => setPageNotice({ type: "", message: "" }), 5000);
+  };
+
+  const openConfirm = ({ title, message, confirmLabel, variant, onConfirm }) => {
+    setConfirmDialog({ title, message, confirmLabel, variant, onConfirm });
+  };
+
+  const closeConfirm = () => {
+    if (!confirmLoading) setConfirmDialog(null);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!confirmDialog?.onConfirm) return;
+    setConfirmLoading(true);
+    try {
+      await confirmDialog.onConfirm();
+    } finally {
+      setConfirmLoading(false);
+      setConfirmDialog(null);
+    }
+  };
 
   // **Fetch States from API**
   const fetchStates = async () => {
@@ -149,11 +180,12 @@ const ProjectPartner = () => {
       });
 
       if (response.status === 409) {
-        alert("partner all ready exists!");
+        showNotice("error", "Partner already exists!");
       } else if (!response.ok) {
         throw new Error(`Failed to save partner. Status: ${response.status}`);
       } else {
-        alert(
+        showNotice(
+          "success",
           newPartner.id
             ? "Project Partner updated successfully!"
             : "Project Partner added successfully!",
@@ -213,18 +245,12 @@ const ProjectPartner = () => {
     }
   };
 
-  //Delete record
-  const del = async (id) => {
-    if (
-      !window.confirm("Are you sure you want to delete this Project Partner?")
-    )
-      return;
-
+  const deletePartner = async (id) => {
     try {
       setLoading(true);
       const response = await fetch(URI + `/admin/projectpartner/delete/${id}`, {
         method: "DELETE",
-        credentials: "include", //  Ensures cookies are sent
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -232,43 +258,56 @@ const ProjectPartner = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Partner deleted successfully!");
+        showNotice("success", "Partner deleted successfully!");
         fetchData();
       } else {
-        alert(`Error: ${data.message}`);
+        showNotice("error", data.message || "Failed to delete partner");
       }
     } catch (error) {
+      showNotice("error", "Failed to delete partner");
     } finally {
       setLoading(false);
     }
   };
 
-  // change status record
-  const status = async (id) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to change this Project Partner status?",
-      )
-    )
-      return;
+  const del = (id) => {
+    openConfirm({
+      title: "Delete project partner?",
+      message: "Are you sure you want to delete this Project Partner? This cannot be undone.",
+      confirmLabel: "Delete",
+      variant: "danger",
+      onConfirm: () => deletePartner(id),
+    });
+  };
 
+  const changePartnerStatus = async (id) => {
     try {
       const response = await fetch(URI + `/admin/projectpartner/status/${id}`, {
         method: "PUT",
-        credentials: "include", //  Ensures cookies are sent
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
       });
       const data = await response.json();
       if (response.ok) {
-        alert(`Success: ${data.message}`);
+        showNotice("success", data.message || "Status updated successfully");
       } else {
-        alert(`Error: ${data.message}`);
+        showNotice("error", data.message || "Failed to update status");
       }
       fetchData();
     } catch (error) {
+      showNotice("error", "Failed to update status");
     }
+  };
+
+  const status = (id) => {
+    openConfirm({
+      title: "Change partner status?",
+      message: "Are you sure you want to change this Project Partner status?",
+      confirmLabel: "Yes, change",
+      onConfirm: () => changePartnerStatus(id),
+    });
   };
 
   //fetch data on form
@@ -319,9 +358,9 @@ const ProjectPartner = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        alert(`Success: ${data.message}`);
+        showNotice("success", data.message || "SEO details saved");
       } else {
-        alert(`Error: ${data.message}`);
+        showNotice("error", data.message || "Failed to save SEO details");
       }
       setShowSeoForm(false);
       setSeoSlug("");
@@ -336,21 +375,13 @@ const ProjectPartner = () => {
     }
   };
 
-  // change set Free Partner
-  const setFreePartner = async (id) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to Set Free Subscription to Project Partner ?",
-      )
-    )
-      return;
-
+  const applyFreePartner = async (id) => {
     try {
       const response = await fetch(
         URI + `/admin/projectpartner/free-partner/${id}`,
         {
           method: "PUT",
-          credentials: "include", //  Ensures cookies are sent
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -358,13 +389,24 @@ const ProjectPartner = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        alert(`Success: ${data.message}`);
+        showNotice("success", data.message || "Free subscription applied");
       } else {
-        alert(`Error: ${data.message}`);
+        showNotice("error", data.message || "Failed to set free partner");
       }
       fetchData();
     } catch (error) {
+      showNotice("error", "Failed to set free partner");
     }
+  };
+
+  const setFreePartner = (id) => {
+    openConfirm({
+      title: "Set free subscription?",
+      message:
+        "Are you sure you want to set a free subscription for this Project Partner?",
+      confirmLabel: "Yes, set free",
+      onConfirm: () => applyFreePartner(id),
+    });
   };
 
   const updatePaymentId = async (partnerId, formData) => {
@@ -383,9 +425,9 @@ const ProjectPartner = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert(`Success: ${data.message}`);
+        showNotice("success", data.message || "Payment updated");
       } else {
-        alert(`Error: ${data.message}`);
+        showNotice("error", data.message || "Failed to update payment");
       }
 
       setPartnerId(null);
@@ -438,12 +480,12 @@ const ProjectPartner = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert(`Success: ${data.message}`);
+        showNotice("success", data.message || "Follow-up added");
         setPartnerPaymentStatus("Follow Up");
         await fetchData();
         fetchFollowUpList(partnerId);
       } else {
-        alert(`Error: ${data.message}`);
+        showNotice("error", data.message || "Failed to add follow-up");
       }
       // Clear input fields
       setFollowUp("");
@@ -454,16 +496,7 @@ const ProjectPartner = () => {
     }
   };
 
-  // Assign login record
-  const assignLogin = async (e) => {
-    e.preventDefault();
-    if (
-      !window.confirm(
-        "Are you sure you want to assign login to this Project Partner ?",
-      )
-    )
-      return;
-
+  const submitAssignLogin = async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -473,15 +506,15 @@ const ProjectPartner = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", //  Ensures cookies are sent
+          credentials: "include",
           body: JSON.stringify({ partnerId, username, password }),
         },
       );
       const data = await response.json();
       if (response.ok) {
-        alert(`Success: ${data.message}`);
+        showNotice("success", data.message || "Login assigned successfully");
       } else {
-        alert(`Error: ${data.message}`);
+        showNotice("error", data.message || "Failed to assign login");
       }
       setPartnerId(null);
       setUsername("");
@@ -492,6 +525,16 @@ const ProjectPartner = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const assignLogin = (e) => {
+    e.preventDefault();
+    openConfirm({
+      title: "Assign login?",
+      message: "Are you sure you want to assign login to this Project Partner?",
+      confirmLabel: "Assign login",
+      onConfirm: () => submitAssignLogin(),
+    });
   };
 
   useEffect(() => {
@@ -505,31 +548,7 @@ const ProjectPartner = () => {
     }
   }, [newPartner.state]);
 
-  const getPartnerCounts = (data) => {
-    return data.reduce(
-      (acc, item) => {
-        if (item.paymentstatus === "Success") {
-          acc.Paid++;
-        } else if (
-          item.paymentstatus === "Follow Up" &&
-          item.loginstatus === "Inactive"
-        ) {
-          acc.FollowUp++;
-        } else if (item.paymentstatus === "Pending") {
-          acc.Unpaid++;
-        } else if (
-          item.paymentstatus !== "Success" &&
-          item.loginstatus === "Active"
-        ) {
-          acc.Free++;
-        }
-        return acc;
-      },
-      { Unpaid: 0, FollowUp: 0, Paid: 0, Free: 0 },
-    );
-  };
-
-  const partnerCounts = getPartnerCounts(datas);
+  const partnerCounts = countPartnerBuckets(datas);
 
   const [range, setRange] = useState([
     {
@@ -564,19 +583,9 @@ const ProjectPartner = () => {
       (startDate && endDate && itemDate >= startDate && itemDate <= endDate);
 
     // Enquiry filter logic: New, Alloted, Assign
-    const getPartnerPaymentStatus = () => {
-      if (item.paymentstatus === "Success") return "Paid";
-      if (item.paymentstatus === "Follow Up" && item.loginstatus === "Inactive")
-        return "Follow Up";
-      if (item.paymentstatus === "Pending") return "Unpaid";
-      if (item.paymentstatus !== "Success" && item.loginstatus === "Active")
-        return "Free";
-      return "";
-    };
-
     const matchesPartner =
       !partnerPaymentStatus ||
-      getPartnerPaymentStatus() === partnerPaymentStatus;
+      resolvePartnerBucket(item) === partnerPaymentStatus;
 
     return matchesSearch && matchesDate && matchesPartner;
   });
@@ -780,6 +789,50 @@ const ProjectPartner = () => {
       width: "150px",
     },
     {
+      name: "Subscription",
+      width: "110px",
+      cell: (row) => (
+        <span
+          className={`text-xs font-semibold px-2 py-1 rounded-full ${
+            resolvePartnerBucket(row) === "Paid"
+              ? "bg-emerald-100 text-emerald-800"
+              : resolvePartnerBucket(row) === "Free"
+                ? "bg-violet-100 text-violet-800"
+                : resolvePartnerBucket(row) === "Follow Up"
+                  ? "bg-amber-100 text-amber-800"
+                  : "bg-red-100 text-red-800"
+          }`}
+        >
+          {resolvePartnerBucket(row)}
+        </span>
+      ),
+    },
+    {
+      name: "Plan",
+      width: "140px",
+      cell: (row) => (
+        <div className="text-xs">
+          <p className="font-medium text-gray-800 truncate" title={row.subscription_plan_name}>
+            {row.subscription_plan_name || "—"}
+          </p>
+          {row.subscription_billing_cycle ? (
+            <p className="text-gray-500 capitalize">{row.subscription_billing_cycle}</p>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      name: "Expires",
+      width: "100px",
+      cell: (row) => (
+        <span className="text-xs text-gray-600">
+          {row.subscription_end_date
+            ? new Date(row.subscription_end_date).toLocaleDateString("en-IN")
+            : "—"}
+        </span>
+      ),
+    },
+    {
       name: "Action",
       cell: (row) => <ActionDropdown row={row} />,
       width: "120px",
@@ -800,9 +853,10 @@ const ProjectPartner = () => {
         case "update":
           edit(id);
           break;
-        case "payment":
+        case "assignEnterprise":
           setPartnerId(id);
-          setShowPaymentIdForm(true);
+          setAssignPartnerName(row.fullname || "");
+          setShowAssignEnterprise(true);
           break;
         case "followup":
           setPartnerId(id);
@@ -848,7 +902,7 @@ const ProjectPartner = () => {
           <option value="view">View</option>
           <option value="status">Status</option>
           <option value="update">Update</option>
-          <option value="payment">Payment</option>
+          <option value="assignEnterprise">Assign Enterprise</option>
           <option value="followup">Follow Up</option>
           <option value="assignlogin">Assign Login</option>
           <option value="SEO">Landing Page SEO</option>
@@ -863,6 +917,39 @@ const ProjectPartner = () => {
     <div
       className={`overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start`}
     >
+      {pageNotice.message ? (
+        <div
+          className={`fixed top-4 left-1/2 z-[85] w-[min(100%,28rem)] -translate-x-1/2 rounded-xl border px-4 py-3 text-sm shadow-lg ${
+            pageNotice.type === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+              : "border-red-200 bg-red-50 text-red-900"
+          }`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <p>{pageNotice.message}</p>
+            <button
+              type="button"
+              onClick={() => setPageNotice({ type: "", message: "" })}
+              className="text-gray-500 hover:text-gray-800"
+              aria-label="Dismiss"
+            >
+              <RxCross2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <ConfirmDialog
+        open={Boolean(confirmDialog)}
+        title={confirmDialog?.title}
+        message={confirmDialog?.message}
+        confirmLabel={confirmDialog?.confirmLabel}
+        variant={confirmDialog?.variant}
+        loading={confirmLoading}
+        onConfirm={handleConfirmAction}
+        onClose={closeConfirm}
+      />
+
       <div className=" w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
         <div className="w-full flex items-center justify-between gap-1 sm:gap-3">
           <div className="w-[65%] sm:min-w-[220px] sm:max-w-[230px] relative inline-block">
@@ -1277,12 +1364,19 @@ const ProjectPartner = () => {
         </div>
       </div>
 
-      <PaymentUpdateModal
-        show={showPaymentIdForm}
-        setShow={setShowPaymentIdForm}
-        partnerId={partnerId}
-        partnerType="Project Partner"
-        updatePaymentId={updatePaymentId}
+      <AssignEnterpriseModal
+        show={showAssignEnterprise}
+        onClose={() => {
+          setShowAssignEnterprise(false);
+          setPartnerId(null);
+        }}
+        initialUserId={partnerId}
+        initialRole="project"
+        partnerName={assignPartnerName}
+        onSuccess={(msg) => {
+          showNotice("success", msg);
+          fetchData();
+        }}
       />
 
       {/* Update Follow Up Form */}

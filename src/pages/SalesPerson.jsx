@@ -16,6 +16,7 @@ import { MdDone } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
 import Select from "react-select";
 import PaymentUpdateModal from "../components/PaymentUpdateModal";
+import { countPartnerBuckets, resolvePartnerFilterStatus } from "../utils/partnerSubscriptionBucket";
 
 const SalesPerson = () => {
   const {
@@ -510,35 +511,7 @@ const SalesPerson = () => {
     }
   }, [newSalesPerson.state]);
 
-  const getPartnerCounts = (data) => {
-    return data.reduce(
-      (acc, item) => {
-        if (item.paymentstatus === "Success") {
-          acc.Paid++;
-        } else if (
-          item.paymentstatus === "Follow Up" &&
-          item.loginstatus === "Inactive"
-        ) {
-          acc.FollowUp++;
-        } else if (item.paymentstatus === "Pending") {
-          acc.Unpaid++;
-        } else if (
-          item.paymentstatus !== "Success" &&
-          item.loginstatus === "Active"
-        ) {
-          acc.Free++;
-        }
-
-        if (item.changeProjectPartnerReason) {
-          acc.Request++;
-        }
-        return acc;
-      },
-      { Unpaid: 0, FollowUp: 0, Paid: 0, Free: 0, Request: 0 },
-    );
-  };
-
-  const partnerCounts = getPartnerCounts(datas);
+  const partnerCounts = countPartnerBuckets(datas, { includeRequest: true });
 
   const [range, setRange] = useState([
     {
@@ -573,21 +546,9 @@ const SalesPerson = () => {
       (startDate && endDate && itemDate >= startDate && itemDate <= endDate);
 
     // Enquiry filter logic: New, Alloted, Assign
-    const getPartnerPaymentStatus = () => {
-      if (item.changeProjectPartnerReason) return "Partner Change Request";
-      if (item.paymentstatus === "Success") return "Paid";
-      if (item.paymentstatus === "Follow Up" && item.loginstatus === "Inactive")
-        return "Follow Up";
-      if (item.paymentstatus === "Pending") return "Unpaid";
-      if (item.paymentstatus !== "Success" && item.loginstatus === "Active")
-        return "Free";
-
-      return "";
-    };
-
     const matchesPartner =
       !partnerPaymentStatus ||
-      getPartnerPaymentStatus() === partnerPaymentStatus;
+      resolvePartnerFilterStatus(item) === partnerPaymentStatus;
 
     return matchesSearch && matchesDate && matchesPartner;
   });

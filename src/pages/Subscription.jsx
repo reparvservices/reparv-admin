@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import { useAuth } from "../store/auth";
 import Loader from "../components/Loader";
@@ -60,6 +61,19 @@ const durationLabel = (duration, cycle, planType) => {
 const isTrialPlanRow = (row) =>
   String(row?.plan_type || "").toLowerCase() === "trial";
 
+const isEnterprisePlanRow = (row) =>
+  String(row?.plan_type || "").toLowerCase() === "enterprise";
+
+/** Same role + plan_name = one enterprise offering (monthly/yearly are separate rows). */
+const enterpriseGroupKey = (row) =>
+  `${row.role}::${String(row.plan_name || "").trim()}`;
+
+const planTypeLabel = (row) => {
+  if (isTrialPlanRow(row)) return "Trial";
+  if (isEnterprisePlanRow(row)) return "Enterprise";
+  return "Paid";
+};
+
 const tableCustomStyles = {
   headCells: {
     style: {
@@ -102,6 +116,10 @@ const Subscription = () => {
   const [bannerPreview, setBannerPreview] = useState("");
   const [notice, setNotice] = useState({ type: "", message: "" });
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [planTypeFilter, setPlanTypeFilter] = useState("all");
+  const [billingCycleFilter, setBillingCycleFilter] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeSubscriptions, setActiveSubscriptions] = useState([]);
 
   const [form, setForm] = useState({
     partnerType: "Project Partner",
@@ -111,9 +129,16 @@ const Subscription = () => {
     duration: 7,
     status: "Active",
     planType: "paid",
+    enableMonthly: true,
+    enableYearly: false,
+    durationMonthly: 1,
+    durationYearly: 1,
+    basePriceMonthly: "",
+    basePriceYearly: "",
   });
 
   const isTrialForm = form.planType === "trial";
+  const isEnterpriseForm = form.planType === "enterprise";
 
   const pricePreview = useMemo(
     () => calcGstFromBase(form.basePrice),
@@ -157,21 +182,61 @@ const Subscription = () => {
     }
   };
 
+  const fetchActiveSubscriptions = async () => {
+    try {
+      const res = await fetch(
+        `${URI}/admin/subscription/user-subscriptions?status=active&limit=5`,
+        { credentials: "include" },
+      );
+      const data = await res.json().catch(() => ({}));
+      setActiveSubscriptions(Array.isArray(data.data) ? data.data : []);
+    } catch {
+      setActiveSubscriptions([]);
+    }
+  };
+
   useEffect(() => {
     fetchPlans();
     fetchFeatures();
+    fetchActiveSubscriptions();
   }, []);
 
-  const filteredPlans = useMemo(
-    () =>
-      plans.filter(
-        (p) =>
-          ROLE_LABELS[p.role] === activeTab &&
-          `${p.plan_name} ${p.status}`
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()),
-      ),
-    [plans, activeTab, searchTerm],
+  const filteredPlans = useMemo(() => {
+    return plans.filter((p) => {
+      if (ROLE_LABELS[p.role] !== activeTab) return false;
+      const q = searchTerm.toLowerCase();
+      if (q && !`${p.plan_name} ${p.status}`.toLowerCase().includes(q)) return false;
+      if (planTypeFilter !== "all") {
+        const pt = String(p.plan_type || "paid").toLowerCase();
+        if (planTypeFilter === "paid" && pt !== "paid") return false;
+        if (planTypeFilter === "trial" && pt !== "trial") return false;
+        if (planTypeFilter === "enterprise" && pt !== "enterprise") return false;
+      }
+      if (billingCycleFilter !== "all" && p.billing_cycle !== billingCycleFilter) return false;
+      return true;
+    });
+  }, [plans, activeTab, searchTerm, planTypeFilter, billingCycleFilter]);
+
+  /** One list row per enterprise plan (legacy DB may have monthly+yearly duplicates). */
+  const displayPlans = useMemo(() => {
+    const seen = new Set();
+    const out = [];
+    for (const p of filteredPlans) {
+      if (isEnterprisePlanRow(p)) {
+        const gk = enterpriseGroupKey(p);
+        if (seen.has(gk)) continue;
+        seen.add(gk);
+        out.push(p);
+      } else {
+        out.push(p);
+      }
+    }
+    return out;
+  }, [filteredPlans]);
+
+  const displayPlansForCards = useMemo(
+    () => displayPlans.map((p) => (isEnterprisePlanRow(p) ? { ...p, _enterpriseGroup: [p] } : p)),
+    [displayPlans],
   );
 
   const filteredFeatures = useMemo(() => {
@@ -212,6 +277,12 @@ const Subscription = () => {
       duration: 7,
       status: "Active",
       planType: "paid",
+      enableMonthly: true,
+      enableYearly: false,
+      durationMonthly: 1,
+      durationYearly: 1,
+      basePriceMonthly: "",
+      basePriceYearly: "",
     });
     setSelectedFeatures(new Set());
     setBannerPreview("");
@@ -221,6 +292,7 @@ const Subscription = () => {
     setEditing(plan);
     setPageMode("create");
     const trial = isTrialPlanRow(plan);
+    const enterprise = isEnterprisePlanRow(plan);
     setForm({
       partnerType: ROLE_LABELS[plan.role] || activeTab,
       planName: plan.plan_name || "",
@@ -228,7 +300,13 @@ const Subscription = () => {
       billingCycle: plan.billing_cycle || "monthly",
       duration: plan.duration || (trial ? 7 : 1),
       status: plan.status || "Active",
-      planType: trial ? "trial" : "paid",
+      planType: trial ? "trial" : enterprise ? "enterprise" : "paid",
+      enableMonthly: true,
+      enableYearly: false,
+      durationMonthly: enterprise ? plan.duration || 1 : 1,
+      durationYearly: 1,
+      basePriceMonthly: "",
+      basePriceYearly: "",
     });
     const existing = Array.isArray(plan.feature_ids)
       ? plan.feature_ids.map((id) => Number(id))
@@ -251,32 +329,73 @@ const Subscription = () => {
       setNotice({ type: "error", message: "Plan name is required" });
       return;
     }
-    if (!Number(form.duration) || Number(form.duration) < 1) {
+    if (
+      !isEnterpriseForm &&
+      (!Number(form.duration) || Number(form.duration) < 1)
+    ) {
       setNotice({ type: "error", message: "Duration must be at least 1" });
       return;
     }
-    if (!isTrialForm && (!Number(form.basePrice) || Number(form.basePrice) < 1)) {
+    if (isEnterpriseForm && (!Number(form.durationMonthly) || Number(form.durationMonthly) < 1)) {
+      setNotice({ type: "error", message: "Access period length must be at least 1" });
+      return;
+    }
+    if (!isTrialForm && !isEnterpriseForm && (!Number(form.basePrice) || Number(form.basePrice) < 1)) {
       setNotice({ type: "error", message: "Base price (excl. GST) must be at least 1" });
       return;
     }
-
     const role = ROLE_FROM_LABEL[form.partnerType];
     const nameTrim = form.planName.trim();
     const cycle = isTrialForm ? "monthly" : form.billingCycle || "monthly";
-    const duplicate = plans.some((p) => {
-      if (!p || p.role !== role) return false;
-      if (String(p.billing_cycle || "monthly") !== String(cycle)) return false;
-      if (String(p.plan_name || "").trim() !== nameTrim) return false;
-      if (editing && Number(p.id) === Number(editing.id)) return false;
-      return true;
-    });
-    if (duplicate) {
-      setNotice({
-        type: "error",
-        message:
-          "This plan name already exists for this partner type and billing period. Use a different name or billing period, or edit the existing plan.",
+
+    if (isEnterpriseForm) {
+      const duplicate = plans.some((p) => {
+        if (!p || p.role !== role) return false;
+        if (String(p.plan_name || "").trim() !== nameTrim) return false;
+        if (!isEnterprisePlanRow(p)) return false;
+        if (editing && Number(p.id) === Number(editing.id)) return false;
+        if (
+          editing &&
+          isEnterprisePlanRow(editing) &&
+          enterpriseGroupKey(p) === enterpriseGroupKey(editing)
+        ) {
+          return false;
+        }
+        return true;
       });
-      return;
+      if (duplicate) {
+        setNotice({
+          type: "error",
+          message: "An enterprise plan with this name already exists for this partner type.",
+        });
+        return;
+      }
+    }
+
+    if (!isEnterpriseForm) {
+      const duplicate = plans.some((p) => {
+        if (!p || p.role !== role) return false;
+        if (String(p.billing_cycle || "monthly") !== String(cycle)) return false;
+        if (String(p.plan_name || "").trim() !== nameTrim) return false;
+        if (editing && Number(p.id) === Number(editing.id)) return false;
+        if (
+          editing &&
+          isEnterprisePlanRow(editing) &&
+          isEnterprisePlanRow(p) &&
+          enterpriseGroupKey(p) === enterpriseGroupKey(editing)
+        ) {
+          return false;
+        }
+        return true;
+      });
+      if (duplicate) {
+        setNotice({
+          type: "error",
+          message:
+            "This plan name already exists for this partner type and billing period. Use a different name or billing period, or edit the existing plan.",
+        });
+        return;
+      }
     }
 
     setLoading(true);
@@ -285,16 +404,25 @@ const Subscription = () => {
         ? `${URI}/admin/subscription/plans/edit/${editing.id}`
         : `${URI}/admin/subscription/plans/add`;
       const method = editing ? "PUT" : "POST";
-      const body = {
-        role: ROLE_FROM_LABEL[form.partnerType],
-        plan_name: form.planName.trim(),
-        duration: Number(form.duration),
-        base_price: isTrialForm ? 0 : Number(form.basePrice),
-        billing_cycle: cycle,
-        status: form.status,
-        plan_type: form.planType,
-        feature_ids: Array.from(selectedFeatures),
-      };
+      const body = isEnterpriseForm
+        ? {
+            role,
+            plan_name: nameTrim,
+            status: form.status,
+            plan_type: "enterprise",
+            duration: Number(form.durationMonthly) || 1,
+            feature_ids: Array.from(selectedFeatures),
+          }
+        : {
+            role,
+            plan_name: nameTrim,
+            duration: Number(form.duration),
+            base_price: isTrialForm ? 0 : Number(form.basePrice),
+            billing_cycle: cycle,
+            status: form.status,
+            plan_type: form.planType,
+            feature_ids: Array.from(selectedFeatures),
+          };
 
       const res = await fetch(endpoint, {
         method,
@@ -318,6 +446,7 @@ const Subscription = () => {
       });
       setPageMode("list");
       await fetchPlans();
+      await fetchActiveSubscriptions();
     } catch (err) {
       setNotice({ type: "error", message: err.message || "Failed to save plan" });
     } finally {
@@ -345,6 +474,40 @@ const Subscription = () => {
     }
   };
 
+  const activeSubColumns = [
+    {
+      name: "Partner",
+      selector: (row) => row.user_name,
+      cell: (row) => (
+        <div>
+          <p className="font-medium text-gray-900">{row.user_name || "—"}</p>
+          <p className="text-xs text-gray-500">{row.role_label}</p>
+        </div>
+      ),
+    },
+    {
+      name: "Plan",
+      selector: (row) => row.plan_name,
+      cell: (row) => (
+        <div>
+          <p className="text-sm">{row.plan_name || "—"}</p>
+          <p className="text-xs text-gray-500 capitalize">
+            {row.plan_type || "paid"} · {row.billing_cycle || ""}
+          </p>
+        </div>
+      ),
+    },
+    {
+      name: "Expires",
+      selector: (row) => row.end_date,
+      cell: (row) => (
+        <span className="text-sm text-gray-600">
+          {row.end_date ? new Date(row.end_date).toLocaleDateString("en-IN") : "—"}
+        </span>
+      ),
+    },
+  ];
+
   const tableColumns = [
     {
       name: "Plan Name",
@@ -357,6 +520,11 @@ const Subscription = () => {
             {isTrialPlanRow(row) ? (
               <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-violet-100 text-violet-800">
                 Trial
+              </span>
+            ) : null}
+            {isEnterprisePlanRow(row) ? (
+              <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">
+                Enterprise
               </span>
             ) : null}
           </div>
@@ -386,6 +554,21 @@ const Subscription = () => {
         <span className="font-semibold text-gray-900">{formatINR(row.price)}</span>
       ),
       style: { minWidth: "100px" },
+    },
+    {
+      name: "Type",
+      selector: (row) => planTypeLabel(row),
+      style: { minWidth: "100px" },
+    },
+    {
+      name: "Billing",
+      selector: (row) => row.billing_cycle || "—",
+      cell: (row) => (
+        <span className="capitalize text-sm">
+          {isEnterprisePlanRow(row) ? "Monthly / Yearly" : row.billing_cycle || "—"}
+        </span>
+      ),
+      style: { minWidth: "90px" },
     },
     {
       name: "Partner Type",
@@ -476,7 +659,7 @@ const Subscription = () => {
                         }))
                       }
                       className={`px-4 py-2 rounded-lg text-sm font-semibold border ${
-                        !isTrialForm
+                        form.planType === "paid"
                           ? "bg-[#076300] text-white border-[#076300]"
                           : "bg-white text-gray-600 border-gray-200"
                       }`}
@@ -501,6 +684,24 @@ const Subscription = () => {
                     >
                       Free trial
                     </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((s) => ({
+                          ...s,
+                          planType: "enterprise",
+                          durationMonthly: s.durationMonthly || 1,
+                          durationYearly: s.durationYearly || 1,
+                        }))
+                      }
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold border ${
+                        isEnterpriseForm
+                          ? "bg-slate-800 text-white border-slate-800"
+                          : "bg-white text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      Enterprise
+                    </button>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -514,6 +715,7 @@ const Subscription = () => {
                       {TABS.map((tab) => <option key={tab}>{tab}</option>)}
                     </select>
                   </div>
+                  {!isEnterpriseForm ? (
                   <div>
                     <label className="mb-1 block text-xs text-gray-500">
                       {isTrialForm ? "Trial length (days)" : "Plan duration"}
@@ -552,13 +754,38 @@ const Subscription = () => {
                       </div>
                     )}
                   </div>
-                  <div>
+                  ) : null}
+                  <div className={isEnterpriseForm ? "md:col-span-2" : ""}>
                     <label className="mb-1 block text-xs text-gray-500">Plan Name</label>
                     <input value={form.planName} onChange={(e) => setForm((s) => ({ ...s, planName: e.target.value }))} placeholder="e.g. Professional Growth" className="w-full rounded-lg border border-gray-300 p-2.5 text-sm" required />
                     <p className="mt-1 text-xs text-gray-500">
-                      Must be unique for this partner type and billing period (monthly vs yearly count separately).
+                      {isEnterpriseForm
+                        ? "Direct-contact clients only. Set price when you assign the plan (Assign Enterprise)."
+                        : "Must be unique for this partner type and billing period (monthly vs yearly count separately)."}
                     </p>
                   </div>
+                  {isEnterpriseForm ? (
+                    <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
+                      <p className="text-sm text-slate-700">
+                        No catalog price — amount and billing cycle are chosen when assigning to a partner.
+                      </p>
+                      <div>
+                        <label className="text-xs text-gray-500">Default access period length</label>
+                        <input
+                          type="number"
+                          min={1}
+                          value={form.durationMonthly}
+                          onChange={(e) =>
+                            setForm((s) => ({ ...s, durationMonthly: e.target.value }))
+                          }
+                          className="w-full max-w-xs rounded-lg border border-gray-300 p-2.5 text-sm mt-1"
+                        />
+                        <p className="text-xs text-slate-500 mt-1">
+                          Used with monthly (months) or yearly (years) when you assign this plan.
+                        </p>
+                      </div>                    </div>
+                  ) : null}
+                  {!isEnterpriseForm ? (
                   <div>
                     <label className="mb-1 block text-xs text-gray-500">Base price (excl. GST)</label>
                     {isTrialForm ? (
@@ -591,6 +818,7 @@ const Subscription = () => {
                       </>
                     )}
                   </div>
+                  ) : null}
                 </div>
               </form>
             </section>
@@ -667,17 +895,32 @@ const Subscription = () => {
             <p className="mb-3 text-xs font-semibold text-[#1f9e2c]">(•) LIVE PREVIEW</p>
             <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
               <div className="h-20 bg-gradient-to-br from-[#0f5d1d] to-[#1f9e2c] p-3 flex items-end">
-                <span className="rounded bg-white/20 px-2 py-0.5 text-[10px] uppercase tracking-wide text-white">Premium Plan</span>
+                <span className="rounded bg-white/20 px-2 py-0.5 text-[10px] uppercase tracking-wide text-white">
+                  {isEnterpriseForm ? "Enterprise" : isTrialForm ? "Free trial" : "Premium Plan"}
+                </span>
               </div>
               <div className="p-4">
                 <h4 className="text-3xl font-semibold text-gray-900">{form.planName || "Professional Growth"}</h4>
-                <p className="mt-1 text-4xl font-bold text-[#0f7a1f]">
-                  {formatINR(pricePreview.total)}
-                  <span className="text-base font-normal text-gray-600"> incl. GST</span>
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Base {formatINR(pricePreview.base)} + GST {formatINR(pricePreview.gst)}
-                </p>
+                {isEnterpriseForm ? (
+                  <div className="mt-2 space-y-1">
+                    <p className="text-sm font-medium text-slate-700">
+                      Price set when assigning (monthly or yearly)
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Period length: {form.durationMonthly} (months or years at assign)
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="mt-1 text-4xl font-bold text-[#0f7a1f]">
+                      {formatINR(pricePreview.total)}
+                      <span className="text-base font-normal text-gray-600"> incl. GST</span>
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Base {formatINR(pricePreview.base)} + GST {formatINR(pricePreview.gst)}
+                    </p>
+                  </>
+                )}
                 <p className="mt-4 mb-2 text-[11px] uppercase tracking-wide text-gray-500">What’s Included</p>
                 <ul className="space-y-2">
                   {Array.from(selectedFeatures)
@@ -760,10 +1003,47 @@ const Subscription = () => {
               <button type="button" onClick={() => setViewMode("card")} className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm ${viewMode === "card" ? "bg-[#ebf6eb] text-[#076300] font-medium" : "text-gray-500"}`}><MdGridView size={15} /> Card View</button>
               <button type="button" onClick={() => setViewMode("table")} className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm ${viewMode === "table" ? "bg-[#ebf6eb] text-[#076300] font-medium" : "text-gray-500"}`}><MdTableRows size={15} /> Table View</button>
             </div>
-            <button className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600"><FiFilter size={14} /> Filters</button>
-            <button className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600"><FiDownload size={14} /> Export</button>
+            <button
+              type="button"
+              onClick={() => setShowFilters((s) => !s)}
+              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm ${
+                showFilters ? "border-[#076300] bg-[#ebf6eb] text-[#076300]" : "border-gray-200 bg-white text-gray-600"
+              }`}
+            >
+              <FiFilter size={14} /> Filters
+            </button>
           </div>
         </div>
+        {showFilters ? (
+          <div className="mt-3 flex flex-wrap gap-2 border-t border-gray-100 pt-3">
+            <span className="text-xs text-gray-500 w-full">Plan type</span>
+            {["all", "paid", "trial", "enterprise"].map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setPlanTypeFilter(t)}
+                className={`rounded-full px-3 py-1 text-xs capitalize ${
+                  planTypeFilter === t ? "bg-[#076300] text-white" : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+            <span className="text-xs text-gray-500 w-full mt-2">Billing</span>
+            {["all", "monthly", "yearly"].map((b) => (
+              <button
+                key={b}
+                type="button"
+                onClick={() => setBillingCycleFilter(b)}
+                className={`rounded-full px-3 py-1 text-xs capitalize ${
+                  billingCycleFilter === b ? "bg-slate-800 text-white" : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {b}
+              </button>
+            ))}
+          </div>
+        ) : null}
         </div>
 
         <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 w-full md:max-w-sm shadow-sm">
@@ -774,10 +1054,15 @@ const Subscription = () => {
         {viewMode === "card" ? (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredPlans.map((plan) => {
-                const isPopular = plan.id === popularPlanId;
+              {displayPlansForCards.map((plan) => {
+                const isPopular = plan.id === popularPlanId && !isEnterprisePlanRow(plan);
                 const featureNames = Array.isArray(plan.feature_names) ? plan.feature_names : [];
-                const cycleLabel = plan.billing_cycle === "yearly" ? "Yearly" : "Monthly";
+                const group = plan._enterpriseGroup;
+                const cycleLabel = group
+                  ? group.map((g) => (g.billing_cycle === "yearly" ? "Yearly" : "Monthly")).join(" · ")
+                  : plan.billing_cycle === "yearly"
+                    ? "Yearly"
+                    : "Monthly";
                 return (
                   <article
                     key={plan.id}
@@ -822,6 +1107,11 @@ const Subscription = () => {
                           <span className="inline-flex rounded-full border border-gray-200/80 bg-white/80 px-2.5 py-0.5 text-[11px] font-medium text-gray-600">
                             {cycleLabel}
                           </span>
+                          {isEnterprisePlanRow(plan) ? (
+                            <span className="inline-flex rounded-full bg-slate-200 px-2.5 py-0.5 text-[11px] font-semibold text-slate-800">
+                              Enterprise
+                            </span>
+                          ) : null}
                         </div>
                         <button
                           type="button"
@@ -836,6 +1126,17 @@ const Subscription = () => {
                         {plan.plan_name}
                       </h3>
 
+                      {group ? (
+                        <div className="mt-4 space-y-2">
+                          {group.map((g) => (
+                            <p key={g.id} className="text-sm text-gray-700">
+                              <span className="font-semibold capitalize">{g.billing_cycle}</span>:{" "}
+                              {formatINR(Number(g.price || 0))} incl. GST
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                      <>
                       <div className="mt-4 flex items-baseline gap-1">
                         <span className="text-4xl font-bold tabular-nums tracking-tight text-emerald-700 md:text-[2.75rem]">
                           {formatINR(monthlyPrice(plan))}
@@ -849,6 +1150,8 @@ const Subscription = () => {
                         </span>{" "}
                         per {durationLabel(Number(plan.duration || 1), plan.billing_cycle).toLowerCase()}
                       </p>
+                      </>
+                      )}
                     </div>
 
                     <div className="flex flex-1 flex-col px-5 pb-5 pt-1">
@@ -918,10 +1221,19 @@ const Subscription = () => {
 
             <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-800">Recent Subscriptions - Compact Table</h2>
-                <button type="button" onClick={() => setViewMode("table")} className="text-sm text-[#0f7a1f] font-medium">View All Records</button>
+                <h2 className="text-sm font-semibold text-gray-800">Active subscribers</h2>
+                <Link to="/user-subscriptions?status=active" className="text-sm text-[#0f7a1f] font-medium">
+                  View all
+                </Link>
               </div>
-              <DataTable columns={tableColumns} data={filteredPlans.slice(0, 5)} pagination={false} />
+              <DataTable
+                columns={activeSubColumns}
+                data={activeSubscriptions}
+                pagination={false}
+                noDataComponent={
+                  <div className="py-8 text-sm text-gray-500">No active subscriptions yet.</div>
+                }
+              />
             </div>
           </>
         ) : (
@@ -929,7 +1241,7 @@ const Subscription = () => {
             <div className="px-5 py-4 border-b border-gray-100"><h2 className="text-sm font-semibold text-gray-800">Subscription Pricing List</h2></div>
             <DataTable
               columns={tableColumns}
-              data={filteredPlans}
+              data={displayPlans}
               pagination
               customStyles={tableCustomStyles}
               noDataComponent={

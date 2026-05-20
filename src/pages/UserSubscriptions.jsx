@@ -13,6 +13,7 @@ import {
   FiXCircle,
 } from "react-icons/fi";
 import { useAuth } from "../store/auth";
+import AssignEnterpriseModal from "../components/AssignEnterpriseModal";
 
 const formatInr = (amount, { fromPaise = false } = {}) => {
   const n = Number(amount);
@@ -717,6 +718,7 @@ const UserSubscriptions = () => {
   const [banner, setBanner] = useState({ type: "", message: "" });
   const [invoiceRow, setInvoiceRow] = useState(null);
   const [cancelRow, setCancelRow] = useState(null);
+  const [showAssignModal, setShowAssignModal] = useState(false);
 
   const showBanner = useCallback((type, message) => {
     setBanner({ type, message });
@@ -835,6 +837,19 @@ const UserSubscriptions = () => {
               {row.plan_duration}
               {row.billing_cycle ? ` · ${row.billing_cycle}` : ""}
             </p>
+            {row.plan_type ? (
+              <span
+                className={`inline-block mt-1 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${
+                  String(row.plan_type).toLowerCase() === "enterprise"
+                    ? "bg-slate-200 text-slate-800"
+                    : String(row.plan_type).toLowerCase() === "trial"
+                      ? "bg-violet-100 text-violet-800"
+                      : "bg-emerald-100 text-emerald-800"
+                }`}
+              >
+                {row.plan_type}
+              </span>
+            ) : null}
           </div>
         ),
       },
@@ -943,15 +958,24 @@ const UserSubscriptions = () => {
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={fetchData}
-                disabled={fetching}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/25 disabled:opacity-50 shrink-0 w-full sm:w-auto"
-              >
-                <FiRefreshCw className={fetching ? "animate-spin" : ""} size={16} />
-                Refresh
-              </button>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowAssignModal(true)}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white text-[#076300] hover:bg-white/95 w-full sm:w-auto"
+                >
+                  Assign Enterprise
+                </button>
+                <button
+                  type="button"
+                  onClick={fetchData}
+                  disabled={fetching}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/25 disabled:opacity-50 w-full sm:w-auto"
+                >
+                  <FiRefreshCw className={fetching ? "animate-spin" : ""} size={16} />
+                  Refresh
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-6 sm:mt-8">
               {[
@@ -961,6 +985,10 @@ const UserSubscriptions = () => {
                 { label: "Expired", value: stats.expired },
                 { label: "Pending", value: stats.pending },
                 { label: "Shown", value: stats.shown },
+                {
+                  label: "Enterprise",
+                  value: summary?.enterprise_active ?? 0,
+                },
               ].map((s) => (
                 <div
                   key={s.label}
@@ -1113,6 +1141,14 @@ const UserSubscriptions = () => {
           }}
         />
       )}
+      <AssignEnterpriseModal
+        show={showAssignModal}
+        onClose={() => setShowAssignModal(false)}
+        onSuccess={(msg) => {
+          showBanner("success", msg);
+          fetchData();
+        }}
+      />
     </div>
   );
 };
