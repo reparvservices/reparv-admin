@@ -41,6 +41,19 @@ const formatDateShort = (iso) => {
 
 const formatDate = (iso) => formatDateShort(iso);
 
+const PeriodCell = ({ startDate, endDate }) => (
+  <div className="text-xs text-gray-600 leading-snug whitespace-nowrap tabular-nums">
+    <p>
+      <span className="text-gray-400 font-medium">From </span>
+      {formatDateShort(startDate)}
+    </p>
+    <p className="mt-0.5">
+      <span className="text-gray-400 font-medium">To </span>
+      {formatDateShort(endDate)}
+    </p>
+  </div>
+);
+
 const StatusBadge = ({ status, endDate, compact = false }) => {
   const s = String(status || "").toLowerCase();
   const endsLater =
@@ -228,7 +241,9 @@ function SubscriptionCard({ row, index, onInvoice, onCancel }) {
     <article className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-xs text-gray-400 font-medium">#{index + 1}</p>
+          <p className="text-xs text-gray-400 font-medium">
+            #{index + 1} · Sub {row.id}
+          </p>
           <h3 className="font-semibold text-gray-900 truncate">{row.user_name || "—"}</h3>
           <p className="text-xs text-gray-500 truncate" title={row.user_email}>
             {row.user_email || row.user_contact}
@@ -236,7 +251,7 @@ function SubscriptionCard({ row, index, onInvoice, onCancel }) {
           <p className="text-[11px] text-gray-400 mt-0.5">Partner ID {row.user_id}</p>
         </div>
         <div className="shrink-0 max-w-[45%]">
-          <StatusBadge status={row.status} endDate={row.end_date} />
+          <StatusBadge status={row.display_status || row.status} endDate={row.end_date} />
         </div>
       </div>
 
@@ -255,20 +270,18 @@ function SubscriptionCard({ row, index, onInvoice, onCancel }) {
           <p className="text-[10px] uppercase tracking-wide text-gray-400 font-medium">Plan</p>
           <p className="text-gray-800 font-medium mt-0.5">{row.plan_name || "—"}</p>
           <p className="text-xs text-gray-500">
-            {row.plan_duration}
-            {row.billing_cycle ? ` · ${row.billing_cycle}` : ""}
+            {row.plan_period_label ||
+              `${row.plan_duration || ""}${row.billing_cycle ? ` · ${row.billing_cycle}` : ""}`}
           </p>
+          {row.payment_label && (
+            <p className="text-[10px] text-gray-400 mt-0.5">{row.payment_label}</p>
+          )}
         </div>
-        <div className="col-span-2">
+        <div className="col-span-2 min-w-0">
           <p className="text-[10px] uppercase tracking-wide text-gray-400 font-medium mb-1">
             Period
           </p>
-          <p className="text-xs text-gray-600">
-            <span className="text-gray-400">From</span> {formatDateShort(row.start_date)}
-          </p>
-          <p className="text-xs text-gray-600 mt-0.5">
-            <span className="text-gray-400">To</span> {formatDateShort(row.end_date)}
-          </p>
+          <PeriodCell startDate={row.start_date} endDate={row.end_date} />
         </div>
         {row.razorpay_subscription_id && (
           <div className="col-span-2">
@@ -655,7 +668,7 @@ const InvoiceModal = ({ open, onClose, row, apiBase }) => {
 };
 
 const tableStyles = {
-  table: { style: { minWidth: "920px" } },
+  table: { style: { minWidth: "1080px" } },
   headCells: {
     style: {
       fontSize: "11px",
@@ -730,7 +743,7 @@ const UserSubscriptions = () => {
   const fetchData = useCallback(async () => {
     setFetching(true);
     try {
-      const params = new URLSearchParams({ limit: "200" });
+      const params = new URLSearchParams({ limit: "500", include_all: "1" });
       if (roleFilter) params.set("role", roleFilter);
       if (statusFilter) params.set("status", statusFilter);
       if (searchTerm.trim()) params.set("search", searchTerm.trim());
@@ -772,6 +785,7 @@ const UserSubscriptions = () => {
       return {
         shown: rows.length,
         total: summary.total,
+        trial: summary.trial,
         active: summary.active,
         pending: summary.pending,
         cancelled: summary.cancelled,
@@ -796,6 +810,14 @@ const UserSubscriptions = () => {
         center: true,
         cell: (_, i) => (
           <span className="text-xs text-gray-400 tabular-nums font-medium">{i + 1}</span>
+        ),
+      },
+      {
+        name: "Sub ID",
+        width: "72px",
+        center: true,
+        cell: (row) => (
+          <span className="text-xs font-mono text-gray-600 tabular-nums">{row.id}</span>
         ),
       },
       {
@@ -834,20 +856,20 @@ const UserSubscriptions = () => {
           <div className="min-w-[120px]">
             <p className="font-medium text-gray-900">{row.plan_name || "—"}</p>
             <p className="text-xs text-gray-500 mt-0.5 whitespace-nowrap">
-              {row.plan_duration}
-              {row.billing_cycle ? ` · ${row.billing_cycle}` : ""}
+              {row.plan_period_label ||
+                `${row.plan_duration || ""}${row.billing_cycle ? ` · ${row.billing_cycle}` : ""}`}
             </p>
             {row.plan_type ? (
               <span
                 className={`inline-block mt-1 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${
-                  String(row.plan_type).toLowerCase() === "enterprise"
+                  row.is_enterprise || String(row.plan_type).toLowerCase() === "enterprise"
                     ? "bg-slate-200 text-slate-800"
-                    : String(row.plan_type).toLowerCase() === "trial"
+                    : row.is_trial || String(row.plan_type).toLowerCase() === "trial"
                       ? "bg-violet-100 text-violet-800"
                       : "bg-emerald-100 text-emerald-800"
                 }`}
               >
-                {row.plan_type}
+                {row.is_trial ? "trial" : row.plan_type}
               </span>
             ) : null}
           </div>
@@ -868,26 +890,20 @@ const UserSubscriptions = () => {
         width: "120px",
         center: true,
         cell: (row) => (
-          <StatusBadge status={row.status} endDate={row.end_date} compact />
+          <StatusBadge
+            status={row.display_status || row.status}
+            endDate={row.end_date}
+            compact
+          />
         ),
       },
       {
         name: "Period",
-        minWidth: "140px",
-        grow: 1,
+        width: "230px",
+        minWidth: "230px",
+        style: { overflow: "visible", whiteSpace: "nowrap" },
         cell: (row) => (
-          <div
-            className="text-xs text-gray-600 min-w-0"
-            title={`From ${formatDateShort(row.start_date)} · To ${formatDateShort(row.end_date)}`}
-          >
-            <p className="truncate">
-              <span className="text-gray-400 font-medium">To </span>
-              {formatDateShort(row.end_date)}
-            </p>
-            <p className="text-[10px] text-gray-400 truncate mt-0.5 hidden 2xl:block">
-              From {formatDateShort(row.start_date)}
-            </p>
-          </div>
+          <PeriodCell startDate={row.start_date} endDate={row.end_date} />
         ),
       },
       {
@@ -977,13 +993,14 @@ const UserSubscriptions = () => {
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-6 sm:mt-8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3 mt-6 sm:mt-8">
               {[
                 { label: "Total", value: stats.total ?? total },
-                { label: "Active", value: stats.active },
+                { label: "Trial", value: stats.trial ?? summary?.trial ?? 0 },
+                { label: "Active paid", value: stats.active },
+                { label: "Pending", value: stats.pending },
                 { label: "Cancelled", value: stats.cancelled },
                 { label: "Expired", value: stats.expired },
-                { label: "Pending", value: stats.pending },
                 { label: "Shown", value: stats.shown },
                 {
                   label: "Enterprise",
@@ -1027,8 +1044,14 @@ const UserSubscriptions = () => {
                     {tab.value === "cancelled" && summary?.cancelled != null
                       ? ` (${summary.cancelled})`
                       : ""}
+                    {tab.value === "trial" && summary?.trial != null
+                      ? ` (${summary.trial})`
+                      : ""}
                     {tab.value === "active" && summary?.active != null
                       ? ` (${summary.active})`
+                      : ""}
+                    {tab.value === "pending" && summary?.pending != null
+                      ? ` (${summary.pending})`
                       : ""}
                   </button>
                 ))}

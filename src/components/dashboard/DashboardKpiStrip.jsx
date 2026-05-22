@@ -45,9 +45,9 @@ export default function DashboardKpiStrip({ counts, funnel, subscriptions }) {
         accent="bg-amber-50 text-amber-600"
       />
       <KpiCard
-        label="Active subscriptions"
+        label="Paid subscriptions"
         value={formatCount(subscriptions?.active)}
-        sub={`${formatINR(subscriptions?.activeRevenue, { compact: true })} recurring value`}
+        sub={`${formatCount(subscriptions?.trial)} on trial · ${formatINR(subscriptions?.revenueThisMonth, { compact: true })} collected this month`}
         icon={FiCreditCard}
         accent="bg-sky-50 text-sky-600"
       />

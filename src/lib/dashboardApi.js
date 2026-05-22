@@ -3,10 +3,14 @@ export async function fetchDashboardSummary(uri) {
     method: "GET",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
+    cache: "no-store",
   });
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
+    throw new Error(data.message || data.error || "Failed to load dashboard");
+  }
+  if (data.success === false) {
     throw new Error(data.message || "Failed to load dashboard");
   }
   return data;

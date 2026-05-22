@@ -24,6 +24,25 @@ export const formatCount = (value) =>
 
 export const formatPercent = (value) => `${toNumber(value).toFixed(1)}%`;
 
+export function formatRelativeUpdated(iso) {
+  if (!iso) return "—";
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "—";
+  const sec = Math.floor((Date.now() - then) / 1000);
+  if (sec < 10) return "Just now";
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  return new Date(iso).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function buildBusinessMetrics(counts = {}) {
   const totalRevenue = toNumber(counts.totalDealAmount);
   const totalDeals = toNumber(counts.totalCustomer);

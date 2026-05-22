@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../store/auth";
 import {
   fetchDashboardSummary,
@@ -11,7 +11,10 @@ import DashboardBusinessOverview from "../components/dashboard/DashboardBusiness
 import DashboardInsightPanels from "../components/dashboard/DashboardInsightPanels";
 import DashboardStatGrid from "../components/dashboard/DashboardStatGrid";
 import DashboardRecentCustomers from "../components/dashboard/DashboardRecentCustomers";
+import DashboardRecentSubscriptions from "../components/dashboard/DashboardRecentSubscriptions";
 import CustomerDetailDrawer from "../components/dashboard/CustomerDetailDrawer";
+
+const AUTO_REFRESH_MS = 45_000;
 
 function DashboardError({ message, onRetry }) {
   return (
@@ -20,7 +23,7 @@ function DashboardError({ message, onRetry }) {
       <button
         type="button"
         onClick={onRetry}
-        className="text-sm font-semibold text-red-700 hover:underline shrink-0"
+        className="text-sm font-semibold text-red-700 hover:underline shrink-0 cursor-pointer"
       >
         Try again
       </button>
@@ -32,7 +35,9 @@ export default function Dashboard() {
   const { URI, setLoading } = useAuth();
   const [summary, setSummary] = useState(null);
   const [loading, setLocalLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const mountedRef = useRef(true);
 
   const [showCustomer, setShowCustomer] = useState(false);
   const [customer, setCustomer] = useState({});
@@ -51,24 +56,61 @@ export default function Dashboard() {
     setBalancedAmount(dealAmount - paid);
   }, []);
 
-  const loadSummary = useCallback(async () => {
-    setLocalLoading(true);
-    setError("");
-    setLoading(true);
-    try {
-      const data = await fetchDashboardSummary(URI);
-      setSummary(data);
-    } catch (err) {
-      setError(err.message || "Could not load dashboard data.");
-      setSummary(null);
-    } finally {
-      setLocalLoading(false);
-      setLoading(false);
-    }
-  }, [URI, setLoading]);
+  const loadSummary = useCallback(
+    async ({ silent = false } = {}) => {
+      if (!silent) {
+        setLocalLoading(true);
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
+      setError("");
+
+      try {
+        const data = await fetchDashboardSummary(URI);
+        if (!mountedRef.current) return;
+        setSummary(data);
+      } catch (err) {
+        if (!mountedRef.current) return;
+        setError(err.message || "Could not load dashboard data.");
+        if (!silent) setSummary(null);
+      } finally {
+        if (!mountedRef.current) return;
+        if (!silent) {
+          setLocalLoading(false);
+          setLoading(false);
+        } else {
+          setRefreshing(false);
+        }
+      }
+    },
+    [URI, setLoading],
+  );
 
   useEffect(() => {
+    mountedRef.current = true;
     loadSummary();
+
+    const tick = () => {
+      if (document.visibilityState === "visible") {
+        loadSummary({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(tick, AUTO_REFRESH_MS);
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        loadSummary({ silent: true });
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      mountedRef.current = false;
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [loadSummary]);
 
   const viewCustomer = async (id) => {
@@ -103,18 +145,24 @@ export default function Dashboard() {
         <DashboardHeader
           lastUpdated={summary?.generatedAt}
           loading={loading}
-          onRefresh={loadSummary}
+          refreshing={refreshing}
+          onRefresh={() => loadSummary({ silent: !!summary })}
+          autoRefresh
         />
 
-        {error ? <DashboardError message={error} onRetry={loadSummary} /> : null}
+        {error ? (
+          <DashboardError message={error} onRetry={() => loadSummary()} />
+        ) : null}
 
         {isInitialLoad ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <div className="w-10 h-10 rounded-full border-4 border-[#EAFBF1] border-t-[#076300] animate-spin" />
-            <p className="text-sm text-gray-500 font-medium">Loading dashboard…</p>
+            <p className="text-sm text-gray-500 font-medium">Loading live dashboard…</p>
           </div>
         ) : summary ? (
-          <>
+          <div
+            className={`space-y-5 transition-opacity duration-200 ${refreshing ? "opacity-90" : "opacity-100"}`}
+          >
             <DashboardKpiStrip
               counts={counts}
               funnel={summary.funnel}
@@ -131,11 +179,13 @@ export default function Dashboard() {
 
             <DashboardStatGrid counts={counts} />
 
+            <DashboardRecentSubscriptions rows={summary.recentSubscriptions} />
+
             <DashboardRecentCustomers
               rows={summary.recentCustomers}
               onView={viewCustomer}
             />
-          </>
+          </div>
         ) : null}
       </div>
 

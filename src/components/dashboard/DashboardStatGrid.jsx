@@ -115,7 +115,7 @@ export default function DashboardStatGrid({ counts }) {
             key={card.label}
             type="button"
             onClick={() => navigate(card.to)}
-            className="text-left rounded-2xl border border-gray-200 bg-white p-4 hover:border-[#076300] hover:shadow-md transition-all group"
+            className="text-left rounded-2xl border border-gray-200 bg-white p-4 hover:border-[#076300] hover:shadow-md transition-all group cursor-pointer"
           >
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-gray-700 group-hover:text-[#076300]">

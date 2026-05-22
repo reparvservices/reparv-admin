@@ -14,7 +14,7 @@ function Panel({ title, subtitle, children, actionLabel, onAction }) {
           <button
             type="button"
             onClick={onAction}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-[#076300] hover:underline shrink-0"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#076300] hover:underline shrink-0 cursor-pointer"
           >
             {actionLabel}
             <FiArrowRight size={14} />
@@ -71,10 +71,13 @@ export default function DashboardInsightPanels({ funnel, properties, subscriptio
         actionLabel="View all"
         onAction={() => navigate("/user-subscriptions")}
       >
-        <StatRow label="Active" value={formatCount(subscriptions?.active)} highlight />
+        <StatRow label="Active paid" value={formatCount(subscriptions?.active)} highlight />
+        <StatRow label="On trial" value={formatCount(subscriptions?.trial)} />
         <StatRow label="Pending" value={formatCount(subscriptions?.pending)} />
         <StatRow label="Expired / cancelled" value={formatCount((subscriptions?.expired || 0) + (subscriptions?.cancelled || 0))} />
+        <StatRow label="Revenue this month" value={formatINR(subscriptions?.revenueThisMonth, { compact: true })} />
         <StatRow label="Active plan value" value={formatINR(subscriptions?.activeRevenue, { compact: true })} />
+        <StatRow label="All subscription rows" value={formatCount(subscriptions?.total)} />
         <div className="pt-2 border-t grid grid-cols-3 gap-2 text-center">
           {[
             { label: "Project", value: subscriptions?.byRole?.project },
