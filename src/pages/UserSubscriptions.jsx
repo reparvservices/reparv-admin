@@ -144,12 +144,29 @@ const Banner = ({ type, message, onDismiss }) => {
   );
 };
 
+const isEnterpriseSubscription = (row) =>
+  Boolean(row?.is_enterprise) ||
+  String(row?.plan_type || "").toLowerCase() === "enterprise";
+
 const canCancelSubscription = (row) => {
   const s = String(row?.status || "").toLowerCase();
+  if (isEnterpriseSubscription(row) && !row?.razorpay_subscription_id) {
+    return s === "active";
+  }
   return (
     row?.razorpay_subscription_id &&
     ["active", "pending", "halted"].includes(s)
   );
+};
+
+const canViewSubscriptionInvoice = (row) => {
+  if (row?.razorpay_subscription_id) {
+    return String(row?.status || "").toLowerCase() !== "pending";
+  }
+  if (!isEnterpriseSubscription(row)) return false;
+  if (String(row?.status || "").toLowerCase() !== "active") return false;
+  const amount = Number(row?.final_amount);
+  return Number.isFinite(amount) && amount > 0;
 };
 
 function CancelSubscriptionModal({ row, apiBase, onClose, onSuccess }) {
@@ -180,22 +197,36 @@ function CancelSubscriptionModal({ row, apiBase, onClose, onSuccess }) {
 
   if (!row) return null;
 
+  const enterprise = isEnterpriseSubscription(row);
+
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/50">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-lg font-bold text-gray-900">Cancel subscription</h3>
+        <h3 className="text-lg font-bold text-gray-900">
+          {enterprise ? "Cancel enterprise plan" : "Cancel subscription"}
+        </h3>
         <p className="text-sm text-gray-600 mt-1">
           {row.user_name} · {row.plan_name || "Plan"}
         </p>
-        <p className="text-xs text-gray-500 mt-2 font-mono break-all">{row.razorpay_subscription_id}</p>
+        {enterprise ? (
+          <p className="text-xs text-slate-600 mt-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+            Admin-assigned enterprise plan · access until{" "}
+            {formatDateShort(row.end_date)}
+          </p>
+        ) : (
+          <p className="text-xs text-gray-500 mt-2 font-mono break-all">
+            {row.razorpay_subscription_id}
+          </p>
+        )}
         {error && (
           <p className="mt-3 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
             {error}
           </p>
         )}
         <p className="mt-3 text-xs text-gray-500 leading-relaxed">
-          End-of-period stops renewal at the billing month end and keeps access until the expiry
-          date. Immediate ends the subscription and partner access now.
+          {enterprise
+            ? "End-of-period keeps partner access until the plan end date shown above. Immediate revokes access and deactivates login now."
+            : "End-of-period stops renewal at the billing month end and keeps access until the expiry date. Immediate ends the subscription and partner access now."}
         </p>
         <div className="mt-4 space-y-2">
           <button
@@ -205,10 +236,16 @@ function CancelSubscriptionModal({ row, apiBase, onClose, onSuccess }) {
             className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-[#076300] hover:bg-[#065a00] disabled:opacity-50 text-left px-4"
           >
             <span className="block">
-              {cancelling ? "Cancelling…" : "After billing period ends"}
+              {cancelling
+                ? "Cancelling…"
+                : enterprise
+                  ? "Cancel at plan end date"
+                  : "After billing period ends"}
             </span>
             <span className="block text-[11px] font-normal opacity-90 mt-0.5">
-              Access until current expiry date (month end)
+              {enterprise
+                ? "Access until current plan expiry"
+                : "Access until current expiry date (month end)"}
             </span>
           </button>
           <button
@@ -217,9 +254,13 @@ function CancelSubscriptionModal({ row, apiBase, onClose, onSuccess }) {
             onClick={() => runCancel(false)}
             className="w-full py-2.5 rounded-xl text-sm font-semibold text-red-700 border border-red-200 bg-red-50 hover:bg-red-100 disabled:opacity-50 text-left px-4"
           >
-            <span className="block">Cancel immediately</span>
+            <span className="block">
+              {enterprise ? "Revoke immediately" : "Cancel immediately"}
+            </span>
             <span className="block text-[11px] font-normal opacity-90 mt-0.5">
-              Status expired — partner locked out now
+              {enterprise
+                ? "Ends enterprise access and deactivates partner login now"
+                : "Status expired — partner locked out now"}
             </span>
           </button>
           <button
@@ -297,11 +338,13 @@ function SubscriptionCard({ row, index, onInvoice, onCancel }) {
         <button
           type="button"
           onClick={() => onInvoice(row)}
-          disabled={!row.razorpay_subscription_id}
+          disabled={!canViewSubscriptionInvoice(row)}
           className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-[#076300] border border-[#076300]/35 bg-[#076300]/5 hover:bg-[#076300]/10 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
           <FiFileText size={16} />
-          View invoice & payments
+          {isEnterpriseSubscription(row) && !row.razorpay_subscription_id
+            ? "View activation invoice"
+            : "View invoice & payments"}
         </button>
         {canCancelSubscription(row) && (
           <button
@@ -323,41 +366,73 @@ const InvoiceModal = ({ open, onClose, row, apiBase }) => {
   const [syncing, setSyncing] = useState(false);
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
+  const enterprise = isEnterpriseSubscription(row) && !row?.razorpay_subscription_id;
 
   const loadData = useCallback(async () => {
     if (!row?.id) return;
     setLoading(true);
     setError("");
     try {
-      const [payRes, invRes] = await Promise.all([
-        fetch(`${apiBase}/${row.id}/payments`, {
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        }),
-        fetch(`${apiBase}/${row.id}/invoices`, {
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        }),
-      ]);
+      const payRes = await fetch(`${apiBase}/${row.id}/payments`, {
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
       const payJson = await payRes.json().catch(() => ({}));
-      const invJson = await invRes.json().catch(() => ({}));
       if (!payRes.ok && payRes.status !== 503) {
         throw new Error(payJson.message || "Failed to load payment ledger");
       }
-      if (!invRes.ok) throw new Error(invJson.message || "Failed to load invoices");
+
+      let invJson = { invoices: [], payments: [] };
+      if (!enterprise) {
+        const invRes = await fetch(`${apiBase}/${row.id}/invoices`, {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+        invJson = await invRes.json().catch(() => ({}));
+        if (!invRes.ok) throw new Error(invJson.message || "Failed to load invoices");
+      }
+
       setData({
         ...invJson,
         ledger: payJson.payments || [],
         ledger_summary: payJson.summary || invJson.ledger_summary,
         subscription: payJson.subscription || invJson.subscription,
         ledger_error: payRes.status === 503 ? payJson.message : null,
+        enterprise_message: enterprise
+          ? "GST invoice for enterprise plan activation (manual billing)."
+          : null,
       });
     } catch (e) {
       setError(e.message || "Could not load payment history");
     } finally {
       setLoading(false);
     }
-  }, [row?.id, apiBase]);
+  }, [row?.id, apiBase, enterprise]);
+
+  const generateEnterpriseInvoice = async () => {
+    if (!row?.id) return;
+    setSyncing(true);
+    setError("");
+    try {
+      const res = await fetch(`${apiBase}/${row.id}/payments/enterprise-invoice`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.message || "Could not generate invoice");
+      setData((prev) => ({
+        ...(prev || {}),
+        ledger: json.payments || [],
+        ledger_summary: json.summary,
+        enterprise_message: "GST invoice for enterprise plan activation (manual billing).",
+      }));
+    } catch (e) {
+      setError(e.message || "Could not generate enterprise invoice");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const syncFromRazorpay = async () => {
     if (!row?.id) return;
@@ -412,15 +487,21 @@ const InvoiceModal = ({ open, onClose, row, apiBase }) => {
       >
         <div className="flex items-start justify-between gap-3 px-4 sm:px-5 py-4 border-b border-gray-100">
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold text-gray-900">Recurring payments</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {enterprise ? "Enterprise activation invoice" : "Recurring payments"}
+            </h2>
             <p className="text-sm text-gray-500 mt-0.5 truncate">
               {row?.user_name || "User"} · {row?.plan_name || "Plan"}
             </p>
-            {row?.razorpay_subscription_id && (
+            {enterprise ? (
+              <p className="text-xs text-slate-600 mt-2">
+                Manual enterprise billing · {formatInr(row?.final_amount)}
+              </p>
+            ) : row?.razorpay_subscription_id ? (
               <div className="mt-2">
                 <CopyText value={row.razorpay_subscription_id} />
               </div>
-            )}
+            ) : null}
           </div>
           <button
             type="button"
@@ -452,16 +533,34 @@ const InvoiceModal = ({ open, onClose, row, apiBase }) => {
                   </p>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={syncFromRazorpay}
-                disabled={syncing || !row?.razorpay_subscription_id}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-[#076300] hover:bg-[#065a00] disabled:opacity-50"
-              >
-                <FiRefreshCw className={syncing ? "animate-spin" : ""} size={14} />
-                Sync from Razorpay
-              </button>
+              {enterprise ? (
+                <button
+                  type="button"
+                  onClick={generateEnterpriseInvoice}
+                  disabled={syncing}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-[#076300] hover:bg-[#065a00] disabled:opacity-50"
+                >
+                  <FiRefreshCw className={syncing ? "animate-spin" : ""} size={14} />
+                  {syncing ? "Generating…" : "Generate GST invoice"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={syncFromRazorpay}
+                  disabled={syncing || !row?.razorpay_subscription_id}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-[#076300] hover:bg-[#065a00] disabled:opacity-50"
+                >
+                  <FiRefreshCw className={syncing ? "animate-spin" : ""} size={14} />
+                  Sync from Razorpay
+                </button>
+              )}
             </div>
+          )}
+
+          {data?.enterprise_message && (
+            <p className="text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+              {data.enterprise_message}
+            </p>
           )}
 
           {data?.ledger_error && (
@@ -488,7 +587,9 @@ const InvoiceModal = ({ open, onClose, row, apiBase }) => {
                 Payment ledger ({ledger.length})
               </h3>
               <p className="text-xs text-gray-500 mb-3">
-                Stored on Reparv — each renewal from webhook, checkout verify, or sync.
+                {enterprise
+                  ? "Activation charge recorded when the enterprise plan was assigned."
+                  : "Stored on Reparv — each renewal from webhook, checkout verify, or sync."}
               </p>
               <div className="overflow-x-auto rounded-xl border border-gray-200">
                 <table className="w-full text-sm min-w-[640px]">
@@ -705,6 +806,7 @@ const STATUS_TABS = [
   { value: "", label: "All" },
   { value: "active", label: "Active" },
   { value: "trial", label: "Trial" },
+  { value: "enterprise", label: "Enterprise" },
   { value: "cancelled", label: "Cancelled" },
   { value: "expired", label: "Expired" },
   { value: "pending", label: "Pending" },
@@ -745,7 +847,11 @@ const UserSubscriptions = () => {
     try {
       const params = new URLSearchParams({ limit: "500", include_all: "1" });
       if (roleFilter) params.set("role", roleFilter);
-      if (statusFilter) params.set("status", statusFilter);
+      if (statusFilter === "enterprise") {
+        params.set("plan_type", "enterprise");
+      } else if (statusFilter) {
+        params.set("status", statusFilter);
+      }
       if (searchTerm.trim()) params.set("search", searchTerm.trim());
 
       const res = await fetch(`${apiBase}?${params}`, {
@@ -927,9 +1033,13 @@ const UserSubscriptions = () => {
             <button
               type="button"
               onClick={() => openInvoice(row)}
-              disabled={!row.razorpay_subscription_id}
+              disabled={!canViewSubscriptionInvoice(row)}
               title={
-                row.razorpay_subscription_id ? "View invoices" : "No Razorpay subscription id"
+                canViewSubscriptionInvoice(row)
+                  ? isEnterpriseSubscription(row) && !row.razorpay_subscription_id
+                    ? "View enterprise activation GST invoice"
+                    : "View invoices"
+                  : "No billable subscription"
               }
               className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-semibold text-[#076300] border border-[#076300]/30 hover:bg-[#076300]/8 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
@@ -940,7 +1050,11 @@ const UserSubscriptions = () => {
               <button
                 type="button"
                 onClick={() => openCancel(row)}
-                title="Cancel Razorpay subscription"
+                title={
+                  isEnterpriseSubscription(row)
+                    ? "Cancel enterprise plan"
+                    : "Cancel Razorpay subscription"
+                }
                 className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-semibold text-red-700 border border-red-200/80 hover:bg-red-50 transition"
               >
                 <FiXCircle size={13} />
@@ -1053,6 +1167,9 @@ const UserSubscriptions = () => {
                     {tab.value === "pending" && summary?.pending != null
                       ? ` (${summary.pending})`
                       : ""}
+                    {tab.value === "enterprise" && summary?.enterprise_total != null
+                      ? ` (${summary.enterprise_total})`
+                      : ""}
                   </button>
                 ))}
               </div>
@@ -1087,6 +1204,7 @@ const UserSubscriptions = () => {
                 <option value="">All statuses</option>
                   <option value="active">Active</option>
                   <option value="trial">Trial</option>
+                  <option value="enterprise">Enterprise</option>
                   <option value="pending">Pending</option>
                 <option value="expired">Expired</option>
                 <option value="cancelled">Cancelled</option>
