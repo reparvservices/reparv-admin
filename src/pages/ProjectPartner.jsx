@@ -1,6 +1,5 @@
 import React from "react";
-import { parse } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { CiSearch } from "react-icons/ci";
 import { useAuth } from "../store/auth";
 import CustomDateRangePicker from "../components/CustomDateRangePicker";
@@ -8,9 +7,9 @@ import AddButton from "../components/AddButton";
 import FilterData from "../components/FilterData";
 import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
-import { FiMoreVertical } from "react-icons/fi";
-import { RiArrowDropDownLine } from "react-icons/ri";
-import Loader from "../components/Loader";
+import { FiMoreVertical, FiRefreshCw, FiUsers } from "react-icons/fi";
+import DataTableProgress from "../components/ui/DataTableProgress";
+import SubmitButton from "../components/ui/SubmitButton";
 import PartnerFilter from "../components/PartnerFilter";
 import { RxCross2 } from "react-icons/rx";
 import { MdDone } from "react-icons/md";
@@ -18,14 +17,22 @@ import { MdMoneyOffCsred } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
 import AssignEnterpriseModal from "../components/AssignEnterpriseModal";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { countPartnerBuckets, resolvePartnerBucket } from "../utils/partnerSubscriptionBucket";
+import SubscriptionStatusBadge from "../components/subscription/SubscriptionStatusBadge";
+import {
+  resolvePartnerFilterBucket,
+  planTypeBadgeClass,
+  formatInr,
+} from "../utils/partnerSubscriptionDisplay";
+import {
+  fetchProjectPartnerList,
+  partnerFilterToApiParam,
+} from "../lib/projectPartnerApi";
 
 const ProjectPartner = () => {
   const {
     showPartnerForm,
     setShowPartnerForm,
     URI,
-    setLoading,
     giveAccess,
     showSeoForm,
     setShowSeoForm,
@@ -42,11 +49,26 @@ const ProjectPartner = () => {
 
   const [datas, setDatas] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [partnerId, setPartnerId] = useState(null);
   const [partner, setPartner] = useState({});
-  const [selectedPartnerLister, setSelectedPartnerLister] = useState(
-    "Select Partner Lister",
-  );
+  const [listLoading, setListLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [listError, setListError] = useState("");
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [summary, setSummary] = useState(null);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+  const [range, setRange] = useState([
+    {
+      startDate: null,
+      endDate: null,
+      key: "selection",
+    },
+  ]);
+  const [actionBusy, setActionBusy] = useState(false);
+  const mountedRef = useRef(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showAssignEnterprise, setShowAssignEnterprise] = useState(false);
@@ -136,32 +158,50 @@ const ProjectPartner = () => {
     }
   };
 
-  // **Fetch Data from API**
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `${URI}/admin/projectpartner/${selectedPartnerLister}`,
-        {
-          method: "GET",
-          credentials: "include", // Ensures cookies are sent
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
+  const fetchData = useCallback(
+    async ({ silent = false, pageOverride } = {}) => {
+      if (!silent) {
+        setListLoading(true);
+        setListError("");
+      } else {
+        setRefreshing(true);
+      }
 
-      if (!response.ok) throw new Error("Failed to fetch Project Partner.");
+      const currentPage = pageOverride ?? page;
+      const offset = (currentPage - 1) * perPage;
+      const startRaw = range[0]?.startDate;
+      const endRaw = range[0]?.endDate;
 
-      const result = await response.json();
+      try {
+        const json = await fetchProjectPartnerList(URI, {
+          limit: perPage,
+          offset,
+          search: debouncedSearch.trim(),
+          filter: partnerFilterToApiParam(partnerPaymentStatus),
+          dateFrom: startRaw ? new Date(startRaw).toISOString() : undefined,
+          dateTo: endRaw ? new Date(endRaw).toISOString() : undefined,
+        });
 
-      // Set the table data
-      setDatas(result);
-    } catch (err) {
-    } finally {
-      setLoading(false);
-    }
-};
+        if (!mountedRef.current) return;
+        setDatas(Array.isArray(json.data) ? json.data : []);
+        setTotal(json.total ?? 0);
+        setSummary(json.summary || null);
+        setHasLoaded(true);
+      } catch (err) {
+        if (!mountedRef.current) return;
+        setListError(err.message || "Could not load project partners.");
+        if (!silent) {
+          setDatas([]);
+          setTotal(0);
+        }
+      } finally {
+        if (!mountedRef.current) return;
+        setListLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [URI, page, perPage, debouncedSearch, partnerPaymentStatus, range],
+  );
 
   const add = async (e) => {
     e.preventDefault();
@@ -169,7 +209,7 @@ const ProjectPartner = () => {
     const endpoint = newPartner.id ? `edit/${newPartner.id}` : "add";
 
     try {
-      setLoading(true);
+      setActionBusy(true);
       const response = await fetch(`${URI}/admin/projectpartner/${endpoint}`, {
         method: newPartner.id ? "PUT" : "POST",
         credentials: "include",
@@ -201,11 +241,12 @@ const ProjectPartner = () => {
         });
 
         setShowPartnerForm(false);
-        await fetchData();
+        await fetchData({ silent: true });
       }
     } catch (err) {
+      showNotice("error", err.message || "Could not save partner.");
     } finally {
-      setLoading(false);
+      setActionBusy(false);
     }
   };
 
@@ -247,7 +288,7 @@ const ProjectPartner = () => {
 
   const deletePartner = async (id) => {
     try {
-      setLoading(true);
+      setActionBusy(true);
       const response = await fetch(URI + `/admin/projectpartner/delete/${id}`, {
         method: "DELETE",
         credentials: "include",
@@ -259,14 +300,14 @@ const ProjectPartner = () => {
       const data = await response.json();
       if (response.ok) {
         showNotice("success", "Partner deleted successfully!");
-        fetchData();
+        await fetchData({ silent: true });
       } else {
         showNotice("error", data.message || "Failed to delete partner");
       }
     } catch (error) {
       showNotice("error", "Failed to delete partner");
     } finally {
-      setLoading(false);
+      setActionBusy(false);
     }
   };
 
@@ -295,7 +336,7 @@ const ProjectPartner = () => {
       } else {
         showNotice("error", data.message || "Failed to update status");
       }
-      fetchData();
+      await fetchData({ silent: true });
     } catch (error) {
       showNotice("error", "Failed to update status");
     }
@@ -337,7 +378,7 @@ const ProjectPartner = () => {
   const addSeoDetails = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      setActionBusy(true);
       const response = await fetch(
         URI + `/admin/projectpartner/seo/${partnerId}`,
         {
@@ -368,10 +409,11 @@ const ProjectPartner = () => {
       setSeoDescription("");
       setTwitterSite("");
       setTwitterDescription("");
-      await fetchData();
+      await fetchData({ silent: true });
     } catch (error) {
+      showNotice("error", "Failed to save SEO details.");
     } finally {
-      setLoading(false);
+      setActionBusy(false);
     }
   };
 
@@ -393,7 +435,7 @@ const ProjectPartner = () => {
       } else {
         showNotice("error", data.message || "Failed to set free partner");
       }
-      fetchData();
+      await fetchData({ silent: true });
     } catch (error) {
       showNotice("error", "Failed to set free partner");
     }
@@ -411,7 +453,7 @@ const ProjectPartner = () => {
 
   const updatePaymentId = async (partnerId, formData) => {
     try {
-      setLoading(true);
+      setActionBusy(true);
 
       const response = await fetch(
         URI + `/admin/projectpartner/update-payment/${partnerId}`,
@@ -433,10 +475,11 @@ const ProjectPartner = () => {
       setPartnerId(null);
       setShowPaymentIdForm(false);
 
-      fetchData();
+      await fetchData({ silent: true });
     } catch (error) {
+      showNotice("error", "Failed to update payment.");
     } finally {
-      setLoading(false);
+      setActionBusy(false);
     }
   };
 
@@ -464,7 +507,7 @@ const ProjectPartner = () => {
   const addFollowUp = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      setActionBusy(true);
       const response = await fetch(
         `${URI}/admin/projectpartner/followup/add/${partnerId}`,
         {
@@ -482,23 +525,23 @@ const ProjectPartner = () => {
       if (response.ok) {
         showNotice("success", data.message || "Follow-up added");
         setPartnerPaymentStatus("Follow Up");
-        await fetchData();
+        await fetchData({ silent: true });
         fetchFollowUpList(partnerId);
       } else {
         showNotice("error", data.message || "Failed to add follow-up");
       }
-      // Clear input fields
       setFollowUp("");
       setFollowUpText("");
     } catch (error) {
+      showNotice("error", "Failed to add follow-up.");
     } finally {
-      setLoading(false);
+      setActionBusy(false);
     }
   };
 
   const submitAssignLogin = async () => {
     try {
-      setLoading(true);
+      setActionBusy(true);
       const response = await fetch(
         URI + `/admin/projectpartner/assignlogin/${partnerId}`,
         {
@@ -520,10 +563,11 @@ const ProjectPartner = () => {
       setUsername("");
       setPassword("");
       setGiveAccess(false);
-      fetchData();
+      await fetchData({ silent: true });
     } catch (error) {
+      showNotice("error", "Failed to assign login.");
     } finally {
-      setLoading(false);
+      setActionBusy(false);
     }
   };
 
@@ -538,9 +582,12 @@ const ProjectPartner = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    mountedRef.current = true;
     fetchStates();
-  }, [selectedPartnerLister]);
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (newPartner.state != "") {
@@ -548,47 +595,43 @@ const ProjectPartner = () => {
     }
   }, [newPartner.state]);
 
-  const partnerCounts = countPartnerBuckets(datas);
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim());
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, [searchTerm]);
 
-  const [range, setRange] = useState([
-    {
-      startDate: null,
-      endDate: null,
-      key: "selection",
-    },
-  ]);
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, partnerPaymentStatus, range]);
 
-  const filteredData = datas?.filter((item) => {
-    const matchesSearch =
-      item.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.contact?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.city?.toLowerCase().includes(searchTerm.toLowerCase());
+  useEffect(() => {
+    fetchData({ silent: hasLoaded });
+  }, [fetchData, page, perPage, hasLoaded]);
 
-    let startDate = range[0].startDate;
-    let endDate = range[0].endDate;
+  const partnerCounts = useMemo(
+    () => ({
+      Unpaid: summary?.unpaid ?? 0,
+      FollowUp: summary?.follow_up ?? 0,
+      Trial: summary?.trial ?? 0,
+      Paid: summary?.paid ?? 0,
+      Enterprise: summary?.enterprise ?? 0,
+      Pending: summary?.pending ?? 0,
+    }),
+    [summary],
+  );
 
-    if (startDate) startDate = new Date(startDate.setHours(0, 0, 0, 0));
-    if (endDate) endDate = new Date(endDate.setHours(23, 59, 59, 999));
+  const handlePageChange = (nextPage) => {
+    setPage(nextPage);
+  };
 
-    // Parse item.created_at (format: "26 Apr 2025 | 06:28 PM")
-    const itemDate = parse(
-      item.created_at,
-      "dd MMM yyyy | hh:mm a",
-      new Date(),
-    );
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setPage(1);
+  };
 
-    const matchesDate =
-      (!startDate && !endDate) ||
-      (startDate && endDate && itemDate >= startDate && itemDate <= endDate);
-
-    // Enquiry filter logic: New, Alloted, Assign
-    const matchesPartner =
-      !partnerPaymentStatus ||
-      resolvePartnerBucket(item) === partnerPaymentStatus;
-
-    return matchesSearch && matchesDate && matchesPartner;
-  });
+  const isInitialLoad = listLoading && !hasLoaded;
 
   const customStyles = {
     rows: {
@@ -789,47 +832,104 @@ const ProjectPartner = () => {
       width: "150px",
     },
     {
-      name: "Subscription",
-      width: "110px",
-      cell: (row) => (
-        <span
-          className={`text-xs font-semibold px-2 py-1 rounded-full ${
-            resolvePartnerBucket(row) === "Paid"
-              ? "bg-emerald-100 text-emerald-800"
-              : resolvePartnerBucket(row) === "Free"
-                ? "bg-violet-100 text-violet-800"
-                : resolvePartnerBucket(row) === "Follow Up"
-                  ? "bg-amber-100 text-amber-800"
-                  : "bg-red-100 text-red-800"
-          }`}
-        >
-          {resolvePartnerBucket(row)}
-        </span>
-      ),
-    },
-    {
       name: "Plan",
-      width: "140px",
+      minWidth: "150px",
+      grow: 1,
       cell: (row) => (
-        <div className="text-xs">
-          <p className="font-medium text-gray-800 truncate" title={row.subscription_plan_name}>
+        <div className="min-w-[130px] py-0.5">
+          <p
+            className="font-medium text-gray-900 text-sm truncate"
+            title={row.subscription_plan_name}
+          >
             {row.subscription_plan_name || "—"}
           </p>
-          {row.subscription_billing_cycle ? (
-            <p className="text-gray-500 capitalize">{row.subscription_billing_cycle}</p>
+          <p className="text-xs text-gray-500 mt-0.5 whitespace-nowrap">
+            {row.subscription_plan_period_label ||
+              (row.subscription_billing_cycle
+                ? String(row.subscription_billing_cycle)
+                : "") ||
+              "—"}
+          </p>
+          {row.subscription_plan_type ? (
+            <span
+              className={`inline-block mt-1 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${planTypeBadgeClass(
+                row.subscription_plan_type,
+                row,
+              )}`}
+            >
+              {row.subscription_is_trial ? "trial" : row.subscription_plan_type}
+            </span>
+          ) : resolvePartnerFilterBucket(row) === "Unpaid" ? (
+            <span className="inline-block mt-1 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-red-50 text-red-700">
+              no plan
+            </span>
           ) : null}
         </div>
       ),
     },
     {
-      name: "Expires",
-      width: "100px",
+      name: "Amount",
+      width: "96px",
+      right: true,
       cell: (row) => (
-        <span className="text-xs text-gray-600">
-          {row.subscription_end_date
-            ? new Date(row.subscription_end_date).toLocaleDateString("en-IN")
-            : "—"}
+        <span className="text-sm font-semibold tabular-nums text-gray-900 whitespace-nowrap">
+          {formatInr(row.subscription_final_amount)}
         </span>
+      ),
+    },
+    {
+      name: "Status",
+      width: "120px",
+      center: true,
+      cell: (row) => {
+        const display =
+          row.subscription_display_status ||
+          row.subscription_status ||
+          (resolvePartnerFilterBucket(row) === "Unpaid" ? "unpaid" : "");
+        if (!display && resolvePartnerFilterBucket(row) === "Follow Up") {
+          return (
+            <span className="inline-flex px-2 py-1 text-[10px] font-semibold rounded-full bg-blue-100 text-blue-700">
+              Follow up
+            </span>
+          );
+        }
+        return (
+          <SubscriptionStatusBadge
+            status={display}
+            endDate={row.subscription_end_date}
+            compact
+          />
+        );
+      },
+    },
+    {
+      name: "Period",
+      width: "200px",
+      cell: (row) => (
+        <div className="text-[11px] text-gray-600 leading-snug">
+          {row.subscription_start_date ? (
+            <p>
+              From{" "}
+              {new Date(row.subscription_start_date).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "2-digit",
+              })}
+            </p>
+          ) : null}
+          {row.subscription_end_date ? (
+            <p className="mt-0.5">
+              To{" "}
+              {new Date(row.subscription_end_date).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "2-digit",
+              })}
+            </p>
+          ) : (
+            <p>—</p>
+          )}
+        </div>
       ),
     },
     {
@@ -914,9 +1014,7 @@ const ProjectPartner = () => {
   };
 
   return (
-    <div
-      className={`overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start`}
-    >
+    <div className="w-full min-h-full bg-[#F4F6F8] overflow-y-auto scrollbar-hide">
       {pageNotice.message ? (
         <div
           className={`fixed top-4 left-1/2 z-[85] w-[min(100%,28rem)] -translate-x-1/2 rounded-xl border px-4 py-3 text-sm shadow-lg ${
@@ -950,70 +1048,167 @@ const ProjectPartner = () => {
         onClose={closeConfirm}
       />
 
-      <div className=" w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
-        <div className="w-full flex items-center justify-between gap-1 sm:gap-3">
-          <div className="w-[65%] sm:min-w-[220px] sm:max-w-[230px] relative inline-block">
-            <div className="flex gap-2 items-center justify-between bg-white border border-[#00000033] text-sm font-semibold  text-black rounded-lg py-1 px-3 focus:outline-none focus:ring-2 focus:ring-[#076300]">
-              <span>{selectedPartnerLister || "Select Partner Lister"}</span>
-              <RiArrowDropDownLine className="w-6 h-6 text-[#000000B2]" />
-            </div>
-            <select
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              value={selectedPartnerLister}
-              onChange={(e) => {
-                const action = e.target.value;
-                setSelectedPartnerLister(action);
-              }}
-            >
-              <option value="Select Partner Lister">
-                Select Partner Lister
-              </option>
-              <option value="Reparv">Reparv</option>
-            </select>
-          </div>
-          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
-            <DownloadCSV data={filteredData} filename={"ProjectPartner.csv"} />
-            <AddButton label={"Add"} func={setShowPartnerForm} />
-          </div>
-        </div>
-        <div className="searchBarContainer w-full flex flex-col lg:flex-row items-center justify-between gap-3">
-          <div className="ssearch-bar w-full lg:w-[30%] min-w-[150px] max:w-[289px] xl:w-[289px] h-[36px] flex gap-[10px] rounded-[12px] p-[10px] items-center justify-start lg:justify-between bg-[#0000000A]">
-            <CiSearch />
-            <input
-              type="text"
-              placeholder="Search Partner"
-              className="search-input w-[250px] h-[36px] text-sm text-black bg-transparent border-none outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
-            <div className="flex flex-wrap items-center justify-end gap-3 px-2">
-              <PartnerFilter counts={partnerCounts} />
-              <div className="block">
-                <CustomDateRangePicker range={range} setRange={setRange} />
+      <div className="max-w-[1600px] mx-auto p-4 md:p-6 pb-10">
+        <div className="rounded-2xl sm:rounded-3xl bg-white border border-gray-200/80 shadow-sm overflow-hidden">
+          <div className="relative px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 pb-5 sm:pb-6 bg-gradient-to-br from-[#076300] via-[#0a7d04] to-[#0d4f0a] text-white">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+              <div className="flex gap-3 sm:gap-4 min-w-0">
+                <div className="hidden sm:flex h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-white/15 items-center justify-center border border-white/20 shrink-0">
+                  <FiUsers size={26} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-white/80 text-xs sm:text-sm font-medium">Partners</p>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-0.5">
+                    Project partners
+                  </h1>
+                  <p className="text-white/85 text-xs sm:text-sm mt-1.5 max-w-xl leading-relaxed">
+                    Manage leads, subscriptions, follow-ups, and partner access.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={() => fetchData({ silent: hasLoaded })}
+                  disabled={listLoading && !hasLoaded}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/25 disabled:opacity-50"
+                >
+                  <FiRefreshCw
+                    className={listLoading || refreshing ? "animate-spin" : ""}
+                    size={16}
+                  />
+                  Refresh
+                </button>
+                <div className="[&_.addButton]:bg-white [&_.addButton]:text-[#076300] [&_.addButton]:border-white/30 [&_.addButton]:rounded-xl [&_.addButton]:py-2.5">
+                  <AddButton label="Add partner" func={setShowPartnerForm} />
+                </div>
               </div>
             </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-6 sm:mt-8">
+              {[
+                { label: "Total", value: summary?.total ?? 0 },
+                { label: "Trial", value: partnerCounts.Trial },
+                { label: "Paid", value: partnerCounts.Paid },
+                { label: "Enterprise", value: partnerCounts.Enterprise },
+                { label: "Pending", value: partnerCounts.Pending },
+                { label: "Unpaid", value: partnerCounts.Unpaid },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-xl sm:rounded-2xl bg-white/10 border border-white/20 px-3 sm:px-4 py-2.5 sm:py-3"
+                >
+                  <p className="text-[10px] sm:text-xs text-white/75 uppercase tracking-wide truncate">
+                    {s.label}
+                  </p>
+                  <p className="text-xl sm:text-2xl font-bold tabular-nums mt-0.5">{s.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        <h2 className="text-[16px] font-semibold">Project Partner List</h2>
-        <div className="overflow-scroll scrollbar-hide">
-          <DataTable
-            className="scrollbar-hide"
-            customStyles={customStyles}
-            columns={columns}
-            data={filteredData}
-            fixedHeader
-            fixedHeaderScrollHeight="60vh"
-            pagination
-            paginationPerPage={15}
-            paginationComponentOptions={{
-              rowsPerPageText: "Rows per page:",
-              rangeSeparatorText: "of",
-              selectAllRowsItem: true,
-              selectAllRowsItemText: "All",
-            }}
-          />
+
+          <div className="px-3 sm:px-4 md:px-6 py-4 sm:py-6 space-y-4">
+            {listError ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p className="text-sm text-red-800">{listError}</p>
+                <button
+                  type="button"
+                  onClick={() => fetchData()}
+                  className="text-sm font-semibold text-red-700 hover:underline shrink-0"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : null}
+
+            <div className="space-y-3">
+              <div className="flex w-full items-center gap-2 rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-[#076300]/25 focus-within:border-[#076300]/40">
+                <CiSearch className="text-gray-400 shrink-0" size={20} aria-hidden />
+                <input
+                  type="search"
+                  placeholder="Search name, email, phone, city, company, partner ID…"
+                  className="w-full min-w-0 flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label="Search project partners"
+                />
+                {searchTerm ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="shrink-0 p-1 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200/80"
+                    aria-label="Clear search"
+                  >
+                    <RxCross2 size={16} />
+                  </button>
+                ) : null}
+                {searchTerm.trim() !== debouncedSearch && searchTerm.trim() ? (
+                  <span className="shrink-0 text-[10px] text-gray-400 hidden sm:inline">
+                    Searching…
+                  </span>
+                ) : null}
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                <PartnerFilter counts={partnerCounts} variant="subscription" />
+                <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                  <CustomDateRangePicker range={range} setRange={setRange} />
+                  <DownloadCSV data={datas} filename="ProjectPartner.csv" />
+                  <span className="text-[10px] text-gray-400 hidden lg:inline self-center">
+                    CSV: current page
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-base font-semibold text-gray-900">Partner list</h2>
+              {hasLoaded ? (
+                <p className="text-xs text-gray-500 tabular-nums">
+                  Showing {datas.length} of {total}
+                  {debouncedSearch ? ` · “${debouncedSearch}”` : ""}
+                  {refreshing ? " · Updating…" : ""}
+                </p>
+              ) : null}
+            </div>
+
+            <div
+              className={`relative rounded-xl border border-gray-100 overflow-hidden transition-opacity duration-200 ${
+                refreshing ? "opacity-70" : "opacity-100"
+              }`}
+            >
+              {isInitialLoad ? (
+                <DataTableProgress message="Loading project partners…" />
+              ) : (
+                <DataTable
+                  className="scrollbar-hide"
+                  customStyles={customStyles}
+                  columns={columns}
+                  data={datas}
+                  fixedHeader
+                  fixedHeaderScrollHeight="calc(100vh - 22rem)"
+                  pagination
+                  paginationServer
+                  paginationTotalRows={total}
+                  paginationDefaultPage={page}
+                  paginationPerPage={perPage}
+                  onChangePage={handlePageChange}
+                  onChangeRowsPerPage={handlePerRowsChange}
+                  paginationComponentOptions={{
+                    rowsPerPageText: "Rows per page:",
+                    rangeSeparatorText: "of",
+                  }}
+                  progressPending={listLoading && !hasLoaded}
+                  progressComponent={<DataTableProgress />}
+                  noDataComponent={
+                    <div className="py-16 text-center text-sm text-gray-500">
+                      {listError
+                        ? "Could not load partners."
+                        : "No partners match your filters."}
+                    </div>
+                  }
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1205,13 +1400,9 @@ const ProjectPartner = () => {
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
-              >
+              <SubmitButton busy={actionBusy} busyLabel="Saving…">
                 Save
-              </button>
-              <Loader></Loader>
+              </SubmitButton>
             </div>
           </form>
         </div>
@@ -1352,13 +1543,9 @@ const ProjectPartner = () => {
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
-              >
+              <SubmitButton busy={actionBusy} busyLabel="Saving…">
                 Add SEO Details
-              </button>
-              <Loader></Loader>
+              </SubmitButton>
             </div>
           </form>
         </div>
@@ -1375,7 +1562,7 @@ const ProjectPartner = () => {
         partnerName={assignPartnerName}
         onSuccess={(msg) => {
           showNotice("success", msg);
-          fetchData();
+          fetchData({ silent: true });
         }}
       />
 
@@ -1450,14 +1637,14 @@ const ProjectPartner = () => {
               />
             </div>
 
-            <div className="flex h-10 mt-8 md:mt-4 justify-center sm:justify-end gap-6">
-              <button
-                type="submit"
-                className="w-full px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
+            <div className="flex h-10 mt-8 md:mt-4 justify-center sm:justify-end">
+              <SubmitButton
+                busy={actionBusy}
+                busyLabel="Adding…"
+                className="w-full sm:w-auto"
               >
                 Add Follow Up
-              </button>
-              <Loader />
+              </SubmitButton>
             </div>
           </form>
           {/* Show Follow Up List */}
@@ -1601,14 +1788,10 @@ const ProjectPartner = () => {
                 />
               </div>
             </div>
-            <div className="flex h-10 mt-8 md:mt-6 justify-center sm:justify-end gap-6">
-              <button
-                type="submit"
-                className="px-4 py-2 text-white bg-[#076300] rounded active:scale-[0.98]"
-              >
+            <div className="flex h-10 mt-8 md:mt-6 justify-center sm:justify-end">
+              <SubmitButton busy={actionBusy} busyLabel="Assigning…">
                 Give Access
-              </button>
-              <Loader></Loader>
+              </SubmitButton>
             </div>
           </form>
         </div>
