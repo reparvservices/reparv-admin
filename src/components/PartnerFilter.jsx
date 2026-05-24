@@ -9,6 +9,7 @@ const LEGACY_OPTIONS = [
 ];
 
 const SUBSCRIPTION_OPTIONS = [
+  { label: "All", bg: "bg-gray-100", text: "text-gray-800", countKey: "All" },
   { label: "Unpaid", bg: "bg-red-100", text: "text-red-600", countKey: "Unpaid" },
   { label: "Follow Up", bg: "bg-blue-100", text: "text-blue-600", countKey: "FollowUp" },
   { label: "Trial", bg: "bg-violet-100", text: "text-violet-700", countKey: "Trial" },

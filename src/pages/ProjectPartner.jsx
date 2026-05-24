@@ -612,6 +612,7 @@ const ProjectPartner = () => {
 
   const partnerCounts = useMemo(
     () => ({
+      All: summary?.total ?? 0,
       Unpaid: summary?.unpaid ?? 0,
       FollowUp: summary?.follow_up ?? 0,
       Trial: summary?.trial ?? 0,

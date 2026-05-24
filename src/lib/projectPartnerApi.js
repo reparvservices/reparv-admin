@@ -8,7 +8,7 @@ const FILTER_LABEL_TO_PARAM = {
 };
 
 export function partnerFilterToApiParam(label) {
-  if (!label) return "";
+  if (!label || label === "All") return "";
   return FILTER_LABEL_TO_PARAM[label] || "";
 }
 
