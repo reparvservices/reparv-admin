@@ -40,7 +40,7 @@ const StepOne = ({
     { label: "Row House", value: "RowHouse", icon: FaHome },
     { label: "Lease", value: "Lease", icon: FaBuilding },
     { label: "Farm House", value: "FarmHouse", icon: GiFarmTractor },
-    { label: "Flarm Land", value: "FarmLand", icon: FaTree },
+    { label: "Farm Land", value: "FarmLand", icon: FaTree },
     { label: "Commercial Flat", value: "CommercialFlat", icon: MdApartment },
     { label: "Commercial Plot", value: "CommercialPlot", icon: FaCity },
     { label: "Industrial Space", value: "IndustrialSpace", icon: FaIndustry },
