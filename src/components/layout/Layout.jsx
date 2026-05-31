@@ -87,6 +87,7 @@ const menuItems = [
     icon: <FaHandshake size={21} />,
     dropdown: [
       { label: "Project Partner", to: "/projectpartner" },
+      { label: "Partner Leads", to: "/partner-leads" },
       { label: "Sales Partner", to: "/salespersons" },
       { label: "Territory Partner", to: "/territorypartner" },
       { label: "Guest Users", to: "/guest-users" },

@@ -19,6 +19,7 @@ const Promoter = lazy(() => import("./pages/Promoter.jsx"));
 const SalesPerson = lazy(() => import("./pages/SalesPerson.jsx"));
 const OnBoardingPartner = lazy(() => import("./pages/OnBoardingPartner.jsx"));
 const ProjectPartner = lazy(() => import("./pages/ProjectPartner.jsx"));
+const PartnerLeads = lazy(() => import("./pages/PartnerLeads.jsx"));
 const TerritoryPartner = lazy(() => import("./pages/TerritoryPartner.jsx"));
 const GuestUser = lazy(() => import("./pages/guestUser.jsx"));
 const Subscription = lazy(() => import("./pages/Subscription.jsx"));
@@ -104,6 +105,7 @@ const App = () => {
           <Route path="/salespersons" element={<SalesPerson />} />
           <Route path="/onboardingpartner" element={<OnBoardingPartner />} />
           <Route path="/projectpartner" element={<ProjectPartner />} />
+          <Route path="/partner-leads" element={<PartnerLeads />} />
           <Route path="/territorypartner" element={<TerritoryPartner />} />
           <Route path="/messages" element={<Messages />} />
           <Route
