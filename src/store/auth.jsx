@@ -1,32 +1,68 @@
-import { createContext, useContext, useState } from "react";
-import Cookies from "js-cookie";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { apiFetch } from "../lib/apiClient";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [accessToken, setAccessToken] = useState(Cookies.get("accessToken"));
+  const [authStatus, setAuthStatus] = useState("loading");
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem("adminUser");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
 
-  let isLoggedIn = !!accessToken;
-
-  const storeTokenInCookie = (token) => {
-    Cookies.set("accessToken", token);
-    setAccessToken(Cookies.get("accessToken"));
-  };
-  const delTokenInCookie = () => {
-    setAccessToken();
-    Cookies.remove("accessToken");
-    setAccessToken(null);
-    setUser(null);
-    localStorage.removeItem("adminUser");
-  };
+  const isLoggedIn = authStatus === "authenticated";
 
   const URI = (
     import.meta.env.VITE_API_BASE_URL || "https://aws-api.reparv.in"
   ).replace(/\/+$/, "");
 
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("adminUser")),
-  );
+  const clearAuth = useCallback(() => {
+    setUser(null);
+    localStorage.removeItem("adminUser");
+    setAuthStatus("unauthenticated");
+  }, []);
+
+  const setAuthenticatedUser = useCallback((nextUser) => {
+    if (!nextUser) return;
+    setUser(nextUser);
+    localStorage.setItem("adminUser", JSON.stringify(nextUser));
+    setAuthStatus("authenticated");
+  }, []);
+
+  const checkAuth = useCallback(async () => {
+    try {
+      const response = await apiFetch(
+        `${URI}/admin/auth/me`,
+        {},
+        { silent401: true },
+      );
+      if (!response.ok) {
+        clearAuth();
+        return false;
+      }
+      const data = await response.json();
+      setAuthenticatedUser(data.user);
+      return true;
+    } catch {
+      clearAuth();
+      return false;
+    }
+  }, [URI, clearAuth, setAuthenticatedUser]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   const [loading, setLoading] = useState(false);
   const [showEmployee, setShowEmployee] = useState(false);
   const [showEplDetailsForm, setShowEplDetailsForm] = useState(false);
@@ -38,7 +74,6 @@ export const AuthProvider = ({ children }) => {
   const [showPropertyForm, setShowPropertyForm] = useState(false);
   const [showPropertyTypeForm, setShowPropertyTypeForm] = useState(false);
 
-  // Set Object For Show Property and Partner Commission
   const [propertyCommissionData, setPropertyCommissionData] = useState({});
   const [showPropertyCommissionPopup, setShowPropertyCommissionPopup] =
     useState(false);
@@ -124,11 +159,11 @@ export const AuthProvider = ({ children }) => {
         setUser,
         loading,
         setLoading,
+        authStatus,
         isLoggedIn,
-        storeTokenInCookie,
-        delTokenInCookie,
-        accessToken,
-        setAccessToken,
+        checkAuth,
+        clearAuth,
+        setAuthenticatedUser,
         showEmployee,
         setShowEmployee,
         showEplDetailsForm,

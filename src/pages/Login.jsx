@@ -12,7 +12,7 @@ import Loader from "../components/Loader";
 import ForgotPassword from "../components/ForgotPassword";
 
 function Login() {
-  const { storeTokenInCookie, URI, setLoading } = useAuth();
+  const { setAuthenticatedUser, URI, setLoading } = useAuth();
 
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [isPasswordShow, setIsPasswordShow] = useState(false);
@@ -45,9 +45,8 @@ function Login() {
         }
       );
 
-      if (response.data.token) {
-        localStorage.setItem("adminUser", JSON.stringify(response.data.user));
-        storeTokenInCookie(response.data.userToken);
+      if (response.data?.user) {
+        setAuthenticatedUser(response.data.user);
         navigate("/dashboard", { replace: true });
       } else {
         setErrorMessage("Invalid login credentials.");

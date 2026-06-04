@@ -12,7 +12,11 @@ import { FaFire } from "react-icons/fa6";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../components/Loader";
+import DataTableProgress from "../components/ui/DataTableProgress";
 import { RiArrowDropDownLine } from "react-icons/ri";
+import { FiRefreshCw } from "react-icons/fi";
+import { RxCross2 } from "react-icons/rx";
+import { PiBuildingsFill } from "react-icons/pi";
 import MultiStepForm from "../components/propertyForm/MultiStepForm";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -33,6 +37,14 @@ import {
   FaShareAlt,
 } from "react-icons/fa";
 import { formatNumber } from "../utils/formatNumber";
+
+const PROPERTY_LISTERS = [
+  "Reparv Employee",
+  "Project Partner",
+  "Guest User",
+];
+
+const isPartnerSelected = (partner) => PROPERTY_LISTERS.includes(partner);
 
 const Properties = () => {
   const navigate = useNavigate();
@@ -180,6 +192,10 @@ const Properties = () => {
   const [selectedPartner, setSelectedPartner] = useState(
     "Select Property Lister",
   );
+  const [listLoading, setListLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [listError, setListError] = useState("");
 
   const [propertyCommission, setPropertyCommission] = useState({
     commissionType: "",
@@ -437,14 +453,28 @@ const Properties = () => {
   */
 
   //Fetch Data
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async ({ silent = false } = {}) => {
+    if (!isPartnerSelected(selectedPartner)) {
+      setDatas([]);
+      setListError("");
+      setListLoading(false);
+      setRefreshing(false);
+      setHasLoaded(true);
+      return;
+    }
+
+    if (!silent) {
+      if (hasLoaded) setRefreshing(true);
+      else setListLoading(true);
+    }
+    setListError("");
+
     try {
       const response = await fetch(
-        `${URI}/admin/properties/get/${selectedPartner}`,
+        `${URI}/admin/properties/get/${encodeURIComponent(selectedPartner)}`,
         {
           method: "GET",
-          credentials: "include", //  Ensures cookies are sent
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -452,10 +482,14 @@ const Properties = () => {
       );
       if (!response.ok) throw new Error("Failed to fetch properties.");
       const data = await response.json();
-      setDatas(data);
+      setDatas(Array.isArray(data) ? data : []);
     } catch (err) {
+      setListError(err?.message || "Failed to load properties.");
+      setDatas([]);
     } finally {
-      setLoading(false);
+      setListLoading(false);
+      setRefreshing(false);
+      setHasLoaded(true);
     }
   };
 
@@ -1312,7 +1346,6 @@ const Properties = () => {
   }, [selectedPartner]);
 
   useEffect(() => {
-    fetchData();
     fetchStates();
     fetchBuilder();
     fetchAuthorities();
@@ -1417,12 +1450,32 @@ const Properties = () => {
   });
 
   const customStyles = {
+    table: {
+      style: {
+        backgroundColor: "transparent",
+      },
+    },
+    headRow: {
+      style: {
+        minHeight: "48px",
+        borderBottomWidth: "1px",
+        borderBottomColor: "#E5E7EB",
+      },
+    },
     rows: {
       style: {
-        padding: "5px 0px",
+        minHeight: "72px",
         fontSize: "14px",
         fontWeight: 500,
         color: "#111827",
+        borderBottomColor: "#F3F4F6",
+        "&:hover": {
+          backgroundColor: "#F9FAFB",
+        },
+      },
+      highlightOnHoverStyle: {
+        backgroundColor: "#F0FDF4",
+        outline: "none",
       },
     },
     headCells: {
@@ -1430,19 +1483,35 @@ const Properties = () => {
         position: "sticky",
         top: 0,
         zIndex: 10,
-        fontSize: "14px",
+        fontSize: "12px",
         fontWeight: "600",
+        textTransform: "uppercase",
+        letterSpacing: "0.04em",
         backgroundColor: "#F9FAFB",
-        color: "#374151",
+        color: "#6B7280",
+        paddingLeft: "12px",
+        paddingRight: "12px",
       },
     },
     cells: {
       style: {
         fontSize: "13px",
         color: "#1F2937",
+        paddingLeft: "12px",
+        paddingRight: "12px",
+      },
+    },
+    pagination: {
+      style: {
+        borderTop: "1px solid #E5E7EB",
+        fontSize: "13px",
+        color: "#4B5563",
       },
     },
   };
+
+  const isInitialLoad = listLoading && !hasLoaded;
+  const tableBusy = listLoading || refreshing;
 
   const columns = [
     {
@@ -1482,17 +1551,26 @@ const Properties = () => {
         }
 
         return (
-          <div className="w-[130px] h-14 overflow-hidden flex items-center justify-center">
+          <div className="w-[112px] h-14 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 shadow-sm">
             <img
               src={imageSrc}
-              alt="Property"
-              onClick={() => {
-                window.open(
-                  "https://www.reparv.in/property-info/" + row.seoSlug,
-                  "_blank",
-                );
+              alt={row.propertyName || "Property"}
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = propertyPicture;
               }}
-              className="w-full h-[100%] object-cover cursor-pointer"
+              onClick={() => {
+                if (row.seoSlug) {
+                  window.open(
+                    "https://www.reparv.in/property-info/" + row.seoSlug,
+                    "_blank",
+                  );
+                }
+              }}
+              className={`w-full h-full object-cover ${
+                row.seoSlug ? "cursor-pointer hover:opacity-90" : ""
+              } transition-opacity`}
             />
           </div>
         );
@@ -1792,88 +1870,246 @@ const Properties = () => {
     );
   };
 
+  const propertiesNoData = (
+    <div className="py-16 px-6 text-center max-w-md mx-auto">
+      {!isPartnerSelected(selectedPartner) ? (
+        <>
+          <PiBuildingsFill className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-gray-800">
+            Select a property lister
+          </p>
+          <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+            Choose Reparv Employee, Project Partner, or Guest User above to load
+            the properties list.
+          </p>
+        </>
+      ) : listError ? (
+        <>
+          <p className="text-sm font-semibold text-red-800">{listError}</p>
+          <button
+            type="button"
+            onClick={() => fetchData()}
+            className="mt-3 text-sm font-semibold text-[#076300] hover:underline"
+          >
+            Try again
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="text-sm font-semibold text-gray-800">
+            No properties found
+          </p>
+          <p className="text-xs text-gray-500 mt-1.5">
+            {datas.length > 0
+              ? "Try adjusting search, filters, or date range."
+              : "No listings for this property lister yet."}
+          </p>
+        </>
+      )}
+    </div>
+  );
+
   return (
-    <div className="properties overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start">
-      <div className="properties-table w-full h-[80vh] flex flex-col p-4 md:p-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
-        <div className="w-full flex items-center justify-between gap-1 sm:gap-3">
-          <div className="w-[65%] sm:min-w-[220px] sm:max-w-[230px] relative inline-block">
-            <div className="flex gap-2 items-center justify-between bg-white border border-[#00000033] text-sm font-semibold  text-black rounded-lg py-1 px-3 focus:outline-none focus:ring-2 focus:ring-[#076300]">
-              <span>{selectedPartner || "Select Partner"}</span>
-              <RiArrowDropDownLine className="w-6 h-6 text-[#000000B2]" />
-            </div>
-            <select
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              value={selectedPartner}
-              onChange={(e) => {
-                const action = e.target.value;
-                setSelectedPartner(action);
-              }}
-            >
-              <option value="Select Property Lister">
-                Select Property Lister
-              </option>
-              <option value="Reparv Employee">Reparv Employee</option>
-              <option value="Project Partner">Project Partner</option>
-              <option value="Guest User">Guest User</option>
-            </select>
-          </div>
-          <div className="flex xl:hidden flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
-            <DownloadCSV data={filteredData} filename={"Properties.csv"} />
-            <AddButton label={"Add "} func={setShowPropertyForm} />
-          </div>
-        </div>
-        <div className="searchBarContainer w-full flex flex-col lg:flex-row items-center justify-between gap-3">
-          <div className="search-bar w-full lg:w-[30%] min-w-[150px] max:w-[289px] xl:w-[289px] h-[36px] flex gap-[10px] rounded-[12px] p-[10px] items-center justify-start lg:justify-between bg-[#0000000A]">
-            <CiSearch />
-            <input
-              type="text"
-              placeholder="Search Property"
-              className="search-input w-[250px] h-[36px] text-sm text-black bg-transparent border-none outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
-            <div
-              onClick={() => {
-                setSeoActive(!seoActive);
-              }}
-              className={`${seoActive && "bg-red-100 text-red-600"} border w-24 flex items-center justify-center font-medium rounded-lg text-sm px-4 py-2 cursor-pointer active:scale-95`}
-            >
-              <span>Not SEO</span>
-            </div>
-            <div className="flex flex-wrap items-center justify-end gap-3 px-2">
-              <div className="block">
-                <CustomDateRangePicker range={range} setRange={setRange} />
+    <div className="properties w-full min-h-full bg-[#F4F6F8] overflow-y-auto scrollbar-hide">
+      <div className="max-w-[1600px] mx-auto p-4 md:p-6 pb-10">
+        <div className="rounded-2xl sm:rounded-3xl bg-white border border-gray-200/80 shadow-sm overflow-hidden">
+          <div className="relative px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 pb-5 sm:pb-6 bg-gradient-to-br from-[#076300] via-[#0a7d04] to-[#0d4f0a] text-white">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+              <div className="flex gap-3 sm:gap-4 min-w-0">
+                <div className="hidden sm:flex h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-white/15 items-center justify-center border border-white/20 shrink-0">
+                  <PiBuildingsFill size={26} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-white/80 text-xs sm:text-sm font-medium">
+                    Projects
+                  </p>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-0.5">
+                    Properties
+                  </h1>
+                  <p className="text-white/85 text-xs sm:text-sm mt-1.5 max-w-xl leading-relaxed">
+                    Manage listings, approvals, SEO, media, and commissions.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={() => fetchData({ silent: hasLoaded })}
+                  disabled={!isPartnerSelected(selectedPartner) || isInitialLoad}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/25 disabled:opacity-50"
+                >
+                  <FiRefreshCw
+                    className={tableBusy ? "animate-spin" : ""}
+                    size={16}
+                  />
+                  Refresh
+                </button>
+                <div className="flex gap-2 [&_.addButton]:bg-white [&_.addButton]:text-[#076300] [&_.addButton]:border-white/30 [&_.addButton]:rounded-xl [&_.addButton]:py-2.5">
+                  <DownloadCSV
+                    data={filteredData}
+                    filename={"Properties.csv"}
+                  />
+                  <AddButton label="Add property" func={setShowPropertyForm} />
+                </div>
               </div>
             </div>
-            <div className="hidden xl:flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
-              <DownloadCSV data={filteredData} filename={"Properties.csv"} />
-              <AddButton label={"Add "} func={setShowPropertyForm} />
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 sm:mt-8">
+              {[
+                { label: "Approved", value: propertyCounts.Approved },
+                { label: "Not approved", value: propertyCounts.NotApproved },
+                { label: "Rejected", value: propertyCounts.Rejected },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-xl sm:rounded-2xl bg-white/10 border border-white/20 px-3 sm:px-4 py-2.5 sm:py-3"
+                >
+                  <p className="text-[10px] sm:text-xs text-white/75 uppercase tracking-wide truncate">
+                    {s.label}
+                  </p>
+                  <p className="text-xl sm:text-2xl font-bold tabular-nums mt-0.5">
+                    {s.value}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-        <div className="filterContainer w-full flex flex-col sm:flex-row items-center justify-between gap-3">
-          <PropertyFilter counts={propertyCounts} />
-        </div>
-        <h2 className="text-[16px] font-semibold">Properties List</h2>
-        <div className="overflow-scroll scrollbar-hide">
-          <DataTable
-            className="scrollbar-hide"
-            customStyles={customStyles}
-            columns={finalColumns}
-            data={filteredData}
-            fixedHeader
-            fixedHeaderScrollHeight="60vh"
-            pagination
-            paginationPerPage={15}
-            paginationComponentOptions={{
-              rowsPerPageText: "Rows per page:",
-              rangeSeparatorText: "of",
-              selectAllRowsItem: true,
-              selectAllRowsItemText: "All",
-            }}
-          />
+
+          <div className="px-3 sm:px-4 md:px-6 py-4 sm:py-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <label className="text-xs font-medium text-gray-500 shrink-0">
+                Property lister
+              </label>
+              <div className="relative w-full sm:max-w-[280px]">
+                <div className="flex gap-2 items-center justify-between bg-white border border-gray-200 text-sm font-semibold text-gray-900 rounded-xl py-2.5 px-3 shadow-sm focus-within:ring-2 focus-within:ring-[#076300]/25 focus-within:border-[#076300]/40">
+                  <span className="truncate">
+                    {selectedPartner || "Select Property Lister"}
+                  </span>
+                  <RiArrowDropDownLine className="w-6 h-6 text-gray-400 shrink-0" />
+                </div>
+                <select
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  value={selectedPartner}
+                  aria-label="Select property lister"
+                  onChange={(e) => setSelectedPartner(e.target.value)}
+                >
+                  <option value="Select Property Lister">
+                    Select Property Lister
+                  </option>
+                  {PROPERTY_LISTERS.map((lister) => (
+                    <option key={lister} value={lister}>
+                      {lister}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {listError && isPartnerSelected(selectedPartner) ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p className="text-sm text-red-800">{listError}</p>
+                <button
+                  type="button"
+                  onClick={() => fetchData()}
+                  className="text-sm font-semibold text-red-700 hover:underline shrink-0"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : null}
+
+            <div className="space-y-3">
+              <div className="flex w-full items-center gap-2 rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-[#076300]/25 focus-within:border-[#076300]/40">
+                <CiSearch
+                  className="text-gray-400 shrink-0"
+                  size={20}
+                  aria-hidden
+                />
+                <input
+                  type="search"
+                  placeholder="Search property name, builder, city, category, status…"
+                  className="w-full min-w-0 flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label="Search properties"
+                />
+                {searchTerm ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="shrink-0 p-1 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200/80"
+                    aria-label="Clear search"
+                  >
+                    <RxCross2 size={16} />
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                <PropertyFilter counts={propertyCounts} />
+                <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSeoActive(!seoActive)}
+                    className={`inline-flex items-center justify-center font-medium rounded-xl text-sm px-4 py-2 border transition-colors ${
+                      seoActive
+                        ? "bg-red-50 text-red-700 border-red-200"
+                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    Not SEO
+                  </button>
+                  <CustomDateRangePicker range={range} setRange={setRange} />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-base font-semibold text-gray-900">
+                Properties list
+              </h2>
+              {hasLoaded && isPartnerSelected(selectedPartner) ? (
+                <p className="text-xs text-gray-500 tabular-nums">
+                  Showing {filteredData.length} of {datas.length}
+                  {searchTerm ? ` · “${searchTerm}”` : ""}
+                  {refreshing ? " · Updating…" : ""}
+                </p>
+              ) : null}
+            </div>
+
+            <div
+              className={`relative rounded-xl border border-gray-100 overflow-hidden transition-opacity duration-200 ${
+                refreshing ? "opacity-70" : "opacity-100"
+              }`}
+            >
+              {isInitialLoad ? (
+                <DataTableProgress message="Loading properties…" />
+              ) : (
+                <DataTable
+                  className="scrollbar-hide"
+                  customStyles={customStyles}
+                  columns={finalColumns}
+                  data={filteredData}
+                  fixedHeader
+                  fixedHeaderScrollHeight="calc(100vh - 22rem)"
+                  highlightOnHover
+                  pagination
+                  paginationPerPage={15}
+                  paginationRowsPerPageOptions={[10, 15, 25, 50]}
+                  progressPending={tableBusy && hasLoaded}
+                  progressComponent={
+                    <DataTableProgress message="Updating properties…" rows={4} />
+                  }
+                  noDataComponent={propertiesNoData}
+                  paginationComponentOptions={{
+                    rowsPerPageText: "Rows per page:",
+                    rangeSeparatorText: "of",
+                    selectAllRowsItem: true,
+                    selectAllRowsItemText: "All",
+                  }}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -2,6 +2,9 @@ import "./App.css";
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import PublicRoute from "./components/auth/PublicRoute.jsx";
+import AuthSessionWatcher from "./components/auth/AuthSessionWatcher.jsx";
 
 const Layout = lazy(() => import("./components/layout/Layout.jsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
@@ -64,23 +67,28 @@ const SubscriptionFeatures = lazy(() => import("./pages/SubscriptionFeatures.jsx
 const App = () => {
   return (
     <>
+      <AuthSessionWatcher />
       <ScrollToTop />
       <Routes>
         <Route
           path=""
           element={
-            <Suspense fallback={null}>
-              <Login />
-            </Suspense>
+            <PublicRoute>
+              <Suspense fallback={null}>
+                <Login />
+              </Suspense>
+            </PublicRoute>
           }
         />
 
         <Route
           path="/"
           element={
-            <Suspense fallback={null}>
-              <Layout />
-            </Suspense>
+            <ProtectedRoute>
+              <Suspense fallback={null}>
+                <Layout />
+              </Suspense>
+            </ProtectedRoute>
           }
         >
           <Route path="/dashboard" element={<Dashboard />} />

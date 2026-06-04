@@ -1,6 +1,5 @@
 import { FaArrowLeft } from "react-icons/fa6";
 import { useAuth } from "../store/auth";
-import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import Loader from "./Loader";
 import { IoMdClose } from "react-icons/io";

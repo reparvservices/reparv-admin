@@ -5,18 +5,15 @@ import { useAuth } from "../store/auth";
 
 function LogoutButton() {
   const navigate = useNavigate();
-  const { delTokenInCookie, URI } = useAuth();
+  const { clearAuth, URI } = useAuth();
   const userLogout = async () => {
     try {
-      await axios.post(
-        URI+"/admin/logout",
-        {},
-        { withCredentials: true }
-      );
-      delTokenInCookie();
-      localStorage.removeItem("user");
-      navigate("/", { replace: true });
+      await axios.post(`${URI}/admin/logout`, {}, { withCredentials: true });
     } catch (error) {
+      // Still clear client state if server logout fails
+    } finally {
+      clearAuth();
+      navigate("/", { replace: true });
     }
   };
 

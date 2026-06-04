@@ -664,9 +664,10 @@ function Layout() {
         state ? (
           <div
             key={index}
-            className="w-full h-screen z-[60] fixed bg-[#767676a0]"
+            className="fixed inset-0 z-[60] bg-black/40"
             onClick={() => setter(false)}
-          ></div>
+            aria-hidden="true"
+          />
         ) : null,
       )}
     </div>

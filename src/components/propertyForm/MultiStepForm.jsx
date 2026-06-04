@@ -218,50 +218,100 @@ const MultiStepForm = ({
     checkButton();
   }, [newProperty, step]);
 
+  const closeForm = () => {
+    setShowPropertyForm(false);
+    setStep(1);
+    setPropertyData((prev) =>
+      Object.fromEntries(Object.keys(prev).map((k) => [k, ""])),
+    );
+  };
+
+  useEffect(() => {
+    if (!showPropertyForm) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") closeForm();
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [showPropertyForm]);
+
+  if (!showPropertyForm) return null;
+
   return (
     <div
-      className={`${
-        showPropertyForm ? "flex" : "hidden"
-      } z-[61] property-form overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+      className="property-form fixed inset-0 z-[61] flex items-end md:items-center justify-center p-0 md:p-6 pointer-events-none"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-property-title"
     >
-      <div className="w-full overflow-scroll scrollbar-hide sm:w-[600px] md:w-[500px] lg:w-[700px] xl:w-[1000px] bg-white py-8 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
-        {/* Top Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Add Property</h2>
-
-          {/* Step Indicator */}
-
-          {steps.map((label, index) => (
-            <div key={index} className="flex items-center justify-center gap-2">
-              <div
-                className={`mx-auto w-7 h-7 flex items-center justify-center rounded-full text-sm font-bold ${
-                  step === index + 1
-                    ? "bg-blue-500 text-white"
-                    : step > index + 1
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-300 text-black"
-                }`}
+      <div
+        className="pointer-events-auto flex w-full max-w-[1000px] max-h-[92vh] md:max-h-[88vh] flex-col overflow-hidden bg-white shadow-2xl border border-gray-200/90 rounded-t-2xl md:rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="shrink-0 border-b border-gray-100 px-4 sm:px-6 py-4 sm:py-5 bg-white">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2
+                id="add-property-title"
+                className="text-lg sm:text-xl font-semibold text-gray-900"
               >
-                {index + 1}
-              </div>
-              <span className="hidden xl:block">{label}</span>
+                {newProperty.propertyid ? "Edit Property" : "Add Property"}
+              </h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Step {step} of 3 — {steps[step - 1]}
+              </p>
             </div>
-          ))}
+            <button
+              type="button"
+              onClick={closeForm}
+              className="shrink-0 p-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+              aria-label="Close"
+            >
+              <IoMdClose className="w-6 h-6" />
+            </button>
+          </div>
 
-          {/* Close Button */}
-          <IoMdClose
-            onClick={() => {
-              setShowPropertyForm(false);
-              setPropertyData((prev) =>
-                Object.fromEntries(Object.keys(prev).map((k) => [k, ""])),
-              );
-            }}
-            className="w-7 h-7 cursor-pointer"
-          />
+          <div className="mt-4 flex items-center gap-2 sm:gap-3">
+            {steps.map((label, index) => (
+              <div
+                key={label}
+                className="flex flex-1 min-w-0 items-center gap-2"
+              >
+                <div
+                  className={`shrink-0 w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold ${
+                    step === index + 1
+                      ? "bg-[#076300] text-white"
+                      : step > index + 1
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {index + 1}
+                </div>
+                <span className="hidden sm:block truncate text-xs font-medium text-gray-600">
+                  {label}
+                </span>
+                {index < steps.length - 1 ? (
+                  <div
+                    className={`hidden sm:block flex-1 h-0.5 rounded ${
+                      step > index + 1 ? "bg-emerald-300" : "bg-gray-200"
+                    }`}
+                  />
+                ) : null}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleFinalSubmit}>
+        <form
+          onSubmit={handleFinalSubmit}
+          className="flex flex-1 flex-col min-h-0 overflow-hidden"
+        >
+          <div className="flex-1 overflow-y-auto scrollbar-hide px-4 sm:px-6 py-4 sm:py-6">
           <input
             type="hidden"
             value={newProperty.propertyid}
@@ -295,14 +345,14 @@ const MultiStepForm = ({
               setImageFiles={setImageFiles}
             />
           )}
+          </div>
 
-          {/* Buttons Inside Form Container */}
-          <div className="flex justify-end gap-4 p-4">
+          <div className="shrink-0 flex justify-end gap-3 border-t border-gray-100 bg-gray-50/80 px-4 sm:px-6 py-4">
             {step > 1 && (
               <button
                 type="button"
                 onClick={prevStep}
-                className="px-6 py-2 text-white bg-gray-500 rounded active:scale-[0.98]"
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 active:scale-[0.98]"
               >
                 Back
               </button>
@@ -310,25 +360,26 @@ const MultiStepForm = ({
             {step < 3 ? (
               <button
                 type="button"
-                onClick={nextButton == true && nextStep}
-                className={`${
-                  nextButton == true
-                    ? "active:scale-[0.98] bg-green-600 text-white"
-                    : "bg-blue-400 text-white"
-                } px-6 py-2 rounded `}
+                onClick={nextButton === true ? nextStep : undefined}
+                disabled={nextButton !== true}
+                className={`px-6 py-2.5 text-sm font-semibold rounded-xl transition-colors ${
+                  nextButton === true
+                    ? "bg-[#076300] text-white hover:bg-[#065a00] active:scale-[0.98]"
+                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                }`}
               >
                 Next
               </button>
             ) : (
-              <>
+              <div className="flex items-center gap-3">
                 <button
                   type="submit"
-                  className="px-6 py-2 text-white bg-green-600 rounded active:scale-[0.98]"
+                  className="px-6 py-2.5 text-sm font-semibold text-white bg-[#076300] rounded-xl hover:bg-[#065a00] active:scale-[0.98]"
                 >
                   Save
                 </button>
-                <Loader></Loader>
-              </>
+                <Loader />
+              </div>
             )}
           </div>
         </form>
