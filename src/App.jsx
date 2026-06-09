@@ -60,6 +60,8 @@ const CallEnquirers = lazy(() => import("./pages/CallEnquirers.jsx"));
 const MetaLeads = lazy(() => import("./pages/MetaLeads.jsx"));
 const WhatsappEnquirers = lazy(() => import("./pages/WhatsappEnquirers.jsx"));
 const WhatsappChat = lazy(() => import("./pages/WhatsappChat.jsx"));
+const AiLeads = lazy(() => import("./pages/AiLeads.jsx"));
+const AiConversations = lazy(() => import("./pages/AiConversations.jsx"));
 const ContactUsMessages = lazy(() => import("./pages/ContactUsMessages.jsx"));
 const Subscribers = lazy(() => import("./pages/Subscribers.jsx"));
 const SubscriptionFeatures = lazy(() => import("./pages/SubscriptionFeatures.jsx"));
@@ -97,6 +99,8 @@ const App = () => {
           <Route path="/whatsapp-enquirers" element={<WhatsappEnquirers />} />
           <Route path="/whatsapp-chat" element={<WhatsappChat />} />
           <Route path="/meta-leads" element={<MetaLeads />} />
+          <Route path="/ai-leads" element={<AiLeads />} />
+          <Route path="/ai-conversations" element={<AiConversations />} />
           <Route path="/digital-broker" element={<DigitalBroker />} />
           <Route path="/properties" element={<Properties />} />
           <Route

@@ -44,6 +44,8 @@ const menuItems = [
       { label: "Whatsapp Chat", to: "/whatsapp-chat" },
       { label: "Digital Broker", to: "/digital-broker" },
       { label: "Meta Leads", to: "/meta-leads" },
+      { label: "AI Leads", to: "/ai-leads" },
+      { label: "AI Conversations", to: "/ai-conversations" },
     ],
   },
 
