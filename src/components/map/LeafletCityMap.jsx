@@ -47,11 +47,16 @@ const customMapIcon = new L.DivIcon({
 
 // Validate coordinates
 function isValidCoords(lat, lng) {
+  const parsedLat = Number(lat);
+  const parsedLng = Number(lng);
+
   return (
-    typeof lat === "number" &&
-    typeof lng === "number" &&
-    !isNaN(lat) &&
-    !isNaN(lng)
+    !isNaN(parsedLat) &&
+    !isNaN(parsedLng) &&
+    parsedLat >= -90 &&
+    parsedLat <= 90 &&
+    parsedLng >= -180 &&
+    parsedLng <= 180
   );
 }
 
@@ -65,7 +70,7 @@ function FitBounds({ properties }) {
     const bounds = [];
     properties.forEach((p) => {
       if (isValidCoords(p.latitude, p.longitude)) {
-        bounds.push([p.latitude, p.longitude]);
+        bounds.push([Number(p.latitude), Number(p.longitude)]);
       }
     });
 
@@ -95,8 +100,8 @@ function FlyToCity({ selectedCity }) {
 
     fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-        query
-      )}&format=json&limit=1`
+        query,
+      )}&format=json&limit=1`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -140,7 +145,11 @@ export default function LeafletCityMap({ properties, selectedCity }) {
             isValidCoords(property.latitude, property.longitude) && (
               <Marker
                 key={property.propertyid}
-                position={[property.latitude, property.longitude]}
+                position={[
+                  Number(property.latitude),
+
+                  Number(property.longitude),
+                ]}
                 icon={customMapIcon}
               >
                 <Popup>
@@ -149,7 +158,7 @@ export default function LeafletCityMap({ properties, selectedCity }) {
                       onClick={() => {
                         window.open(
                           `https://www.reparv.in/property-info/${property.seoSlug}`,
-                          "_blank"
+                          "_blank",
                         );
                       }}
                       className="text-base font-semibold pr-5 text-green-700 cursor-pointer"
@@ -171,7 +180,7 @@ export default function LeafletCityMap({ properties, selectedCity }) {
                         onClick={() => {
                           window.open(
                             `https://www.reparv.in/property-info/${property.seoSlug}`,
-                            "_blank"
+                            "_blank",
                           );
                         }}
                         className="text-green-700 font-semibold cursor-pointer"
@@ -182,7 +191,7 @@ export default function LeafletCityMap({ properties, selectedCity }) {
                   </div>
                 </Popup>
               </Marker>
-            )
+            ),
         )}
       </MapContainer>
     </div>

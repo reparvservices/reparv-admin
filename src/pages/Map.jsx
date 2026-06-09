@@ -5,6 +5,7 @@ import DataTable from "react-data-table-component";
 import Select from "react-select";
 import propertyPicture from "../assets/propertyPicture.svg";
 import FormatPrice from "../components/FormatPrice";
+import { getImageURI } from "../utils/helper";
 
 const Map = () => {
   const { URI, setLoading } = useAuth();
@@ -47,8 +48,7 @@ const Map = () => {
 
       const data = await response.json();
       setCities(data); // Sets the cities array
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   //Fetch Data
@@ -63,7 +63,7 @@ const Map = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) throw new Error("Failed to fetch properties.");
       const data = await response.json();
@@ -116,10 +116,9 @@ const Map = () => {
         try {
           const parsed = JSON.parse(row.frontView);
           if (Array.isArray(parsed) && parsed[0]) {
-            imageSrc = `${ImageURI}${parsed[0]}`;
+            imageSrc = `${getImageURI(parsed[0])}`;
           }
-        } catch (e) {
-        }
+        } catch (e) {}
 
         return (
           <div className="w-[130px] h-14 overflow-hidden flex items-center justify-center">
@@ -129,7 +128,7 @@ const Map = () => {
               onClick={() => {
                 window.open(
                   "https://www.reparv.in/property-info/" + row.seoSlug,
-                  "_blank"
+                  "_blank",
                 );
               }}
               className="w-full h-[100%] object-cover cursor-pointer"
@@ -169,7 +168,7 @@ const Map = () => {
                   <span>Reparv Commission :</span>
                   <FormatPrice
                     price={parseFloat(
-                      row.commissionAmount && (row.commissionAmount * 40) / 100
+                      row.commissionAmount && (row.commissionAmount * 40) / 100,
                     )}
                   />
                 </div>
@@ -177,7 +176,7 @@ const Map = () => {
                   <span>Sales Commission :</span>
                   <FormatPrice
                     price={parseFloat(
-                      row.commissionAmount && (row.commissionAmount * 40) / 100
+                      row.commissionAmount && (row.commissionAmount * 40) / 100,
                     )}
                   />
                 </div>
@@ -185,7 +184,7 @@ const Map = () => {
                   <span>Territory Commission :</span>
                   <FormatPrice
                     price={parseFloat(
-                      row.commissionAmount && (row.commissionAmount * 20) / 100
+                      row.commissionAmount && (row.commissionAmount * 20) / 100,
                     )}
                   />
                 </div>
@@ -286,7 +285,7 @@ const Map = () => {
                 columns={columns}
                 data={properties}
                 fixedHeader
-            fixedHeaderScrollHeight="60vh"
+                fixedHeaderScrollHeight="60vh"
                 pagination
                 paginationPerPage={10}
                 paginationComponentOptions={{

@@ -38,13 +38,10 @@ import {
 } from "react-icons/fa";
 import { formatNumber } from "../utils/formatNumber";
 
-const PROPERTY_LISTERS = [
-  "Reparv Employee",
-  "Project Partner",
-  "Guest User",
-];
+const PROPERTY_LISTERS = ["Reparv Employee", "Project Partner", "Guest User"];
 
-const isPartnerSelected = (partner) => PROPERTY_LISTERS.includes(partner);
+const isPartnerSelected = (partner) =>
+  PROPERTY_LISTERS.includes(partner) || partner === "Select Property Lister";
 
 const Properties = () => {
   const navigate = useNavigate();
@@ -376,8 +373,7 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch Authorities.");
       const data = await response.json();
       setAuthorities(data);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   // **Fetch States from API**
@@ -393,8 +389,7 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch States.");
       const data = await response.json();
       setStates(data);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   // **Fetch States from API**
@@ -413,8 +408,7 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch cities.");
       const data = await response.json();
       setCities(data);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   //Fetch Builder
@@ -430,8 +424,7 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch builders.");
       const data = await response.json();
       setBuilderData(data);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   /*Fetch Property type
@@ -507,8 +500,7 @@ const Properties = () => {
       const data = await response.json();
       setPropertyData(data);
       setShowPropertyForm(true);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   // Delete record
@@ -555,8 +547,7 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
       fetchData();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   // change status record
@@ -577,8 +568,7 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
       fetchData();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   // change property into hot deal
@@ -602,8 +592,7 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
       fetchData();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   //fetch data on form
@@ -624,8 +613,7 @@ const Properties = () => {
       setLatitude(data.latitude);
       setLongitude(data.longitude);
       setShowPropertyLocationForm(true);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   // change property into hot deal
@@ -649,8 +637,7 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
       fetchData();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   // Update Property Loaction Latitude and Longitude
@@ -706,8 +693,7 @@ const Properties = () => {
         videoLink: data.videoLink,
       });
       setShowVideoUploadForm(true);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   const uploadVideo = async (e) => {
@@ -808,8 +794,7 @@ const Properties = () => {
       setSeoDescription(data.seoDescription);
       setPropertyDescription(data.propertyDescription);
       setShowSeoForm(true);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   // Add Or Update SEO Details Tittle , Description
@@ -911,8 +896,7 @@ const Properties = () => {
       const data = await response.json();
       setPropertyImageData(data);
       setShowUpdateImagesForm(true);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   const addImages = async (e) => {
@@ -1131,8 +1115,7 @@ const Properties = () => {
         commissionAmountPerSquareFeet: data.commissionAmountPerSquareFeet || "",
       });
       setShowCommissionForm(true);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   // Set Commission Type
@@ -1191,8 +1174,7 @@ const Properties = () => {
 
       setPropertyKey(id);
       setShowTopPicksForm(true);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   const addTopPicks = async (e) => {
@@ -1283,8 +1265,7 @@ const Properties = () => {
       if (!response.ok) throw new Error("Failed to fetch Project Partner.");
       const data = await response.json();
       setProjectPartnerList(data);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   const changeProjectPartner = async (e) => {
@@ -1547,8 +1528,7 @@ const Properties = () => {
           if (Array.isArray(parsed) && parsed[0]) {
             imageSrc = `${getImageURI(parsed[0])}`;
           }
-        } catch (e) {
-        }
+        } catch (e) {}
 
         return (
           <div className="w-[112px] h-14 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 shadow-sm">
@@ -1935,7 +1915,9 @@ const Properties = () => {
                 <button
                   type="button"
                   onClick={() => fetchData({ silent: hasLoaded })}
-                  disabled={!isPartnerSelected(selectedPartner) || isInitialLoad}
+                  disabled={
+                    !isPartnerSelected(selectedPartner) || isInitialLoad
+                  }
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/25 disabled:opacity-50"
                 >
                   <FiRefreshCw
@@ -2097,7 +2079,10 @@ const Properties = () => {
                   paginationRowsPerPageOptions={[10, 15, 25, 50]}
                   progressPending={tableBusy && hasLoaded}
                   progressComponent={
-                    <DataTableProgress message="Updating properties…" rows={4} />
+                    <DataTableProgress
+                      message="Updating properties…"
+                      rows={4}
+                    />
                   }
                   noDataComponent={propertiesNoData}
                   paginationComponentOptions={{
