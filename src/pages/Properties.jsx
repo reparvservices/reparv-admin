@@ -1740,8 +1740,10 @@ const Properties = () => {
           break;
         case "reparvAssured":
           reparvAssured(propertyid);
+          break;
         case "update":
-          edit(propertyid);
+          //edit(propertyid);
+          navigate("/properties/edit/" + propertyid);
           break;
         case "delete":
           del(propertyid);
@@ -1931,7 +1933,10 @@ const Properties = () => {
                     data={filteredData}
                     filename={"Properties.csv"}
                   />
-                  <AddButton label="Add property" func={setShowPropertyForm} />
+                  <AddButton
+                    label="Add property"
+                    func={() => navigate("/properties/add")}
+                  />
                 </div>
               </div>
             </div>

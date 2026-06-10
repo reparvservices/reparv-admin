@@ -163,7 +163,7 @@ export default function LocationPicker({
         <MapContainer
           center={coords || [20.5937, 78.9629]}
           zoom={coords ? 12 : 5}
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: "100%", width: "100%", zIndex: 10, }}
         >
           <LayersControl position="topright">
             <LayersControl.BaseLayer checked name="Street Map (English)">

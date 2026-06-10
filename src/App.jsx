@@ -5,6 +5,7 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import PublicRoute from "./components/auth/PublicRoute.jsx";
 import AuthSessionWatcher from "./components/auth/AuthSessionWatcher.jsx";
+import PropertyFormPage from "./pages/PropertyFormPage.jsx";
 
 const Layout = lazy(() => import("./components/layout/Layout.jsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
@@ -28,8 +29,8 @@ const GuestUser = lazy(() => import("./pages/guestUser.jsx"));
 const Subscription = lazy(() => import("./pages/Subscription.jsx"));
 const UserSubscriptions = lazy(() => import("./pages/UserSubscriptions.jsx"));
 const GstBills = lazy(() => import("./pages/GstBills.jsx"));
-const SubscriptionAnalytics = lazy(() =>
-  import("./pages/SubscriptionAnalytics.jsx"),
+const SubscriptionAnalytics = lazy(
+  () => import("./pages/SubscriptionAnalytics.jsx"),
 );
 const Properties = lazy(() => import("./pages/Properties.jsx"));
 const Role = lazy(() => import("./pages/Role.jsx"));
@@ -40,16 +41,16 @@ const Testimonial = lazy(() => import("./pages/Testimonial.jsx"));
 const Blogs = lazy(() => import("./pages/Blogs.jsx"));
 const News = lazy(() => import("./pages/News.jsx"));
 const ApkUpload = lazy(() => import("./pages/ApkUpload.jsx"));
-const UsersLoanEligibility = lazy(() =>
-  import("./pages/UsersLoanEligibility.jsx")
+const UsersLoanEligibility = lazy(
+  () => import("./pages/UsersLoanEligibility.jsx"),
 );
-const UpdateEMI = lazy(() =>
-  import("./components/usersLoanEligibility/UpdateEMI.jsx")
+const UpdateEMI = lazy(
+  () => import("./components/usersLoanEligibility/UpdateEMI.jsx"),
 );
 const Trends = lazy(() => import("./pages/Trends.jsx"));
 const PropertyAuthority = lazy(() => import("./pages/PropertyAuthority.jsx"));
-const PropertiesFlatAndPlotInfo = lazy(() =>
-  import("./pages/PropertiesFlatAndPlotInfo.jsx")
+const PropertiesFlatAndPlotInfo = lazy(
+  () => import("./pages/PropertiesFlatAndPlotInfo.jsx"),
 );
 const AdsManager = lazy(() => import("./pages/AdsManager.jsx"));
 const Messages = lazy(() => import("./pages/Messages.jsx"));
@@ -64,7 +65,9 @@ const AiLeads = lazy(() => import("./pages/AiLeads.jsx"));
 const AiConversations = lazy(() => import("./pages/AiConversations.jsx"));
 const ContactUsMessages = lazy(() => import("./pages/ContactUsMessages.jsx"));
 const Subscribers = lazy(() => import("./pages/Subscribers.jsx"));
-const SubscriptionFeatures = lazy(() => import("./pages/SubscriptionFeatures.jsx"));
+const SubscriptionFeatures = lazy(
+  () => import("./pages/SubscriptionFeatures.jsx"),
+);
 
 const App = () => {
   return (
@@ -103,6 +106,8 @@ const App = () => {
           <Route path="/ai-conversations" element={<AiConversations />} />
           <Route path="/digital-broker" element={<DigitalBroker />} />
           <Route path="/properties" element={<Properties />} />
+          <Route path="/properties/add" element={<PropertyFormPage />} />
+          <Route path="/properties/edit/:id" element={<PropertyFormPage />} />
           <Route
             path="/property/additional-info/:propertyid"
             element={<PropertiesFlatAndPlotInfo />}
@@ -120,22 +125,13 @@ const App = () => {
           <Route path="/partner-leads" element={<PartnerLeads />} />
           <Route path="/territorypartner" element={<TerritoryPartner />} />
           <Route path="/messages" element={<Messages />} />
-          <Route
-            path="/contact-us-messages"
-            element={<ContactUsMessages />}
-          />
-          <Route
-            path="/scheduled-requests"
-            element={<ScheduledRequests />}
-          />
+          <Route path="/contact-us-messages" element={<ContactUsMessages />} />
+          <Route path="/scheduled-requests" element={<ScheduledRequests />} />
           <Route path="/subscription-pricing" element={<Subscription />} />
           <Route path="/employees" element={<Employee />} />
           <Route path="/role" element={<Role />} />
           <Route path="/department" element={<Department />} />
-          <Route
-            path="/property-authorities"
-            element={<PropertyAuthority />}
-          />
+          <Route path="/property-authorities" element={<PropertyAuthority />} />
           <Route path="/tickets" element={<Ticketing />} />
           <Route path="/slider" element={<Slider />} />
           <Route path="/testimonial" element={<Testimonial />} />
@@ -154,7 +150,10 @@ const App = () => {
           <Route path="/news" element={<News />} />
           <Route path="/trends" element={<Trends />} />
           <Route path="/subscribers" element={<Subscribers />} />
-          <Route path="/subscription-features" element={<SubscriptionFeatures />} />
+          <Route
+            path="/subscription-features"
+            element={<SubscriptionFeatures />}
+          />
           <Route path="/user-subscriptions" element={<UserSubscriptions />} />
           <Route path="/gst-bills" element={<GstBills />} />
           <Route
