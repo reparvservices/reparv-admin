@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from "react";
 import { SectionHeader } from "./FormUI";
 
 const MAX_PER_SECTION = 3;
-const MAX_SIZE_MB = 2;
+const MAX_SIZE_MB = 5;
 const VALID_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 /* ── Section definitions ── */
@@ -420,7 +420,7 @@ export default function StepThree({ newProperty, imageFiles, setImageFiles }) {
           <li>Use natural light and shoot from corners for wider coverage</li>
           <li>First photo in each section becomes the cover photo</li>
           <li>Drag to rearrange — best photo first</li>
-          <li>Accepted: JPG, PNG, WEBP · Max 2MB each</li>
+          <li>Accepted: JPG, PNG, WEBP · Max 5MB each</li>
         </ul>
       </div>
     </div>
