@@ -198,7 +198,7 @@ export default function StepTwo({ newProperty, setPropertyData }) {
       )}
 
       {/* ── Property Specs ── */}
-      <div >
+      <div>
         <SectionHeader
           title="Property Details"
           subtitle="Ownership, facing and legal info"
@@ -311,16 +311,18 @@ export default function StepTwo({ newProperty, setPropertyData }) {
           </div>
         )}
 
-        <div>
-          <FieldLabel active={!!newProperty.loanAvailability} required>
-            Loan Availability
-          </FieldLabel>
-          <PillSelect
-            options={LOAN_AVAIL}
-            value={newProperty.loanAvailability}
-            onChange={(v) => set("loanAvailability", v)}
-          />
-        </div>
+        {!isRental && (
+          <div>
+            <FieldLabel active={!!newProperty.loanAvailability} required>
+              Loan Availability
+            </FieldLabel>
+            <PillSelect
+              options={LOAN_AVAIL}
+              value={newProperty.loanAvailability}
+              onChange={(v) => set("loanAvailability", v)}
+            />
+          </div>
+        )}
 
         <div>
           <FieldLabel active={!!newProperty.propertyFacing} required>
