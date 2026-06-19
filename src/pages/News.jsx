@@ -51,17 +51,17 @@ const News = () => {
     if (!file) return;
 
     // Allowed file types
-    const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
-      alert("Only PNG, JPG and JPEG formats are allowed!");
+      alert("Only PNG, JPG, WEBP and JPEG formats are allowed!");
       event.target.value = ""; // reset input
       return;
     }
 
-    // File size check (1 MB max)
-    if (file.size > 1 * 1024 * 1024) {
-      alert("File size must be less than 1MB!");
+    // File size check (5 MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be less than 5MB!");
       event.target.value = ""; // reset input
       return;
     }
