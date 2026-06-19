@@ -59,9 +59,9 @@ const News = () => {
       return;
     }
 
-    // File size check (5 MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      alert("File size must be less than 5MB!");
+    // File size check (10 MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File size must be less than 10MB!");
       event.target.value = ""; // reset input
       return;
     }
