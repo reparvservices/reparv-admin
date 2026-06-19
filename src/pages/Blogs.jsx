@@ -43,6 +43,29 @@ const Blogs = () => {
 
   //Blog Image Upload
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const resetBlogForm = () => {
+    setShowBlogForm(false);
+    setSelectedImage(null);
+    setNewBlog({
+      type: "All",
+      tittle: "",
+      description: "",
+      content: "",
+    });
+  };
+
+  const openAddForm = () => {
+    setSelectedImage(null);
+    setNewBlog({
+      type: "All",
+      tittle: "",
+      description: "",
+      content: "",
+    });
+    setShowBlogForm(true);
+  };
+
   const singleImageChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -69,6 +92,11 @@ const Blogs = () => {
   };
   const removeSingleImage = () => {
     setSelectedImage(null);
+    setNewBlog((prev) => {
+      const next = { ...prev };
+      delete next.blogImage;
+      return next;
+    });
   };
 
   // **Fetch Data from API**
@@ -94,6 +122,8 @@ const Blogs = () => {
   //fetch data on form
   const edit = async (id) => {
     try {
+      setLoading(true);
+      setSelectedImage(null);
       const response = await fetch(URI + `/admin/blog/${id}`, {
         method: "GET",
         credentials: "include",
@@ -110,12 +140,14 @@ const Blogs = () => {
         tittle: data.tittle || "",
         description: data.description || "",
         content: data.content || "",
+        image: data.image || "",
       });
 
-      // Only show form after blog data is loaded
-      setShowBlogForm(true);
       setShowBlogForm(true);
     } catch (err) {
+      alert(err.message || "Failed to load blog for editing.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -148,7 +180,10 @@ const Blogs = () => {
       if (response.status === 409) {
         alert("Blog already exists!");
       } else if (!response.ok) {
-        throw new Error(`Failed to save blog. Status: ${response.status}`);
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          data.message || data.error || `Failed to save blog. Status: ${response.status}`,
+        );
       } else {
         alert(
           newBlog.id
@@ -156,18 +191,11 @@ const Blogs = () => {
             : "Blog added successfully!",
         );
 
-        setNewBlog({
-          type: "",
-          tittle: "",
-          description: "",
-          content: "",
-        });
-
-        setShowBlogForm(false);
-        setSelectedImage(null);
+        resetBlogForm();
         await fetchData();
       }
     } catch (err) {
+      alert(err.message || "Failed to save blog.");
     } finally {
       setLoading(false);
     }
@@ -488,7 +516,9 @@ const Blogs = () => {
           value={selectedAction}
           onChange={(e) => {
             const action = e.target.value;
+            setSelectedAction(action);
             handleActionSelect(action, row.id, row.seoSlug);
+            setSelectedAction("");
           }}
         >
           <option value="" disabled>
@@ -514,7 +544,7 @@ const Blogs = () => {
           <p className="block md:hidden text-lg font-semibold">Blogs</p>
           <div className="flex xl:hidden flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
             <DownloadCSV data={filteredData} filename={"Blog.csv"} />
-            <AddButton label={"Add"} func={setShowBlogForm} />
+            <AddButton label={"Add"} func={openAddForm} />
           </div>
         </div>
         <div className="searchBarContainer w-full flex flex-col lg:flex-row items-center justify-between gap-3">
@@ -544,7 +574,7 @@ const Blogs = () => {
             </div>
             <div className="hidden xl:flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
               <DownloadCSV data={filteredData} filename={"Blog.csv"} />
-              <AddButton label={"Add"} func={setShowBlogForm} />
+              <AddButton label={"Add"} func={openAddForm} />
             </div>
           </div>
         </div>
@@ -572,22 +602,16 @@ const Blogs = () => {
       <div
         className={`${
           showBlogForm ? "flex" : "hidden"
-        } z-[61] sales-form overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+        } fixed inset-0 z-[62] items-end md:items-center justify-center overflow-y-auto scrollbar-hide p-0 md:p-4`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[780px] xl:w-[1000px] max-h-[80vh] bg-white py-8 pb-10 px-3 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[780px] xl:w-[1000px] max-h-[90vh] md:max-h-[80vh] bg-white py-8 pb-10 px-3 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[16px] font-semibold">ADD Blog </h2>
+            <h2 className="text-[16px] font-semibold">
+              {newBlog.id ? "Update Blog" : "Add Blog"}
+            </h2>
 
             <IoMdClose
-              onClick={() => {
-                setShowBlogForm(false);
-                setNewBlog({
-                  type: "All",
-                  tittle: "",
-                  description: "",
-                  content: "",
-                });
-              }}
+              onClick={resetBlogForm}
               className="w-6 h-6 cursor-pointer"
             />
           </div>
@@ -621,20 +645,26 @@ const Blogs = () => {
                 </div>
 
                 {/* Image Preview */}
-                {selectedImage && (
+                {(selectedImage || newBlog.image) && (
                   <div className="relative mt-2 w-full max-w-[300px]">
                     <img
-                      src={URL.createObjectURL(selectedImage)}
-                      alt="Uploaded preview"
+                      src={
+                        selectedImage
+                          ? URL.createObjectURL(selectedImage)
+                          : getImageURI(newBlog.image)
+                      }
+                      alt="Blog preview"
                       className="w-full object-cover rounded-lg border border-gray-300"
                     />
-                    <button
-                      type="button"
-                      onClick={removeSingleImage}
-                      className="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded-full shadow"
-                    >
-                      ✕
-                    </button>
+                    {selectedImage && (
+                      <button
+                        type="button"
+                        onClick={removeSingleImage}
+                        className="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded-full shadow"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -653,7 +683,7 @@ const Blogs = () => {
                   className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
                   value={newBlog?.type || "All"}
                   onChange={(e) =>
-                    setNewBlog({ ...newBlog, type: e.target.value })
+                    setNewBlog((prev) => ({ ...prev, type: e.target.value }))
                   }
                 >
                   <option value="All">All</option>
@@ -684,7 +714,7 @@ const Blogs = () => {
                   className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={newBlog?.tittle || ""}
                   onChange={(e) => {
-                    setNewBlog({ ...newBlog, tittle: e.target.value });
+                    setNewBlog((prev) => ({ ...prev, tittle: e.target.value }));
                   }}
                 />
               </div>
@@ -701,7 +731,10 @@ const Blogs = () => {
                   className="w-full mt-[8px] mb-1 text-[16px] font-medium p-4 border border-[#00000033] rounded-[4px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={newBlog?.description || ""}
                   onChange={(e) => {
-                    setNewBlog({ ...newBlog, description: e.target.value });
+                    setNewBlog((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }));
                   }}
                 />
               </div>
@@ -717,7 +750,10 @@ const Blogs = () => {
                       key={newBlog.id || "new"}
                       data={newBlog.content}
                       onChange={(event, editor) => {
-                        setNewBlog({ ...newBlog, content: editor.getData() });
+                        setNewBlog((prev) => ({
+                          ...prev,
+                          content: editor.getData(),
+                        }));
                       }}
                       config={{
                         placeholder: "Write your blog content here...",
@@ -770,15 +806,7 @@ const Blogs = () => {
             <div className="flex h-10 mt-8 md:mt-6 justify-end gap-6">
               <button
                 type="button"
-                onClick={() => {
-                  setShowBlogForm(false);
-                  setNewBlog({
-                    type: "All",
-                    tittle: "",
-                    description: "",
-                    content: "",
-                  });
-                }}
+                onClick={resetBlogForm}
                 className="px-4 py-2 leading-4 text-[#ffffff] bg-[#000000B2] rounded active:scale-[0.98]"
               >
                 Cancel
