@@ -187,6 +187,10 @@ const News = () => {
 
       if (response.status === 409) {
         alert("News already exists!");
+      } else if (response.status === 413) {
+        alert(
+          "Upload too large for the server. Ask your admin to raise nginx client_max_body_size (e.g. 20M) on aws-api.reparv.in, or reduce the image/news content size.",
+        );
       } else if (!response.ok) {
         throw new Error(`Failed to save news. Status: ${response.status}`);
       } else {

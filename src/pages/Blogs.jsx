@@ -179,6 +179,10 @@ const Blogs = () => {
 
       if (response.status === 409) {
         alert("Blog already exists!");
+      } else if (response.status === 413) {
+        alert(
+          "Upload too large for the server. Ask your admin to raise nginx client_max_body_size (e.g. 20M) on aws-api.reparv.in, or reduce the image/blog content size.",
+        );
       } else if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(
