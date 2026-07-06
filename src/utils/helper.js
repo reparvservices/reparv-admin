@@ -21,7 +21,9 @@ export const getImageURI = (path) => {
   const rel = p.replace(/^\/+/, "");
   const s3 = trimEndSlash(import.meta.env.VITE_S3_IMAGE_URL);
   const assetBase = trimEndSlash(
-    import.meta.env.VITE_ASSET_BASE_URL || "https://aws-api.reparv.in",
+    import.meta.env.VITE_ASSET_BASE_URL ||
+      import.meta.env.VITE_API_BASE_URL ||
+      "http://localhost:3000",
   );
 
   const base = s3 || assetBase;

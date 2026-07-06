@@ -31,6 +31,31 @@ const ROLE_FROM_LABEL = {
 
 const TABS = ["Project Partner", "Territory Partner", "Sales Partner"];
 
+/** App Store Connect subscription products (iOS partner app). */
+const IOS_PARTNER_PRODUCTS = [
+  { tier: "Basic", productId: "com.reparv.partner.basic.monthly", level: 1 },
+  { tier: "Pro", productId: "com.reparv.partner.pro.monthly", level: 2 },
+  { tier: "Premium", productId: "com.reparv.partner.premium.monthly", level: 3 },
+  { tier: "Platinum", productId: "com.reparv.partner.platinum.monthly", level: 4 },
+];
+
+const suggestAppleProductId = (planName) => {
+  const normalized = String(planName || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+plan$/i, "")
+    .trim();
+  const match = IOS_PARTNER_PRODUCTS.find(
+    (p) => p.tier.toLowerCase() === normalized,
+  );
+  return match?.productId || "";
+};
+
+const appleTierLabel = (productId) => {
+  const row = IOS_PARTNER_PRODUCTS.find((p) => p.productId === productId);
+  return row?.tier || null;
+};
+
 const GST_RATE = 18;
 
 const formatINR = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
@@ -135,6 +160,7 @@ const Subscription = () => {
     durationYearly: 1,
     basePriceMonthly: "",
     basePriceYearly: "",
+    appleProductId: "",
   });
 
   const isTrialForm = form.planType === "trial";
@@ -283,6 +309,7 @@ const Subscription = () => {
       durationYearly: 1,
       basePriceMonthly: "",
       basePriceYearly: "",
+      appleProductId: "",
     });
     setSelectedFeatures(new Set());
     setBannerPreview("");
@@ -307,6 +334,7 @@ const Subscription = () => {
       durationYearly: 1,
       basePriceMonthly: "",
       basePriceYearly: "",
+      appleProductId: plan.apple_product_id || suggestAppleProductId(plan.plan_name) || "",
     });
     const existing = Array.isArray(plan.feature_ids)
       ? plan.feature_ids.map((id) => Number(id))
@@ -422,6 +450,7 @@ const Subscription = () => {
             status: form.status,
             plan_type: form.planType,
             feature_ids: Array.from(selectedFeatures),
+            apple_product_id: form.appleProductId || undefined,
           };
 
       const res = await fetch(endpoint, {
@@ -554,6 +583,27 @@ const Subscription = () => {
         <span className="font-semibold text-gray-900">{formatINR(row.price)}</span>
       ),
       style: { minWidth: "100px" },
+    },
+    {
+      name: "iOS (App Store)",
+      selector: (row) => row.apple_product_id,
+      style: { minWidth: "180px" },
+      cell: (row) => {
+        if (isTrialPlanRow(row) || isEnterprisePlanRow(row)) {
+          return <span className="text-xs text-gray-400">—</span>;
+        }
+        const tier = appleTierLabel(row.apple_product_id);
+        return row.apple_product_id ? (
+          <div>
+            <p className="text-sm font-medium text-gray-900">{tier || "Linked"}</p>
+            <p className="text-[11px] text-gray-500 break-all">{row.apple_product_id}</p>
+          </div>
+        ) : (
+          <span className="text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
+            Not linked
+          </span>
+        );
+      },
     },
     {
       name: "Type",
@@ -757,13 +807,55 @@ const Subscription = () => {
                   ) : null}
                   <div className={isEnterpriseForm ? "md:col-span-2" : ""}>
                     <label className="mb-1 block text-xs text-gray-500">Plan Name</label>
-                    <input value={form.planName} onChange={(e) => setForm((s) => ({ ...s, planName: e.target.value }))} placeholder="e.g. Professional Growth" className="w-full rounded-lg border border-gray-300 p-2.5 text-sm" required />
+                    <input
+                      value={form.planName}
+                      onChange={(e) => {
+                        const planName = e.target.value;
+                        setForm((s) => ({
+                          ...s,
+                          planName,
+                          appleProductId:
+                            s.planType === "paid" && !s.appleProductId
+                              ? suggestAppleProductId(planName)
+                              : s.appleProductId ||
+                                suggestAppleProductId(planName) ||
+                                s.appleProductId,
+                        }));
+                      }}
+                      placeholder="e.g. Basic, Pro, Premium, Platinum"
+                      className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+                      required
+                    />
                     <p className="mt-1 text-xs text-gray-500">
                       {isEnterpriseForm
                         ? "Direct-contact clients only. Set price when you assign the plan (Assign Enterprise)."
-                        : "Must be unique for this partner type and billing period (monthly vs yearly count separately)."}
+                        : "For iOS, use Basic / Pro / Premium / Platinum to auto-link App Store products. Must be unique per partner type and billing period."}
                     </p>
                   </div>
+                  {!isEnterpriseForm && !isTrialForm ? (
+                    <div className="md:col-span-2">
+                      <label className="mb-1 block text-xs text-gray-500">
+                        iOS App Store product
+                      </label>
+                      <select
+                        value={form.appleProductId}
+                        onChange={(e) =>
+                          setForm((s) => ({ ...s, appleProductId: e.target.value }))
+                        }
+                        className="w-full rounded-lg border border-gray-300 p-2.5 text-sm"
+                      >
+                        <option value="">— Select App Store tier —</option>
+                        {IOS_PARTNER_PRODUCTS.map((p) => (
+                          <option key={p.productId} value={p.productId}>
+                            {p.tier} · {p.productId}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Android keeps Razorpay pricing. iOS uses this App Store subscription (monthly).
+                      </p>
+                    </div>
+                  ) : null}
                   {isEnterpriseForm ? (
                     <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
                       <p className="text-sm text-slate-700">
