@@ -19,6 +19,7 @@ axios.interceptors.response.use(
   },
 );
 
+// test comment
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
@@ -28,5 +29,5 @@ createRoot(document.getElementById("root")).render(
         </AppDialogProvider>
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );
