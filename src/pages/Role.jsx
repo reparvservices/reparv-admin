@@ -9,6 +9,8 @@ import { IoMdClose } from "react-icons/io";
 import EmployeeFilter from "../components/employee/EmployeeFilter";
 import DataTable from "react-data-table-component";
 import Loader from "../components/Loader";
+import ListPageLayout from "../components/ui/ListPageLayout";
+import { FiShield } from "react-icons/fi";
 
 const Role = () => {
   const { showRoleForm, setShowRoleForm, action, URI, setLoading } = useAuth();
@@ -214,53 +216,60 @@ const Role = () => {
   // };
 
   return (
-    <div
-      className={`role overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start`}
-    >
-      <div className="role-table w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white rounded-[24px]">
-        {/* <p className="block md:hidden text-lg font-semibold">Role</p> */}
-        <div className="searchBarContainer w-full flex flex-col lg:flex-row items-center justify-between gap-3">
-          <div className="search-bar w-full lg:w-[30%] min-w-[150px] max:w-[289px] xl:w-[289px] h-[36px] flex gap-[10px] rounded-[12px] p-[10px] items-center justify-start lg:justify-between bg-[#0000000A]">
-            <CiSearch />
-            <input
-              type="text"
-              placeholder="Search Role"
-              className="search-input w-[250px] h-[36px] text-sm text-black bg-transparent border-none outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
-            <AddButton label={"Add"} func={setShowRoleForm} />
-          </div>
-        </div>
-        <h2 className="text-[16px] font-semibold">Role List</h2>
-        <div className="overflow-scroll scrollbar-hide">
-          <DataTable
-            className="scrollbar-hide"
-            customStyles={customStyles}
-            columns={columns}
-            data={filteredData}
-            fixedHeader
-            fixedHeaderScrollHeight="60vh"
-            pagination
-            paginationPerPage={15}
-            paginationComponentOptions={{
-              rowsPerPageText: "Rows per page:",
-              rangeSeparatorText: "of",
-              selectAllRowsItem: true,
-              selectAllRowsItemText: "All",
-            }}
-          />
-        </div>
-      </div>
+    <div className="role w-full min-h-full bg-[#F4F6F8] overflow-y-auto scrollbar-hide">
+      <ListPageLayout
+        eyebrow="Employees"
+        title="Roles"
+        subtitle="Roles that control what employees can access."
+        icon={<FiShield size={24} />}
+        onRefresh={fetchData}
+        actions={<AddButton label={"Add role"} func={setShowRoleForm} />}
+        stats={[
+          { label: "Total", value: datas.length },
+          {
+            label: "Active",
+            value: datas.filter((d) => d.status === "Active").length,
+          },
+          {
+            label: "Inactive",
+            value: datas.filter((d) => d.status !== "Active").length,
+          },
+        ]}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search role…"
+        listTitle="Role list"
+        listMeta={`Showing ${filteredData.length} of ${datas.length}`}
+      >
+        <DataTable
+          className="scrollbar-hide"
+          customStyles={customStyles}
+          columns={columns}
+          data={filteredData}
+          fixedHeader
+          fixedHeaderScrollHeight="calc(100vh - 22rem)"
+          pagination
+          paginationPerPage={15}
+          paginationComponentOptions={{
+            rowsPerPageText: "Rows per page:",
+            rangeSeparatorText: "of",
+            selectAllRowsItem: true,
+            selectAllRowsItemText: "All",
+          }}
+          noDataComponent={
+            <div className="py-16 text-center text-sm text-gray-500">
+              No roles match your search.
+            </div>
+          }
+        />
+      </ListPageLayout>
 
       <div
         className={`${
           showRoleForm ? "flex" : "hidden"
-        } z-[61] roleForm overflow-scroll scrollbar-hide w-full fixed bottom-0 md:bottom-auto `}
+        } z-[61] roleForm fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full md:w-[500px] max-h-[70vh] overflow-scroll scrollbar-hide bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-full md:w-[500px] max-h-[70vh] overflow-scroll scrollbar-hide bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Role</h2>
             <IoMdClose

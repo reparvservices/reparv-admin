@@ -81,6 +81,12 @@ const Properties = () => {
   } = useAuth();
   //const ImageURI = import.meta.env.VITE_S3_IMAGE_URL;
 
+  // Surface failed actions instead of silently doing nothing
+  const showActionError = (err) => {
+    console.error(err);
+    alert(`Something went wrong: ${err?.message || err}`);
+  };
+
   const [datas, setDatas] = useState([]);
   const [propertyTypeData, setPropertyTypeData] = useState([]);
   const [propertyType, setPropertyType] = useState("");
@@ -500,7 +506,9 @@ const Properties = () => {
       const data = await response.json();
       setPropertyData(data);
       setShowPropertyForm(true);
-    } catch (err) {}
+    } catch (err) {
+      showActionError(err);
+    }
   };
 
   // Delete record
@@ -523,6 +531,7 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      showActionError(error);
     } finally {
       setLoading(false);
     }
@@ -547,7 +556,9 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
       fetchData();
-    } catch (error) {}
+    } catch (error) {
+      showActionError(error);
+    }
   };
 
   // change status record
@@ -568,7 +579,9 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
       fetchData();
-    } catch (error) {}
+    } catch (error) {
+      showActionError(error);
+    }
   };
 
   // change property into hot deal
@@ -592,7 +605,9 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
       fetchData();
-    } catch (error) {}
+    } catch (error) {
+      showActionError(error);
+    }
   };
 
   //fetch data on form
@@ -613,7 +628,9 @@ const Properties = () => {
       setLatitude(data.latitude);
       setLongitude(data.longitude);
       setShowPropertyLocationForm(true);
-    } catch (err) {}
+    } catch (err) {
+      showActionError(err);
+    }
   };
 
   // change property into hot deal
@@ -637,7 +654,9 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
       fetchData();
-    } catch (error) {}
+    } catch (error) {
+      showActionError(error);
+    }
   };
 
   // Update Property Loaction Latitude and Longitude
@@ -670,6 +689,7 @@ const Properties = () => {
       setLongitude("");
       await fetchData();
     } catch (error) {
+      showActionError(error);
     } finally {
       setLoading(false);
     }
@@ -693,7 +713,9 @@ const Properties = () => {
         videoLink: data.videoLink,
       });
       setShowVideoUploadForm(true);
-    } catch (err) {}
+    } catch (err) {
+      showActionError(err);
+    }
   };
 
   const uploadVideo = async (e) => {
@@ -794,7 +816,9 @@ const Properties = () => {
       setSeoDescription(data.seoDescription);
       setPropertyDescription(data.propertyDescription);
       setShowSeoForm(true);
-    } catch (err) {}
+    } catch (err) {
+      showActionError(err);
+    }
   };
 
   // Add Or Update SEO Details Tittle , Description
@@ -833,6 +857,7 @@ const Properties = () => {
       setPropertyDescription("");
       await fetchData();
     } catch (error) {
+      showActionError(error);
     } finally {
       setLoading(false);
     }
@@ -864,6 +889,7 @@ const Properties = () => {
       setRejectReason("");
       await fetchData();
     } catch (error) {
+      showActionError(error);
     } finally {
       setLoading(false);
     }
@@ -896,7 +922,9 @@ const Properties = () => {
       const data = await response.json();
       setPropertyImageData(data);
       setShowUpdateImagesForm(true);
-    } catch (err) {}
+    } catch (err) {
+      showActionError(err);
+    }
   };
 
   const addImages = async (e) => {
@@ -932,6 +960,7 @@ const Properties = () => {
       setShowUpdateImagesForm(false);
       await fetchData(); // Refresh data
     } catch (err) {
+      showActionError(err);
     } finally {
       setLoading(false);
     }
@@ -1090,6 +1119,7 @@ const Properties = () => {
 
       await fetchData();
     } catch (err) {
+      showActionError(err);
     } finally {
       setLoading(false);
     }
@@ -1115,7 +1145,9 @@ const Properties = () => {
         commissionAmountPerSquareFeet: data.commissionAmountPerSquareFeet || "",
       });
       setShowCommissionForm(true);
-    } catch (err) {}
+    } catch (err) {
+      showActionError(err);
+    }
   };
 
   // Set Commission Type
@@ -1150,6 +1182,7 @@ const Properties = () => {
       });
       await fetchData();
     } catch (error) {
+      showActionError(error);
     } finally {
       setLoading(false);
     }
@@ -1174,7 +1207,9 @@ const Properties = () => {
 
       setPropertyKey(id);
       setShowTopPicksForm(true);
-    } catch (err) {}
+    } catch (err) {
+      showActionError(err);
+    }
   };
 
   const addTopPicks = async (e) => {
@@ -1221,6 +1256,7 @@ const Properties = () => {
 
       await fetchData();
     } catch (error) {
+      showActionError(error);
     } finally {
       setLoading(false);
     }
@@ -1247,6 +1283,7 @@ const Properties = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      showActionError(error);
     } finally {
       setLoading(false);
     }
@@ -1305,6 +1342,7 @@ const Properties = () => {
       setShowChangeProjectPartnerForm(false);
       fetchData();
     } catch (error) {
+      showActionError(error);
     } finally {
       setLoading(false);
     }
@@ -1707,7 +1745,7 @@ const Properties = () => {
     },
     {
       name: "Actions",
-      cell: (row) => <ActionDropdown row={row} />,
+      cell: (row) => renderActionDropdown(row),
       width: "120px",
     },
   ];
@@ -1720,9 +1758,7 @@ const Properties = () => {
     return col;
   });
 
-  const ActionDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
-
+  const renderActionDropdown = (row) => {
     const handleActionSelect = (action, propertyid, slug) => {
       switch (action) {
         case "view":
@@ -1797,12 +1833,12 @@ const Properties = () => {
     return (
       <div className="relative inline-block w-[120px]">
         <div className="flex items-center justify-between p-2 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <span className=" text-[12px]">{selectedAction || "Action"}</span>
+          <span className=" text-[12px]">Action</span>
           <FiMoreVertical className="text-gray-500" />
         </div>
         <select
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          value={selectedAction}
+          value=""
           onChange={(e) => {
             const action = e.target.value;
             handleActionSelect(action, row.propertyid, row.seoSlug);
@@ -2135,9 +2171,9 @@ const Properties = () => {
       <div
         className={` ${
           !showPropertyLocationForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">
               Update Latitude & Longitude
@@ -2222,9 +2258,9 @@ const Properties = () => {
       <div
         className={` ${
           !showVideoUploadForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto`}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[450px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[450px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Brochure & Video</h2>
             <IoMdClose
@@ -2394,9 +2430,9 @@ const Properties = () => {
       <div
         className={` ${
           !showChangeProjectPartnerForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto`}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] min-h-[350px] max-h-[70vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[500px] min-h-[350px] max-h-[70vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">
               Change Project Partner
@@ -2490,9 +2526,9 @@ const Properties = () => {
       <div
         className={`${
           showAdditionalInfoForm ? "flex" : "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">
               Additional Information
@@ -2560,9 +2596,9 @@ const Properties = () => {
       <div
         className={`${
           showNewPlotAdditionalInfoForm ? "flex" : "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">
               Additional Information
@@ -2630,9 +2666,9 @@ const Properties = () => {
       <div
         className={` ${
           !showSeoForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">SEO Details</h2>
             <IoMdClose
@@ -2757,9 +2793,9 @@ const Properties = () => {
       <div
         className={`${
           !showTopPicksForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto`}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[500px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Set Top Picks</h2>
             <IoMdClose
@@ -2895,9 +2931,9 @@ const Properties = () => {
       <div
         className={` ${
           !showRejectReasonForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">
               Property Reject Reason
@@ -2957,9 +2993,9 @@ const Properties = () => {
       <div
         className={` ${
           !showCommissionForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto w-full overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] max-h-[80vh] bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Property Commission</h2>
             <IoMdClose

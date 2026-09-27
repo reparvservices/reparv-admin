@@ -287,18 +287,30 @@ const WhatsappChat = () => {
           text,
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.message || "Send failed");
 
       setDraft("");
       // Refetch from start of this conversation to avoid duplicates with optimistic UI.
       await fetchMessages(selectedPhone, { replace: true });
     } catch (e2) {
+      // Don't leave an undelivered message looking sent; keep the text to retry
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setDraft(text);
       setError(e2.message || "Send failed");
     } finally {
       setLoading?.(false);
     }
   };
+
+  // WhatsApp allows free-text replies only within 24h of the customer's last message
+  const windowClosed = useMemo(() => {
+    if (!selectedPhone) return false;
+    const lastInbound = [...messages].reverse().find((m) => m.direction === "inbound");
+    if (!lastInbound?.created_at) return true;
+    const at = new Date(String(lastInbound.created_at).replace(" ", "T"));
+    return Number.isFinite(at.getTime()) && Date.now() - at.getTime() > 24 * 60 * 60 * 1000;
+  }, [messages, selectedPhone]);
 
   const selectedMeta = useMemo(() => {
     if (!selectedPhone) return null;
@@ -513,6 +525,13 @@ const WhatsappChat = () => {
                     <div ref={bottomRef} />
                   </div>
 
+                  {windowClosed ? (
+                    <div className="border-t border-amber-200 bg-amber-50 px-3 md:px-4 py-2 text-xs text-amber-900">
+                      This customer hasn&apos;t messaged in the last 24 hours. WhatsApp only
+                      delivers free-text replies within 24 hours of their last message, so this
+                      reply may be rejected until they write again.
+                    </div>
+                  ) : null}
                   <form
                     onSubmit={send}
                     className="bg-white border-t border-gray-200 p-3 md:p-4 flex-shrink-0"

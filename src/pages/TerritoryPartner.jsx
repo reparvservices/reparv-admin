@@ -1,6 +1,7 @@
 import React from "react";
-import { parse } from "date-fns";
-import { useState, useEffect } from "react";
+import { format } from "date-fns";
+import { useState, useEffect, useRef } from "react";
+import DataTableProgress from "../components/ui/DataTableProgress";
 import { CiSearch } from "react-icons/ci";
 import { useAuth } from "../store/auth";
 import CustomDateRangePicker from "../components/CustomDateRangePicker";
@@ -17,7 +18,6 @@ import { MdDone } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
 import Select from "react-select";
 import PaymentUpdateModal from "../components/PaymentUpdateModal";
-import { countPartnerBuckets, resolvePartnerFilterStatus } from "../utils/partnerSubscriptionBucket";
 
 const TerritoryPartner = () => {
   const {
@@ -41,6 +41,14 @@ const TerritoryPartner = () => {
 
   const [datas, setDatas] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  // Server-side pagination / filtering (see GET /admin/territorypartner/list)
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+  const [total, setTotal] = useState(0);
+  const [serverCounts, setServerCounts] = useState({});
+  const [listLoading, setListLoading] = useState(true);
+  const latestRequest = useRef(0);
   const [partnerId, setPartnerId] = useState(null);
   const [partner, setPartner] = useState({});
   const [selectedPartnerLister, setSelectedPartnerLister] = useState(
@@ -113,29 +121,39 @@ const TerritoryPartner = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
-    setLoading(true);
+    const requestId = ++latestRequest.current;
+    setListLoading(true);
     try {
-      const response = await fetch(
-        `${URI}/admin/territorypartner/${selectedPartnerLister}`,
-        {
-          method: "GET",
-          credentials: "include", // Ensures cookies are sent
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch Territory Partners.");
-
+      const qs = new URLSearchParams({
+        limit: String(perPage),
+        offset: String((page - 1) * perPage),
+        lister: selectedPartnerLister,
+      });
+      if (debouncedSearch) qs.set("search", debouncedSearch);
+      if (partnerPaymentStatus) qs.set("filter", partnerPaymentStatus);
+      const { startDate, endDate } = range[0];
+      if (startDate && endDate) {
+        qs.set("date_from", format(startDate, "yyyy-MM-dd"));
+        qs.set("date_to", format(endDate, "yyyy-MM-dd"));
+      }
+      const response = await fetch(`${URI}/admin/territorypartner/list?${qs}`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) throw new Error("Failed to fetch territory partners.");
       const result = await response.json();
-
-      setDatas(result);
+      // Ignore responses that finished after a newer request was sent
+      if (requestId !== latestRequest.current) return;
+      setDatas(result.data || []);
+      setTotal(result.total || 0);
+      setServerCounts(result.counts || {});
     } catch (err) {
+      console.error(err);
     } finally {
-      setLoading(false);
+      if (requestId === latestRequest.current) setListLoading(false);
     }
-};
+  };
 
   // **Fetch Data from API for Update Property in the Enquiry**
   const fetchProjectPartnerList = async (id) => {
@@ -466,9 +484,13 @@ const TerritoryPartner = () => {
   };
 
   useEffect(() => {
-    fetchData();
     fetchStates();
-  }, [selectedPartnerLister]);
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (newPartner.state != "") {
@@ -476,7 +498,8 @@ const TerritoryPartner = () => {
     }
   }, [newPartner.state]);
 
-  const partnerCounts = countPartnerBuckets(datas, { includeRequest: true });
+  // Chip counts come from the server for the whole filtered set
+  const partnerCounts = serverCounts;
 
   const [range, setRange] = useState([
     {
@@ -486,37 +509,16 @@ const TerritoryPartner = () => {
     },
   ]);
 
-  const filteredData = datas?.filter((item) => {
-    const matchesSearch =
-      item.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.contact?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.state?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.city?.toLowerCase().includes(searchTerm.toLowerCase());
+  // Rows already filtered and paginated by the server
+  const filteredData = datas;
 
-    let startDate = range[0].startDate;
-    let endDate = range[0].endDate;
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, selectedPartnerLister, partnerPaymentStatus, range]);
 
-    if (startDate) startDate = new Date(startDate.setHours(0, 0, 0, 0));
-    if (endDate) endDate = new Date(endDate.setHours(23, 59, 59, 999));
-
-    // Parse item.created_at (format: "26 Apr 2025 | 06:28 PM")
-    const itemDate = parse(
-      item.created_at,
-      "dd MMM yyyy | hh:mm a",
-      new Date(),
-    );
-
-    const matchesDate =
-      (!startDate && !endDate) ||
-      (startDate && endDate && itemDate >= startDate && itemDate <= endDate);
-
-    // Enquiry filter logic: New, Alloted, Assign
-    const matchesPartner =
-      !partnerPaymentStatus ||
-      resolvePartnerFilterStatus(item) === partnerPaymentStatus;
-
-    return matchesSearch && matchesDate && matchesPartner;
-  });
+  useEffect(() => {
+    fetchData();
+  }, [page, perPage, debouncedSearch, selectedPartnerLister, partnerPaymentStatus, range]);
 
   const customStyles = {
     rows: {
@@ -559,7 +561,7 @@ const TerritoryPartner = () => {
                 : "bg-[#FFEAEA] text-[#ff2323]"
             }`}
           >
-            {index + 1}
+            {(page - 1) * perPage + index + 1}
           </span>
 
           {/* Tooltip */}
@@ -860,12 +862,21 @@ const TerritoryPartner = () => {
             fixedHeader
             fixedHeaderScrollHeight="60vh"
             pagination
-            paginationPerPage={15}
+            paginationServer
+            paginationTotalRows={total}
+            paginationDefaultPage={page}
+            paginationPerPage={perPage}
+            paginationRowsPerPageOptions={[10, 25, 50, 100]}
+            onChangePage={(p) => setPage(p)}
+            onChangeRowsPerPage={(n, p) => {
+              setPerPage(n);
+              setPage(p);
+            }}
+            progressPending={listLoading && datas.length === 0}
+            progressComponent={<DataTableProgress message="Loading territory partners…" />}
             paginationComponentOptions={{
               rowsPerPageText: "Rows per page:",
               rangeSeparatorText: "of",
-              selectAllRowsItem: true,
-              selectAllRowsItemText: "All",
             }}
           />
         </div>

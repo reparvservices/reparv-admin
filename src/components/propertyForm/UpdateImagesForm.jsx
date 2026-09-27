@@ -260,9 +260,9 @@ const UpdateImagesForm = ({
     <div
       className={` ${
         showUpdateImagesForm ? "flex" : "hidden"
-      } z-[61] overflow-scroll scrollbar-hide w-full md:w-[500px] fixed bottom-0 md:bottom-auto `}
+      } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
     >
-      <div className="overflow-scroll scrollbar-hide w-full md:w-[500px] lg:w-[700px] xl:w-[1000px] max-h-[80vh] bg-white py-8 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+      <div className="pointer-events-auto overflow-scroll scrollbar-hide w-full md:w-[500px] lg:w-[700px] xl:w-[1000px] max-h-[80vh] bg-white py-8 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[16px] font-semibold">Update Images</h2>
           <IoMdClose

@@ -26,6 +26,7 @@ const ProjectPartner = lazy(() => import("./pages/ProjectPartner.jsx"));
 const PartnerLeads = lazy(() => import("./pages/PartnerLeads.jsx"));
 const TerritoryPartner = lazy(() => import("./pages/TerritoryPartner.jsx"));
 const GuestUser = lazy(() => import("./pages/guestUser.jsx"));
+const Users = lazy(() => import("./pages/Users.jsx"));
 const Subscription = lazy(() => import("./pages/Subscription.jsx"));
 const UserSubscriptions = lazy(() => import("./pages/UserSubscriptions.jsx"));
 const GstBills = lazy(() => import("./pages/GstBills.jsx"));
@@ -117,6 +118,7 @@ const App = () => {
           <Route path="/ads-manager" element={<AdsManager />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/guest-users" element={<GuestUser />} />
+          <Route path="/users" element={<Users />} />
           <Route path="/builders" element={<Builders />} />
           <Route path="/promoters" element={<Promoter />} />
           <Route path="/salespersons" element={<SalesPerson />} />

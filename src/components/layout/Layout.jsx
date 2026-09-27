@@ -14,8 +14,7 @@ import { IoIosListBox } from "react-icons/io";
 import { HiUsers } from "react-icons/hi2";
 import { PiBuildingsFill } from "react-icons/pi";
 import { RiAdvertisementFill } from "react-icons/ri";
-import { FaUserTie } from "react-icons/fa";
-import { FaHandshake } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa";
 import { BiSolidDiamond } from "react-icons/bi";
 import { FaTicket } from "react-icons/fa6";
 import { FaPhotoVideo } from "react-icons/fa";
@@ -72,34 +71,13 @@ const menuItems = [
     ],
   },
 
-  // Employee Dropdown
+  // Users: Partners, Employees and Users in one page
   {
-    label: "Employees",
-    icon: <FaUserTie size={21} />,
-    dropdown: [
-      { label: "Employees", to: "/employees" },
-      { label: "Departments", to: "/department" },
-      { label: "Roles", to: "/role" },
-    ],
+    label: "Users",
+    icon: <FaUsers size={21} />,
+    to: "/users",
   },
 
-  // Partners Dropdown
-  {
-    label: "Partners",
-    icon: <FaHandshake size={21} />,
-    dropdown: [
-      { label: "Project Partner", to: "/projectpartner" },
-      { label: "Partner Leads", to: "/partner-leads" },
-      { label: "Sales Partner", to: "/salespersons" },
-      { label: "Territory Partner", to: "/territorypartner" },
-      { label: "Guest Users", to: "/guest-users" },
-      { label: "Messages", to: "/messages" },
-      { label: "Scheduled Requests", to: "/scheduled-requests" },
-      { label: "Calendar", to: "/calender" },
-    ],
-  },
-
-  // Promotion Dopdown
   {
     label: "Promotions",
     icon: <RiAdvertisementFill size={21} />,

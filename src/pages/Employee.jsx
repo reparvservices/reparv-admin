@@ -14,6 +14,8 @@ import { MdDone } from "react-icons/md";
 import Loader from "../components/Loader";
 import DownloadCSV from "../components/DownloadCSV";
 import FormatPrice from "../components/FormatPrice";
+import ListPageLayout from "../components/ui/ListPageLayout";
+import { FaUserTie } from "react-icons/fa";
 
 const Employee = () => {
   const {
@@ -660,87 +662,95 @@ const Employee = () => {
   };
 
   return (
-    <div
-      className={`employee overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start`}
-    >
-      <div className="employee-table w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
-        <div className="w-full flex items-center justify-between gap-1 sm:gap-3">
-          <div className="w-[65%] sm:min-w-[220px] sm:max-w-[230px] relative inline-block">
-            <div className="flex gap-2 items-center justify-between bg-white border border-[#00000033] text-sm font-semibold  text-black rounded-lg py-1 px-3 focus:outline-none focus:ring-2 focus:ring-[#076300]">
-              <span>{selectedLister || "Select Lister"}</span>
-              <RiArrowDropDownLine className="w-6 h-6 text-[#000000B2]" />
-            </div>
-            <select
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              value={selectedLister}
-              onChange={(e) => {
-                setSelectedLister(e.target.value);
-              }}
-            >
-              <option value="Select Employee Lister">
-                Select Employee Lister
-              </option>
-              <option value="Reparv">Reparv</option>
-              <option value="Project Partner">Project Partner</option>
-            </select>
-          </div>
-          <div className="flex xl:hidden flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
-            <DownloadCSV data={filteredData} filename={"Employee.csv"} />
-            <AddButton label={"Add"} func={setShowEplDetailsForm} />
-          </div>
-        </div>
-        <div className="searchBarContainer w-full flex flex-col lg:flex-row items-center justify-between gap-3">
-          <div className="search-bar w-full lg:w-[30%] min-w-[150px] max:w-[289px] xl:w-[289px] h-[36px] flex gap-[10px] rounded-[12px] p-[10px] items-center justify-start lg:justify-between bg-[#0000000A]">
-            <CiSearch />
-            <input
-              type="text"
-              placeholder="Search Employee"
-              className="search-input w-[250px] h-[36px] text-sm text-black bg-transparent border-none outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
-            <div className="flex flex-wrap items-center justify-end gap-3 px-2">
-              <EmployeeFilter />
-              <div className="block">
-                <CustomDateRangePicker range={range} setRange={setRange} />
+    <div className="employee w-full min-h-full bg-[#F4F6F8] overflow-y-auto scrollbar-hide">
+      <ListPageLayout
+        eyebrow="Employees"
+        title="Employees"
+        subtitle="Manage employees, their departments, roles and login access."
+        icon={<FaUserTie size={24} />}
+        onRefresh={fetchData}
+        refreshing={loading}
+        actions={<AddButton label={"Add employee"} func={setShowEplDetailsForm} />}
+        stats={[
+          { label: "Total", value: datas.length },
+          {
+            label: "Active",
+            value: datas.filter((d) => d.status === "Active").length,
+          },
+          {
+            label: "Inactive",
+            value: datas.filter((d) => d.status !== "Active").length,
+          },
+          {
+            label: "Login Active",
+            value: datas.filter((d) => d.loginstatus === "Active").length,
+          },
+        ]}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search name, email, phone, city…"
+        toolbar={
+          <>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="min-w-[200px] relative inline-block">
+                <div className="flex gap-2 items-center justify-between bg-white border border-gray-200 text-sm font-semibold text-black rounded-xl py-1.5 px-3">
+                  <span>{selectedLister || "Select Lister"}</span>
+                  <RiArrowDropDownLine className="w-6 h-6 text-[#000000B2]" />
+                </div>
+                <select
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  value={selectedLister}
+                  onChange={(e) => {
+                    setSelectedLister(e.target.value);
+                  }}
+                >
+                  <option value="Select Employee Lister">
+                    Select Employee Lister
+                  </option>
+                  <option value="Reparv">Reparv</option>
+                  <option value="Project Partner">Project Partner</option>
+                </select>
               </div>
+              <EmployeeFilter />
             </div>
-            <div className="hidden xl:flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
+            <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+              <CustomDateRangePicker range={range} setRange={setRange} />
               <DownloadCSV data={filteredData} filename={"Employee.csv"} />
-              <AddButton label={"Add"} func={setShowEplDetailsForm} />
             </div>
-          </div>
-        </div>
-
-        <h2 className="text-[16px] font-semibold">Employee List</h2>
-        <div className="overflow-scroll scrollbar-hide">
-          <DataTable
-            className="scrollbar-hide"
-            customStyles={customStyles}
-            columns={finalColumns}
-            data={filteredData}
-            fixedHeader
-            fixedHeaderScrollHeight="60vh"
-            pagination
-            paginationPerPage={15}
-            paginationComponentOptions={{
-              rowsPerPageText: "Rows per page:",
-              rangeSeparatorText: "of",
-              selectAllRowsItem: true,
-              selectAllRowsItemText: "All",
-            }}
-          />
-        </div>
-      </div>
+          </>
+        }
+        listTitle="Employee list"
+        listMeta={`Showing ${filteredData.length} of ${datas.length}`}
+      >
+        <DataTable
+          className="scrollbar-hide"
+          customStyles={customStyles}
+          columns={finalColumns}
+          data={filteredData}
+          fixedHeader
+          fixedHeaderScrollHeight="calc(100vh - 22rem)"
+          pagination
+          paginationPerPage={15}
+          paginationComponentOptions={{
+            rowsPerPageText: "Rows per page:",
+            rangeSeparatorText: "of",
+            selectAllRowsItem: true,
+            selectAllRowsItemText: "All",
+          }}
+          noDataComponent={
+            <div className="py-16 text-center text-sm text-gray-500">
+              No employees match your filters.
+            </div>
+          }
+        />
+      </ListPageLayout>
 
       <div
         className={` ${
           !showEplDetailsForm && "hidden"
-        } z-[61] employeeForm overflow-scroll scrollbar-hide w-[400px] h-[70vh] md:w-[700px] flex fixed`}
+        } z-[61] employeeForm fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Employee Details</h2>
             <IoMdClose
@@ -1023,9 +1033,9 @@ const Employee = () => {
       <div
         className={` ${
           !showAssignTaskForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide w-full flex fixed bottom-0 md:bottom-auto `}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-full md:w-[500px] lg:w-[750px] max-h-[70vh] overflow-scroll scrollbar-hide bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-full md:w-[500px] lg:w-[750px] max-h-[70vh] overflow-scroll scrollbar-hide bg-white py-8 pb-16 px-4 sm:px-6 border border-[#cfcfcf33] rounded-tl-lg rounded-tr-lg md:rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Assign Tasks</h2>
             <IoMdClose
@@ -1104,9 +1114,9 @@ const Employee = () => {
       <div
         className={` ${
           !giveAccess && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide flex fixed`}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-[330px] h-[450px] sm:w-[600px] sm:h-[400px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] lg:h-[300px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-[330px] h-[450px] sm:w-[600px] sm:h-[400px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] lg:h-[300px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Give Access</h2>
             <IoMdClose
@@ -1180,9 +1190,9 @@ const Employee = () => {
       <div
         className={`${
           showEmployee ? "flex" : "hidden"
-        } z-[61] property-form overflow-scroll scrollbar-hide w-[400px] h-[70vh] md:w-[700px] fixed`}
+        } z-[61] property-form fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Employee Details</h2>
             <IoMdClose

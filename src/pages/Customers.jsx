@@ -12,6 +12,8 @@ import Loader from "../components/Loader";
 import propertyPicture from "../assets/propertyPicture.svg";
 import FormatPrice from "../components/FormatPrice";
 import { getImageURI } from "../utils/helper";
+import ListPageLayout from "../components/ui/ListPageLayout";
+import { FiUserCheck } from "react-icons/fi";
 
 const Customers = () => {
   const {
@@ -347,65 +349,77 @@ const Customers = () => {
   };
 
   return (
-    <div className="customers overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start">
-      <div className="customers-table w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
-        <div className="w-full flex items-center justify-between md:justify-end gap-1 sm:gap-3">
-          <p className="block md:hidden text-lg font-semibold">Customers</p>
-          <div className="flex xl:hidden flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
-            <Loader />
-            <DownloadCSV data={filteredData} filename={"Customers.csv"} />
-          </div>
-        </div>
-        <div className="searchBarContainer w-full flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="search-bar w-full sm:w-1/2 min-w-[150px] max:w-[289px] md:w-[289px] h-[36px] flex gap-[10px] rounded-[12px] p-[10px] items-center justify-start md:justify-between bg-[#0000000A]">
-            <CiSearch />
-            <input
-              type="text"
-              placeholder="Search Builder"
-              className="search-input w-[250px] h-[36px] text-sm text-black bg-transparent border-none outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
-            <div className="flex flex-wrap items-center justify-end gap-3 px-2">
-              <div className="block">
-                <CustomDateRangePicker range={range} setRange={setRange} />
-              </div>
-            </div>
-            <div className="hidden xl:flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
+    <div className="customers w-full min-h-full bg-[#F4F6F8] overflow-y-auto scrollbar-hide">
+      <ListPageLayout
+        eyebrow="Users"
+        title="Customers"
+        subtitle="Customers who booked a property, with their payments."
+        icon={<FiUserCheck size={24} />}
+        onRefresh={fetchData}
+        stats={[
+          { label: "Total", value: customers.length },
+          {
+            label: "Deal Amount",
+            value: (
+              <FormatPrice
+                price={customers.reduce((sum, d) => sum + (Number(d.dealamount) || 0), 0)}
+              />
+            ),
+          },
+          {
+            label: "Token Amount",
+            value: (
+              <FormatPrice
+                price={customers.reduce((sum, d) => sum + (Number(d.tokenamount) || 0), 0)}
+              />
+            ),
+          },
+        ]}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search customer, contact, property…"
+        toolbar={
+          <>
+            <div />
+            <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+              <Loader />
+              <CustomDateRangePicker range={range} setRange={setRange} />
               <DownloadCSV data={filteredData} filename={"Customers.csv"} />
             </div>
-          </div>
-        </div>
-        <h2 className="text-[16px] font-semibold">Customers List</h2>
-        <div className="overflow-scroll scrollbar-hide">
-          <DataTable
-            className="scrollbar-hide"
-            customStyles={customStyles}
-            columns={columns}
-            data={filteredData}
-            fixedHeader
-            fixedHeaderScrollHeight="60vh"
-            pagination
-            paginationPerPage={15}
-            paginationComponentOptions={{
-              rowsPerPageText: "Rows per page:",
-              rangeSeparatorText: "of",
-              selectAllRowsItem: true,
-              selectAllRowsItemText: "All",
-            }}
-          />
-        </div>
-      </div>
+          </>
+        }
+        listTitle="Customer list"
+        listMeta={`Showing ${filteredData.length} of ${customers.length}`}
+      >
+        <DataTable
+          className="scrollbar-hide"
+          customStyles={customStyles}
+          columns={columns}
+          data={filteredData}
+          fixedHeader
+          fixedHeaderScrollHeight="calc(100vh - 22rem)"
+          pagination
+          paginationPerPage={15}
+          paginationComponentOptions={{
+            rowsPerPageText: "Rows per page:",
+            rangeSeparatorText: "of",
+            selectAllRowsItem: true,
+            selectAllRowsItemText: "All",
+          }}
+          noDataComponent={
+            <div className="py-16 text-center text-sm text-gray-500">
+              No customers match your search.
+            </div>
+          }
+        />
+      </ListPageLayout>
 
-      {/* Add Customer Payment Form */}
       <div
         className={` ${
           !showCustomerPaymentForm && "hidden"
-        } z-[61] overflow-scroll scrollbar-hide flex fixed`}
+        } z-[61] fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] h-[65vh] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] h-[65vh] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">ADD Payment</h2>
             <IoMdClose
@@ -541,9 +555,9 @@ const Customers = () => {
       <div
         className={`${
           showCustomer ? "flex" : "hidden"
-        } z-[61] property-form overflow-scroll scrollbar-hide w-[400px] h-[70vh] md:w-[700px] fixed`}
+        } z-[61] property-form fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Customer Details</h2>
             <IoMdClose
@@ -735,7 +749,7 @@ const Customers = () => {
                           src={getImageURI(payment.paymentImage)}
                           alt="Payment_Image"
                           onClick={() => {
-                            window.open(getIMageURI(payment.paymentImage), "_blank");
+                            window.open(getImageURI(payment.paymentImage), "_blank");
                           }}
                           className="w-[120px] h-[80px] object-cover cursor-pointer"
                         />

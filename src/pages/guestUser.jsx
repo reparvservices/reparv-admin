@@ -1,5 +1,5 @@
 import React from "react";
-import { parse } from "date-fns";
+import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { CiSearch } from "react-icons/ci";
 import { useAuth } from "../store/auth";
@@ -13,6 +13,9 @@ import Loader from "../components/Loader";
 import { RxCross2 } from "react-icons/rx";
 import { MdDone } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
+import ListPageLayout from "../components/ui/ListPageLayout";
+import DataTableProgress from "../components/ui/DataTableProgress";
+import { FiUsers } from "react-icons/fi";
 
 const GuestUser = () => {
   const {
@@ -28,6 +31,15 @@ const GuestUser = () => {
 
   const [datas, setDatas] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  // Server-side pagination / filtering
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+  const [total, setTotal] = useState(0);
+  const [counts, setCounts] = useState(null);
+  const [listLoading, setListLoading] = useState(true);
+  const [listError, setListError] = useState("");
   const [partnerId, setPartnerId] = useState(null);
   const [partner, setPartner] = useState({});
   const [username, setUsername] = useState("");
@@ -40,23 +52,36 @@ const GuestUser = () => {
 
   // **Fetch Data from API**
   const fetchData = async () => {
-    setLoading(true);
+    setListLoading(true);
+    setListError("");
     try {
-      const response = await fetch(URI + "/admin/guestuser", {
-        method: "GET",
-        credentials: "include", // Ensures cookies are sent
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const qs = new URLSearchParams({
+        limit: String(perPage),
+        offset: String((page - 1) * perPage),
       });
-      if (!response.ok) throw new Error("Failed to fetch Partner.");
-      const data = await response.json();
-      setDatas(data);
+      if (debouncedSearch) qs.set("search", debouncedSearch);
+      if (statusFilter) qs.set("status", statusFilter);
+      const { startDate, endDate } = range[0];
+      if (startDate && endDate) {
+        qs.set("date_from", format(startDate, "yyyy-MM-dd"));
+        qs.set("date_to", format(endDate, "yyyy-MM-dd"));
+      }
+      const response = await fetch(`${URI}/admin/guestuser/list?${qs}`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(json.message || "Failed to fetch users.");
+      setDatas(json.data || []);
+      setTotal(json.total || 0);
+      setCounts(json.counts || null);
     } catch (err) {
+      setListError(err.message || "Failed to fetch users.");
     } finally {
-      setLoading(false);
+      setListLoading(false);
     }
-};
+  };
 
   const add = async (e) => {
     e.preventDefault();
@@ -223,10 +248,6 @@ const GuestUser = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const [range, setRange] = useState([
     {
       startDate: null,
@@ -235,34 +256,21 @@ const GuestUser = () => {
     },
   ]);
 
-  const filteredData = datas.filter((item) => {
-    const search = searchTerm.toLowerCase();
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
-    const matchesSearch =
-      item.fullname?.toLowerCase().includes(search) ||
-      item.contact?.toLowerCase().includes(search) ||
-      item.state?.toLowerCase().includes(search) ||
-      item.city?.toLowerCase().includes(search) ||
-      item.email?.toLowerCase().includes(search);
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter, range]);
 
-    let startDate = range[0].startDate;
-    let endDate = range[0].endDate;
+  useEffect(() => {
+    fetchData();
+  }, [page, perPage, debouncedSearch, statusFilter, range]);
 
-    if (startDate) startDate = new Date(startDate.setHours(0, 0, 0, 0));
-    if (endDate) endDate = new Date(endDate.setHours(23, 59, 59, 999));
-
-    const itemDate = parse(
-      item.created_at,
-      "dd MMM yyyy | hh:mm a",
-      new Date()
-    );
-
-    const matchesDate =
-      (!startDate && !endDate) ||
-      (startDate && endDate && itemDate >= startDate && itemDate <= endDate);
-
-    return matchesSearch && matchesDate;
-  });
+  // Rows already filtered and paginated by the server
+  const filteredData = datas;
 
   const customStyles = {
     rows: {
@@ -305,7 +313,7 @@ const GuestUser = () => {
                 : "bg-[#FFEAEA] text-[#ff2323]"
             }`}
           >
-            {index + 1}
+            {(page - 1) * perPage + index + 1}
           </span>
 
           {/* Tooltip */}
@@ -433,67 +441,107 @@ const GuestUser = () => {
   };
 
   return (
-    <div
-      className={`overflow-scroll scrollbar-hide w-full h-screen flex flex-col items-start justify-start`}
-    >
-      <div className="sales-table w-full h-[80vh] flex flex-col px-4 md:px-6 py-6 gap-4 my-[10px] bg-white md:rounded-[24px]">
-        <div className="w-full flex items-center justify-between md:justify-end gap-1 sm:gap-3">
-          <p className="block md:hidden text-lg font-semibold">Guest Users</p>
-          <div className="flex xl:hidden flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
-            <DownloadCSV data={filteredData} filename={"GuestUsers.csv"} />
-            <AddButton label={"Add"} func={setShowPartnerForm} />
-          </div>
-        </div>
-        <div className="searchBarContainer w-full flex flex-col lg:flex-row items-center justify-between gap-3">
-          <div className="search-bar w-full lg:w-[30%] min-w-[150px] max:w-[289px] xl:w-[289px] h-[36px] flex gap-[10px] rounded-[12px] p-[10px] items-center justify-start lg:justify-between bg-[#0000000A]">
-            <CiSearch />
-            <input
-              type="text"
-              placeholder="Search User"
-              className="search-input w-[250px] h-[36px] text-sm text-black bg-transparent border-none outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="rightTableHead w-full lg:w-[70%] sm:h-[36px] gap-2 flex flex-wrap justify-end items-center">
-            <div className="flex flex-wrap items-center justify-end gap-3 px-2">
-              <div className="block">
-                <CustomDateRangePicker range={range} setRange={setRange} />
-              </div>
+    <div className="guest-users w-full min-h-full bg-[#F4F6F8] overflow-y-auto scrollbar-hide">
+      <ListPageLayout
+        eyebrow="Users"
+        title="Guest users"
+        subtitle="People who signed up on the website and app, and their login access."
+        icon={<FiUsers size={24} />}
+        onRefresh={fetchData}
+        refreshing={listLoading}
+        actions={<AddButton label={"Add user"} func={setShowPartnerForm} />}
+        stats={[
+          { label: "Total", value: counts?.total ?? "—" },
+          { label: "Active", value: counts?.active ?? "—" },
+          { label: "Inactive", value: counts?.inactive ?? "—" },
+          { label: "Login Active", value: counts?.loginActive ?? "—" },
+        ]}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search name, email, phone…"
+        toolbar={
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              {[
+                { label: "All", value: "", count: counts?.total },
+                { label: "Active", value: "Active", count: counts?.active },
+                { label: "Inactive", value: "Inactive", count: counts?.inactive },
+              ].map((f) => (
+                <button
+                  key={f.label}
+                  type="button"
+                  onClick={() => setStatusFilter(f.value)}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition ${
+                    statusFilter === f.value
+                      ? "bg-[#EAFBF1] border-[#076300]/30 text-[#076300]"
+                      : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  {f.label}
+                  {f.count != null ? (
+                    <span className="text-xs tabular-nums px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600">
+                      {f.count}
+                    </span>
+                  ) : null}
+                </button>
+              ))}
             </div>
-            <div className="hidden xl:flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-2">
+            <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+              <CustomDateRangePicker range={range} setRange={setRange} />
               <DownloadCSV data={filteredData} filename={"GuestUsers.csv"} />
-              <AddButton label={"Add"} func={setShowPartnerForm} />
+              <span className="text-[10px] text-gray-400 hidden lg:inline self-center">
+                CSV: current page
+              </span>
             </div>
-          </div>
-        </div>
-        <h2 className="text-[16px] font-semibold">Guest User List</h2>
-        <div className="overflow-scroll scrollbar-hide">
-          <DataTable
-            className="scrollbar-hide"
-            customStyles={customStyles}
-            columns={columns}
-            data={filteredData}
-            fixedHeader
-            fixedHeaderScrollHeight="60vh"
-            pagination
-            paginationPerPage={15}
-            paginationComponentOptions={{
-              rowsPerPageText: "Rows per page:",
-              rangeSeparatorText: "of",
-              selectAllRowsItem: true,
-              selectAllRowsItemText: "All",
-            }}
-          />
-        </div>
-      </div>
+          </>
+        }
+        listTitle="Guest user list"
+        listMeta={
+          listError
+            ? listError
+            : total
+              ? `Showing ${(page - 1) * perPage + 1}–${Math.min(page * perPage, total)} of ${total}${debouncedSearch ? ` · “${debouncedSearch}”` : ""}`
+              : ""
+        }
+      >
+        <DataTable
+          className="scrollbar-hide"
+          customStyles={customStyles}
+          columns={columns}
+          data={filteredData}
+          fixedHeader
+          fixedHeaderScrollHeight="calc(100vh - 22rem)"
+          pagination
+          paginationServer
+          paginationTotalRows={total}
+          paginationDefaultPage={page}
+          paginationPerPage={perPage}
+          paginationRowsPerPageOptions={[10, 25, 50, 100]}
+          onChangePage={(p) => setPage(p)}
+          onChangeRowsPerPage={(n, p) => {
+            setPerPage(n);
+            setPage(p);
+          }}
+          progressPending={listLoading && datas.length === 0}
+          progressComponent={<DataTableProgress message="Loading users…" />}
+          paginationComponentOptions={{
+            rowsPerPageText: "Rows per page:",
+            rangeSeparatorText: "of",
+          }}
+          noDataComponent={
+            <div className="py-16 text-center text-sm text-gray-500">
+              No users match your search.
+            </div>
+          }
+        />
+      </ListPageLayout>
 
       <div
         className={`${
           showPartnerForm ? "flex" : "hidden"
-        } z-[61] sales-form overflow-scroll scrollbar-hide w-[400px] md:w-[700px] max-h-[70vh] fixed`}
+        } z-[61] sales-form fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-10 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-10 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Guest User Form</h2>
             <IoMdClose
@@ -666,9 +714,9 @@ const GuestUser = () => {
       <div
         className={`${
           showPartner ? "flex" : "hidden"
-        } z-[61] property-form overflow-scroll scrollbar-hide w-[400px] h-[70vh] md:w-[700px] fixed`}
+        } z-[61] property-form fixed inset-0 flex items-end md:items-center justify-center md:p-6 pointer-events-none`}
       >
-        <div className="w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
+        <div className="pointer-events-auto max-h-[85vh] w-[330px] sm:w-[600px] overflow-scroll scrollbar-hide md:w-[500px] lg:w-[700px] bg-white py-8 pb-16 px-3 sm:px-6 border border-[#cfcfcf33] rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[16px] font-semibold">Guest User Details</h2>
             <IoMdClose
