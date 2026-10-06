@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   MapContainer,
-  TileLayer,
   Marker,
   useMapEvents,
   useMap,
-  LayersControl,
 } from "react-leaflet";
+import SatelliteTileLayer, {
+  SATELLITE_MAX_ZOOM,
+} from "../map/SatelliteTileLayer";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useAuth } from "../../store/auth";
@@ -161,34 +162,13 @@ export default function LocationPicker({
     <div className="w-full">
       <div className="w-full h-[300px] rounded-lg overflow-hidden border">
         <MapContainer
+          maxZoom={SATELLITE_MAX_ZOOM}
           center={coords || [20.5937, 78.9629]}
           zoom={coords ? 12 : 5}
           style={{ height: "100%", width: "100%", zIndex: 10, }}
         >
-          <LayersControl position="topright">
-            <LayersControl.BaseLayer checked name="Street Map (English)">
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                subdomains={["a", "b", "c", "d"]}
-              />
-            </LayersControl.BaseLayer>
+          <SatelliteTileLayer />
 
-            <LayersControl.BaseLayer name="Satellite View">
-              <TileLayer
-                attribution="Tiles &copy; Esri"
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              />
-            </LayersControl.BaseLayer>
-
-            <LayersControl.Overlay checked name="Buildings (English)">
-              <TileLayer
-                attribution='&copy; <a href="https://carto.com/">Carto + OSM</a>'
-                url="https://cartodb-basemaps-a.global.ssl.fastly.net/light_only_labels/{z}/{x}/{y}.png"
-                subdomains={["a", "b", "c", "d"]}
-              />
-            </LayersControl.Overlay>
-          </LayersControl>
 
           {/* Other children */}
           <FlyToLocation coords={coords} />

@@ -1,5 +1,6 @@
 import React from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
+import SatelliteTileLayer, { SATELLITE_MAX_ZOOM } from "./SatelliteTileLayer";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -121,17 +122,13 @@ export default function LeafletCityMap({ properties, selectedCity }) {
   return (
     <div className="h-[100%] w-full rounded-lg overflow-hidden shadow-md">
       <MapContainer
+        maxZoom={SATELLITE_MAX_ZOOM}
         center={[21.1458, 79.0882]} // fallback center (Nagpur, India)
         zoom={5}
         style={{ height: "100%", width: "100%" }}
         attributionControl={false}
       >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          attribution='© OpenStreetMap contributors &copy; <a href="https://carto.com/">CARTO</a>'
-          subdomains={["a", "b", "c", "d"]}
-          maxZoom={20}
-        />
+        <SatelliteTileLayer />
 
         {/* Auto-fit map to markers */}
         <FitBounds properties={properties} />
