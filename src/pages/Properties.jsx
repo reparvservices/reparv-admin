@@ -28,6 +28,10 @@ import FormatPrice from "../components/FormatPrice";
 import PropertyCommissionPopup from "../components/PropertyCommissionPopup";
 import Select from "react-select";
 import { getImageURI } from "../utils/helper";
+import {
+  prefetchPropertyPhoto,
+  sharePropertyOnWhatsApp,
+} from "../utils/propertyShare";
 
 import {
   FaEye,
@@ -1745,8 +1749,23 @@ const Properties = () => {
     },
     {
       name: "Actions",
-      cell: (row) => renderActionDropdown(row),
-      width: "120px",
+      cell: (row) => (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => sharePropertyOnWhatsApp(row)}
+            onMouseEnter={() => prefetchPropertyPhoto(row)}
+            onFocus={() => prefetchPropertyPhoto(row)}
+            title="Share on WhatsApp"
+            aria-label="Share on WhatsApp"
+            className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-[#25D366] text-white hover:bg-[#1ebe5b] transition-colors"
+          >
+            <FaWhatsapp size={16} />
+          </button>
+          {renderActionDropdown(row)}
+        </div>
+      ),
+      width: "170px",
     },
   ];
 
@@ -1763,6 +1782,9 @@ const Properties = () => {
       switch (action) {
         case "view":
           window.open("https://www.reparv.in/property-info/" + slug, "_blank");
+          break;
+        case "shareWhatsapp":
+          sharePropertyOnWhatsApp(row);
           break;
         case "status":
           status(propertyid);
@@ -1848,6 +1870,7 @@ const Properties = () => {
             Select Action
           </option>
           <option value="view">View</option>
+          <option value="shareWhatsapp">Share on WhatsApp</option>
           <option value="status">Status</option>
           <option value="update">Update</option>
           <option value="delete">Delete</option>
