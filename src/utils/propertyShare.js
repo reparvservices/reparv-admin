@@ -6,12 +6,6 @@ import { getImageURI } from "./helper";
 const WEBSITE_URL = "https://www.reparv.in";
 const PUBLIC_PROPERTY_URL = `${WEBSITE_URL}/property-info`;
 
-const FURNISHING_LABELS = {
-  F: "Fully furnished",
-  S: "Semi-furnished",
-  U: "Unfurnished",
-};
-
 // Short hash of the cover photo URL, added to shared links as ?v=… — WhatsApp
 // caches link previews per URL, so a new photo needs a new URL to show up.
 function photoVersion(property) {
@@ -41,69 +35,35 @@ function refreshPropertyPreview(property) {
   }
 }
 
-function formatPrice(property) {
-  const price = Number(property?.totalOfferPrice || property?.totalSalesPrice);
-  return price > 0 ? `₹${price.toLocaleString("en-IN")}` : null;
-}
-
-function formatLocation(property) {
-  const seen = new Set();
-  return (
-    [property?.location, property?.city, property?.state]
-      .map((part) => String(part || "").trim())
-      // Skip empty and repeated parts ("pune, Pune")
-      .filter((part) => {
-        const key = part.toLowerCase();
-        if (!part || seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .join(", ") || null
-  );
-}
-
-function facingLabel(value) {
-  const text = String(value || "").trim();
-  if (!text) return null;
-  return /facing/i.test(text) ? text : `${text} facing`;
-}
-
-function furnishingLabel(value) {
-  const text = String(value || "").trim();
-  if (!text) return null;
-  // Stored as a single-letter code in some listings
-  if (text.length === 1) return FURNISHING_LABELS[text.toUpperCase()] || null;
-  return text;
-}
-
-/** WhatsApp-formatted (*bold*) summary of a property with its public link. */
+/**
+ * WhatsApp message for sharing a property (approved Reparv format).
+ * The brochure line is included only when the property has one.
+ */
 export function buildPropertyShareText(property) {
   if (!property) return "";
 
-  const area = Number(property.builtUpArea || property.carpetArea);
-  const highlights = [
-    property.propertyCategory,
-    area > 0 ? `${area.toLocaleString("en-IN")} sq ft` : null,
-    facingLabel(property.propertyFacing),
-    furnishingLabel(property.furnishing),
-  ].filter(Boolean);
-
-  const location = formatLocation(property);
   const url = getPropertyUrl(property);
+  const brochure = property.brochureFile ? getImageURI(property.brochureFile) : null;
 
   const lines = [
-    "🏡 *Property on Reparv*",
+    "🏡 *New Property Listing on Reparv*",
     "",
-    `*${property.propertyName || "Residential Property"}*`,
+    "Hello! 👋",
+    "",
+    "We found a property that might interest you.",
+    "",
+    `🏠 *Property:* ${property.propertyName || "Property"}`,
   ];
-  if (location) lines.push("", `📍 *Location:* ${location}`);
-  const price = formatPrice(property);
-  lines.push("", price ? `💰 *Price:* ${price}` : "💰 *Price on request*");
-  if (highlights.length) {
-    lines.push("", "✨ *Highlights:*", ...highlights.map((h) => `• ${h}`));
-  }
-  if (url) lines.push("", "🔗 *Photos, full details & free site visit:*", url);
-  lines.push("", "📞 Interested? Reply to this message to know more.");
+  if (url) lines.push("", `🔗 *View Property:* ${url}`);
+  if (brochure) lines.push("", `📄 *Property Brochure:* ${brochure}`);
+  lines.push(
+    "",
+    "Interested in learning more or scheduling a site visit? Contact us, and our team will be happy to assist you.",
+    "",
+    "*Reparv – Discover Properties. Find Your Place.*",
+    "",
+    "🌐 www.reparv.in",
+  );
   return lines.join("\n");
 }
 

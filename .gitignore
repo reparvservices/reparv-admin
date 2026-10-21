@@ -18,6 +18,8 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+# macOS metadata files created on non-Mac drives (exFAT)
+._*
 *.suo
 *.ntvs*
 *.njsproj

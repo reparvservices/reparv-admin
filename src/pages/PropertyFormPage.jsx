@@ -226,7 +226,8 @@ export default function PropertyFormPage() {
       }
       if (!res.ok) throw new Error();
       alert(newProperty.propertyid ? "Property updated!" : "Property added!");
-      navigate("/properties");
+      // After editing, return to that property's page; after adding, to the list
+      navigate(newProperty.propertyid ? `/properties/${newProperty.propertyid}` : "/properties");
     } catch {
       alert("Something went wrong. Please try again.");
     } finally {

@@ -37,6 +37,7 @@ const SubscriptionAnalytics = lazy(
   () => import("./pages/SubscriptionAnalytics.jsx"),
 );
 const Properties = lazy(() => import("./pages/Properties.jsx"));
+const PropertyDetails = lazy(() => import("./pages/PropertyDetails.jsx"));
 const Role = lazy(() => import("./pages/Role.jsx"));
 const Department = lazy(() => import("./pages/Department.jsx"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage.jsx"));
@@ -112,6 +113,7 @@ const App = () => {
           <Route path="/properties" element={<Properties />} />
           <Route path="/properties/add" element={<PropertyFormPage />} />
           <Route path="/properties/edit/:id" element={<PropertyFormPage />} />
+          <Route path="/properties/:id" element={<PropertyDetails />} />
           <Route
             path="/property/additional-info/:propertyid"
             element={<PropertiesFlatAndPlotInfo />}

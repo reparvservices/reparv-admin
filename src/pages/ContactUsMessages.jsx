@@ -34,7 +34,7 @@ const ContactUsMessages = () => {
   const del = async (id) => {
     if (!window.confirm("Are you sure to delete this Message ?")) return;
     try {
-      const response = await fetch(URI + `/admin/contact-us/delete/${id}`, {
+      const response = await fetch(URI + `/admin/contact-us/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -52,13 +52,21 @@ const ContactUsMessages = () => {
   };
 
   // change status record
-  const status = async (id) => {
-    if (!window.confirm("Are you sure to change status?")) return;
+  // Cycles New -> In Progress -> Resolved -> Closed -> New
+  const STATUS_FLOW = ["New", "In Progress", "Resolved", "Closed"];
+  const status = async (row) => {
+    const next =
+      STATUS_FLOW[(STATUS_FLOW.indexOf(row.status) + 1) % STATUS_FLOW.length];
+    if (!window.confirm(`Change status to "${next}"?`)) return;
 
     try {
-      const response = await fetch(URI + `/admin/contact-us/status/${id}`, {
-        method: "PUT",
+      const response = await fetch(URI + `/admin/contact-us/${row.id}/status`, {
+        method: "PATCH",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: next }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -223,13 +231,13 @@ const ContactUsMessages = () => {
   const ActionDropdown = ({ row }) => {
     const [selectedAction, setSelectedAction] = useState("");
 
-    const handleActionSelect = (action, id) => {
+    const handleActionSelect = (action, row) => {
       switch (action) {
         case "status":
-          status(id);
+          status(row);
           break;
         case "delete":
-          del(id);
+          del(row.id);
           break;
         default:
       }
@@ -246,7 +254,7 @@ const ContactUsMessages = () => {
           value={selectedAction}
           onChange={(e) => {
             const action = e.target.value;
-            handleActionSelect(action, row.id);
+            handleActionSelect(action, row);
           }}
         >
           <option value="" disabled>
