@@ -81,7 +81,10 @@ const menuItems = [
   {
     label: "Promotions",
     icon: <RiAdvertisementFill size={21} />,
-    dropdown: [{ label: "Ads Manager", to: "/ads-manager" }],
+    dropdown: [
+      { label: "Ads Manager", to: "/ads-manager" },
+      { label: "Advertisements", to: "/advertisements" },
+    ],
   },
 
   // Subscription Plan Dopdown

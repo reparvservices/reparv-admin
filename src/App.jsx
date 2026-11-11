@@ -42,6 +42,7 @@ const Role = lazy(() => import("./pages/Role.jsx"));
 const Department = lazy(() => import("./pages/Department.jsx"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage.jsx"));
 const Slider = lazy(() => import("./pages/Slider.jsx"));
+const Advertisements = lazy(() => import("./pages/Advertisements.jsx"));
 const Testimonial = lazy(() => import("./pages/Testimonial.jsx"));
 const Blogs = lazy(() => import("./pages/Blogs.jsx"));
 const News = lazy(() => import("./pages/News.jsx"));
@@ -121,6 +122,7 @@ const App = () => {
           <Route path="/map" element={<Map />} />
           <Route path="/calender" element={<Calender />} />
           <Route path="/ads-manager" element={<AdsManager />} />
+          <Route path="/advertisements" element={<Advertisements />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/guest-users" element={<GuestUser />} />
           <Route path="/users" element={<Users />} />

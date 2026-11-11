@@ -59,6 +59,20 @@ const IMAGE_FIELDS = [
   ["balconyView", "Balcony"],
   ["nearestLandmark", "Nearest Landmark"],
   ["developedAmenities", "Amenities"],
+  ["interiorView", "Interior"],
+  ["entranceView", "Entrance"],
+  ["roadView", "Road View"],
+  ["parkingView", "Parking"],
+  ["officeArea", "Office Area"],
+  ["cabinView", "Cabin"],
+  ["washroomView", "Washroom"],
+  ["warehouseArea", "Warehouse Area"],
+  ["loadingArea", "Loading Area"],
+  ["showroomInterior", "Showroom Interior"],
+  ["displayArea", "Display Area"],
+  ["terraceSitout", "Terrace / Sit-out"],
+  ["farmGardenArea", "Farm / Garden Area"],
+  ["extraImages", "More Photos"],
 ];
 
 const FLAT_INFO_CATEGORIES = ["NewFlat", "CommercialFlat"];
@@ -113,12 +127,15 @@ const PLOT_CSV_FORMAT = [
 ];
 
 const parseImages = (value) => {
-  try {
-    const parsed = JSON.parse(value || "[]");
-    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-  } catch {
-    return [];
+  let parsed = value;
+  for (let i = 0; i < 3 && typeof parsed === "string"; i++) {
+    try {
+      parsed = JSON.parse(parsed || "[]");
+    } catch {
+      return [];
+    }
   }
+  return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
 };
 
 const inputCls =
