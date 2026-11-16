@@ -114,6 +114,7 @@ const Blogs = () => {
       const data = await response.json();
       setBlogs(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -226,6 +227,7 @@ const Blogs = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -246,6 +248,7 @@ const Blogs = () => {
       setSeoDescription(data.seoDescription);
       setShowSeoForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -274,6 +277,7 @@ const Blogs = () => {
       setSeoDescription("");
       await fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -301,6 +305,7 @@ const Blogs = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

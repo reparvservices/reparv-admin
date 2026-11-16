@@ -36,6 +36,7 @@ const CalendarScheduler = () => {
       const data = await response.json();
       setMeetings(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -61,6 +62,7 @@ const CalendarScheduler = () => {
 
       setNotes(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -87,6 +89,7 @@ const CalendarScheduler = () => {
       setShowNotePopup(false);
       fetchNotes(); // Refresh notes
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -111,6 +114,7 @@ const CalendarScheduler = () => {
         alert(data.message || "Failed to delete note");
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     }
   };
 

@@ -120,6 +120,7 @@ const GuestUser = () => {
         await fetchData();
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -140,6 +141,7 @@ const GuestUser = () => {
       setNewPartner(data);
       setShowPartnerForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -158,6 +160,7 @@ const GuestUser = () => {
       setPartner(data);
       setShowPartner(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -183,6 +186,7 @@ const GuestUser = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -209,6 +213,7 @@ const GuestUser = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -243,6 +248,7 @@ const GuestUser = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

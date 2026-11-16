@@ -93,6 +93,7 @@ const Ticketing = () => {
       const data = await response.json();
       setData(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -112,6 +113,7 @@ const Ticketing = () => {
       const data = await response.json();
       setAdminData(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -129,6 +131,7 @@ const Ticketing = () => {
       const data = await response.json();
       setDepartmentData(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -146,6 +149,7 @@ const Ticketing = () => {
       const data = await response.json();
       setEmployeeData(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -187,6 +191,7 @@ const Ticketing = () => {
 
       await fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -212,6 +217,7 @@ const Ticketing = () => {
         alert("Status Changed Successfully to " + label);
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       fetchData();
     }
@@ -233,6 +239,7 @@ const Ticketing = () => {
       setTicketResponse(data.response ? data.response : "");
       setShowTicketForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -251,6 +258,7 @@ const Ticketing = () => {
       setTicket(data);
       setShowTicket(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -270,6 +278,7 @@ const Ticketing = () => {
       setTicketResponse(data.response ? data.response : "");
       setSelectedStatus(data.status);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -322,6 +331,7 @@ const Ticketing = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

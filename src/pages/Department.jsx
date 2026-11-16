@@ -37,6 +37,7 @@ const Department = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -74,6 +75,7 @@ const Department = () => {
       setShowDepartmentForm(false);
       fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -92,6 +94,7 @@ const Department = () => {
       setNewDepartment(data);
       setShowDepartmentForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -115,6 +118,7 @@ const Department = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -138,6 +142,7 @@ const Department = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

@@ -11,7 +11,7 @@ import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../Loader";
 import DownloadCSV from "../DownloadCSV";
 import FormatPrice from "../FormatPrice";
-import TableFilter from "./tableFilter";
+import TableFilter from "./TableFilter";
 
 const Products = ({ selectedTable, setSelectedTable }) => {
   const {
@@ -84,6 +84,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       const data = await response.json();
       setProducts(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -109,6 +110,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       await fetchStockList(id);
       setShowProduct(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -128,6 +130,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       const data = await response.json();
       setStockList(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -150,6 +153,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       setNewProduct(data);
       setShowProductForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -216,6 +220,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
         await fetchData();
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -240,6 +245,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       setNewStock(data);
       setShowStockForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -284,6 +290,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
         await fetchData();
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -309,6 +316,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -338,6 +346,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

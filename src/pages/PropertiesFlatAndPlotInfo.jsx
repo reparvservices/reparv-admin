@@ -75,6 +75,7 @@ const PropertiesFlatAndPlotInfo = () => {
         setCategory("Plot");
       }
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -97,6 +98,7 @@ const PropertiesFlatAndPlotInfo = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -120,6 +122,7 @@ const PropertiesFlatAndPlotInfo = () => {
       setInfo(data);
       setShowInfo(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -184,6 +187,7 @@ const PropertiesFlatAndPlotInfo = () => {
       setShowInfoForm(false);
       fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -207,6 +211,7 @@ const PropertiesFlatAndPlotInfo = () => {
       setNewInfo(data);
       setShowInfoForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -230,6 +235,7 @@ const PropertiesFlatAndPlotInfo = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -254,6 +260,7 @@ const PropertiesFlatAndPlotInfo = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -277,6 +284,7 @@ const PropertiesFlatAndPlotInfo = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -300,6 +308,7 @@ const PropertiesFlatAndPlotInfo = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

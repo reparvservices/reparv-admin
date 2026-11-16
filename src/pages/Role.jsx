@@ -33,6 +33,7 @@ const Role = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -67,6 +68,7 @@ const Role = () => {
       setShowRoleForm(false);
       fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -87,6 +89,7 @@ const Role = () => {
       setNewRole(data);
       setShowRoleForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -108,6 +111,7 @@ const Role = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -129,6 +133,7 @@ const Role = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

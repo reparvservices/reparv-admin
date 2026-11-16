@@ -25,6 +25,7 @@ const CallEnquirers = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -48,6 +49,7 @@ const CallEnquirers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -68,6 +70,7 @@ const CallEnquirers = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

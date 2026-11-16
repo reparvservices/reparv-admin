@@ -66,6 +66,7 @@ const Trends = () => {
       const data = await response.json();
       setTrends(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -93,6 +94,7 @@ const Trends = () => {
       // Only show form after blog data is loaded
       setShowTrendForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -137,6 +139,7 @@ const Trends = () => {
         await fetchData();
       }
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -163,6 +166,7 @@ const Trends = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -183,6 +187,7 @@ const Trends = () => {
       setSeoDescription(data.seoDescription);
       setShowSeoForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -211,6 +216,7 @@ const Trends = () => {
       setSeoDescription("");
       await fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -238,6 +244,7 @@ const Trends = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

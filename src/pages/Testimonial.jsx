@@ -49,6 +49,7 @@ const Testimonial = () => {
       const data = await response.json();
       setData(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -100,6 +101,7 @@ const Testimonial = () => {
 
       await fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -119,6 +121,7 @@ const Testimonial = () => {
       setNewFeedback(data);
       setShowFeedbackForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -141,6 +144,7 @@ const Testimonial = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -168,6 +172,7 @@ const Testimonial = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

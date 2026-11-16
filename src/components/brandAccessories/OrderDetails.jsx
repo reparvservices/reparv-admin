@@ -11,7 +11,7 @@ import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../Loader";
 import DownloadCSV from "../DownloadCSV";
-import TableFilter from "./tableFilter";
+import TableFilter from "./TableFilter";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import OrderFilter from "./OrderFilter";
 import FormatPrice from "../FormatPrice";
@@ -55,6 +55,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
       const data = await response.json();
       setOrders(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -79,6 +80,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
       //setShowOrder(true);
       setSelectedStatus(data?.orderStatus);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -106,6 +108,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
       setShowStatusForm(false);
       await fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -134,6 +137,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

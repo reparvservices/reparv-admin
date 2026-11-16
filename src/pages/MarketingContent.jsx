@@ -48,6 +48,7 @@ const MarketingContent = () => {
       const data = await response.json();
       setData(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -96,6 +97,7 @@ const MarketingContent = () => {
       fetchData();
       setShowContentUploadForm(false);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -116,6 +118,7 @@ const MarketingContent = () => {
       setNewContent(data);
       setShowContentUploadForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -141,6 +144,7 @@ const MarketingContent = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

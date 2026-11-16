@@ -34,6 +34,7 @@ const PropertyAuthority = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -71,6 +72,7 @@ const PropertyAuthority = () => {
       setShowAuthorityForm(false);
       fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -91,6 +93,7 @@ const PropertyAuthority = () => {
       setNewAuthority(data);
       setShowAuthorityForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -112,6 +115,7 @@ const PropertyAuthority = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -133,6 +137,7 @@ const PropertyAuthority = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

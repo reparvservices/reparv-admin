@@ -57,6 +57,7 @@ const Profile = () => {
       setNewUser(data);
       setUser(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -94,6 +95,7 @@ const Profile = () => {
       });
       await fetchProfile();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

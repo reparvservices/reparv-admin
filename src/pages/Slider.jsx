@@ -38,6 +38,7 @@ const Slider = () => {
       const data = await response.json();
       setData(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -85,6 +86,7 @@ const Slider = () => {
       setShowSliderForm(false);
       await fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -132,6 +134,7 @@ const Slider = () => {
       setShowAddMobileImage(false);
       await fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -157,6 +160,7 @@ const Slider = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -180,6 +184,7 @@ const Slider = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

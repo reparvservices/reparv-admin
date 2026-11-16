@@ -77,6 +77,7 @@ const AdsManager = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -97,6 +98,7 @@ const AdsManager = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -118,6 +120,7 @@ const AdsManager = () => {
       const list = await response.json();
       setProjectPartnerList(list);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -157,6 +160,7 @@ const AdsManager = () => {
         });
       }
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -175,6 +179,7 @@ const AdsManager = () => {
       const data = await response.json();
       setAdsManagers(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -197,6 +202,7 @@ const AdsManager = () => {
       // Only show form after data is loaded
       setShowAdsManager(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -218,6 +224,7 @@ const AdsManager = () => {
       // Only show form after data is loaded
       setShowAdsManagerForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -267,6 +274,7 @@ const AdsManager = () => {
         await fetchData();
       }
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -293,6 +301,7 @@ const AdsManager = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -318,6 +327,7 @@ const AdsManager = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -340,6 +350,7 @@ const AdsManager = () => {
       // Only show form after data is loaded
       setShowAdURLForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -400,6 +411,7 @@ const AdsManager = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

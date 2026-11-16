@@ -88,6 +88,7 @@ const News = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -105,6 +106,7 @@ const News = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -123,6 +125,7 @@ const News = () => {
       const data = await response.json();
       setNews(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -154,6 +157,7 @@ const News = () => {
       // Only show form after blog data is loaded
       setShowNewsForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -214,6 +218,7 @@ const News = () => {
         await fetchData();
       }
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -240,6 +245,7 @@ const News = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -260,6 +266,7 @@ const News = () => {
       setSeoDescription(data.seoDescription);
       setShowSeoForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -288,6 +295,7 @@ const News = () => {
       setSeoDescription("");
       await fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -315,6 +323,7 @@ const News = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

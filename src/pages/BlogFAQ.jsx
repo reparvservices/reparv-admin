@@ -39,6 +39,7 @@ const BlogFAQs = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -84,6 +85,7 @@ const BlogFAQs = () => {
       setShowFAQForm(false);
       fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -102,6 +104,7 @@ const BlogFAQs = () => {
       setNewFAQ(data);
       setShowFAQForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -124,6 +127,7 @@ const BlogFAQs = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -145,6 +149,7 @@ const BlogFAQs = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

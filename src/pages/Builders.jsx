@@ -75,6 +75,7 @@ const Builders = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -136,6 +137,7 @@ const Builders = () => {
 
       await fetchData(); // Ensure latest data is fetched
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -156,6 +158,7 @@ const Builders = () => {
       setNewBuilder(data);
       setShowBuilderForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -174,6 +177,7 @@ const Builders = () => {
       setBuilder(data);
       setShowBuilder(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -202,6 +206,7 @@ const Builders = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -231,6 +236,7 @@ const Builders = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -267,6 +273,7 @@ const Builders = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

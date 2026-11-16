@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Products from "../components/brandAccessories/Products";
 import OrderDetails from "../components/brandAccessories/OrderDetails";
 

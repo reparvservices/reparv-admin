@@ -57,6 +57,7 @@ function UpdateEMI() {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -74,6 +75,7 @@ function UpdateEMI() {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -91,6 +93,7 @@ function UpdateEMI() {
       const data = await response.json();
       setFormData(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -147,6 +150,7 @@ function UpdateEMI() {
       alert("Data Updated SuccessFully!");
       navigate("/users-loan-eligibility");
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

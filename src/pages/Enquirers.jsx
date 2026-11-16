@@ -133,6 +133,7 @@ const Enquirers = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -153,6 +154,7 @@ const Enquirers = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -174,6 +176,7 @@ const Enquirers = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -193,6 +196,7 @@ const Enquirers = () => {
       const list = await response.json();
       setRemarkList(list);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -256,6 +260,7 @@ const Enquirers = () => {
       setPropertyList(list);
       setShowEnquirerPropertyForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -285,6 +290,7 @@ const Enquirers = () => {
       setShowEnquirerPropertyForm(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -304,6 +310,7 @@ const Enquirers = () => {
       const data = await response.json();
       setSalesPersonList(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -335,6 +342,7 @@ const Enquirers = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
+        alert(error?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -376,6 +384,7 @@ const Enquirers = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
+        alert(error?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -406,6 +415,7 @@ const Enquirers = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
+        alert(error?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -435,6 +445,7 @@ const Enquirers = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
+        alert(error?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -469,6 +480,7 @@ const Enquirers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -511,6 +523,7 @@ const Enquirers = () => {
       setShowAssignSalesForm(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -530,6 +543,7 @@ const Enquirers = () => {
       setEnquiry(data);
       setShowEnquiry(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -578,6 +592,7 @@ const Enquirers = () => {
 
       await fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -598,6 +613,7 @@ const Enquirers = () => {
       setNewEnquiry(data);
       setShowEnquiryUpdateForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -649,6 +665,7 @@ const Enquirers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -955,6 +972,7 @@ const Enquirers = () => {
             if (resolved) imageSrc = resolved;
           }
         } catch (e) {
+          console.error(e);
         }
 
         return (

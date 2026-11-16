@@ -58,6 +58,7 @@ export default function PaymentUpdateModal({
       const data = await response.json();
       setPlans(data);
     } catch (err) {
+      console.error(err);
     }
   };
 

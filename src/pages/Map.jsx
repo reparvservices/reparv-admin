@@ -48,7 +48,9 @@ const Map = () => {
 
       const data = await response.json();
       setCities(data); // Sets the cities array
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   //Fetch Data
@@ -69,6 +71,7 @@ const Map = () => {
       const data = await response.json();
       setProperties(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -118,7 +121,9 @@ const Map = () => {
           if (Array.isArray(parsed) && parsed[0]) {
             imageSrc = `${getImageURI(parsed[0])}`;
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error(e);
+        }
 
         return (
           <div className="w-[130px] h-14 overflow-hidden flex items-center justify-center">

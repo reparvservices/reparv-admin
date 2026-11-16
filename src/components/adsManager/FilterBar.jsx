@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../store/auth";
-import axios from "axios";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
 export default function FilterBar({ onResults, filters, setFilters }) {
@@ -24,6 +23,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
 
       setPlanNames(Array.isArray(data) ? data : []);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -38,6 +38,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
 
       setCities(Array.isArray(data) ? data : []);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -57,6 +58,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
 
       setProjectPartners(Array.isArray(data) ? data : []);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -82,6 +84,7 @@ export default function FilterBar({ onResults, filters, setFilters }) {
 
       setProperties(Array.isArray(data) ? data : []);
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     }
   };
 

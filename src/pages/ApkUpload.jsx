@@ -33,6 +33,7 @@ const ApkUpload = () => {
       const data = await response.json();
       setApks(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -76,6 +77,7 @@ const ApkUpload = () => {
       setShowApkUploadForm(false);
       fetchData();
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -96,6 +98,7 @@ const ApkUpload = () => {
       setNewApk(data);
       setShowApkUploadForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -117,6 +120,7 @@ const ApkUpload = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -138,6 +142,7 @@ const ApkUpload = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 

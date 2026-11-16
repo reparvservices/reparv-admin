@@ -82,6 +82,7 @@ const Employee = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -102,6 +103,7 @@ const Employee = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -122,6 +124,7 @@ const Employee = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -142,6 +145,7 @@ const Employee = () => {
       setEmployee(data);
       setShowEmployee(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -159,6 +163,7 @@ const Employee = () => {
       const data = await response.json();
       setTask({ ...task, menus: JSON.parse(data.menus) });
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -176,6 +181,7 @@ const Employee = () => {
       const data = await response.json();
       setMenus(data); // Store the fetched data
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -193,6 +199,7 @@ const Employee = () => {
       const data = await response.json();
       setRoleData(data); // Store the fetched data
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -210,6 +217,7 @@ const Employee = () => {
       const data = await response.json();
       setDepartmentData(data); // Store the fetched data
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -260,6 +268,7 @@ const Employee = () => {
 
       await fetchData(); // Ensure latest data is fetched
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -279,6 +288,7 @@ const Employee = () => {
       setEmployeeData(data);
       setShowEplDetailsForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -302,6 +312,7 @@ const Employee = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -327,6 +338,7 @@ const Employee = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -357,6 +369,7 @@ const Employee = () => {
       setShowAssignTaskForm(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -395,6 +408,7 @@ const Employee = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

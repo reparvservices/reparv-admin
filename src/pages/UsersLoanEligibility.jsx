@@ -72,6 +72,7 @@ const UsersLoanEligibility = () => {
       setFormData(data);
       setShowEMIForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -99,6 +100,7 @@ const UsersLoanEligibility = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -126,6 +128,7 @@ const UsersLoanEligibility = () => {
       setShowEMI(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -150,6 +153,7 @@ const UsersLoanEligibility = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

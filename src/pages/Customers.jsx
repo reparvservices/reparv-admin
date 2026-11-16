@@ -80,6 +80,7 @@ const Customers = () => {
       const data = await response.json();
       setCustomers(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -101,6 +102,7 @@ const Customers = () => {
       await fetchPaymentData(id, data);
       setShowCustomer(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -119,6 +121,7 @@ const Customers = () => {
       calculateBalance(data, customer);
       setPaymentList(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -157,6 +160,7 @@ const Customers = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -249,6 +253,7 @@ const Customers = () => {
             imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
+          console.error(e);
         }
 
         return (

@@ -99,6 +99,7 @@ const TerritoryPartner = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -116,6 +117,7 @@ const TerritoryPartner = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -174,6 +176,7 @@ const TerritoryPartner = () => {
       setProjectPartnerList(list);
       setShowAssignProjectPartnerForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -220,6 +223,7 @@ const TerritoryPartner = () => {
         await fetchData();
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -240,6 +244,7 @@ const TerritoryPartner = () => {
       setNewPartner(data);
       setShowPartnerForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -258,6 +263,7 @@ const TerritoryPartner = () => {
       setPartner(data);
       setShowPartner(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -287,6 +293,7 @@ const TerritoryPartner = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -316,6 +323,7 @@ const TerritoryPartner = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -345,6 +353,7 @@ const TerritoryPartner = () => {
 
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -367,6 +376,7 @@ const TerritoryPartner = () => {
       const data = await response.json();
       setFollowUpList(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -404,6 +414,7 @@ const TerritoryPartner = () => {
       setFollowUp("");
       setFollowUpText("");
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -442,6 +453,7 @@ const TerritoryPartner = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

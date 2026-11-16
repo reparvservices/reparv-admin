@@ -74,6 +74,7 @@ const Promoter = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -91,6 +92,7 @@ const Promoter = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -116,6 +118,7 @@ const Promoter = () => {
       // Set the table data
       setDatas(result);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -161,6 +164,7 @@ const Promoter = () => {
         await fetchData();
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -181,6 +185,7 @@ const Promoter = () => {
       setNewPartner(data);
       setShowPartnerForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -199,6 +204,7 @@ const Promoter = () => {
       setPartner(data);
       setShowPartner(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -225,6 +231,7 @@ const Promoter = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -250,6 +257,7 @@ const Promoter = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -281,6 +289,7 @@ const Promoter = () => {
       setShowPaymentIdForm(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -303,6 +312,7 @@ const Promoter = () => {
       const data = await response.json();
       setFollowUpList(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -337,6 +347,7 @@ const Promoter = () => {
       setFollowUp("");
       setFollowUpText("");
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -373,6 +384,7 @@ const Promoter = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

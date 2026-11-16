@@ -136,6 +136,7 @@ const DigitalBroker = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -156,6 +157,7 @@ const DigitalBroker = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -177,6 +179,7 @@ const DigitalBroker = () => {
       const data = await response.json();
       setDatas(data);
     } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -196,6 +199,7 @@ const DigitalBroker = () => {
       const list = await response.json();
       setRemarkList(list);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -259,6 +263,7 @@ const DigitalBroker = () => {
       setPropertyList(list);
       setShowEnquirerPropertyForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -288,6 +293,7 @@ const DigitalBroker = () => {
       setShowEnquirerPropertyForm(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -307,6 +313,7 @@ const DigitalBroker = () => {
       const data = await response.json();
       setSalesPersonList(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -338,6 +345,7 @@ const DigitalBroker = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
+        alert(error?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -379,6 +387,7 @@ const DigitalBroker = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
+        alert(error?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -409,6 +418,7 @@ const DigitalBroker = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
+        alert(error?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -438,6 +448,7 @@ const DigitalBroker = () => {
           alert(`Error: ${data.message}`);
         }
       } catch (error) {
+        alert(error?.message || "Something went wrong. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -472,6 +483,7 @@ const DigitalBroker = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -514,6 +526,7 @@ const DigitalBroker = () => {
       setShowAssignSalesForm(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -533,6 +546,7 @@ const DigitalBroker = () => {
       setEnquiry(data);
       setShowEnquiry(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -584,6 +598,7 @@ const DigitalBroker = () => {
 
       await fetchData();
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -604,6 +619,7 @@ const DigitalBroker = () => {
       setNewEnquiry(data);
       setShowEnquiryUpdateForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -655,6 +671,7 @@ const DigitalBroker = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -836,6 +853,7 @@ const DigitalBroker = () => {
             imageSrc = `${getImageURI(parsed[0])}`;
           }
         } catch (e) {
+          console.error(e);
         }
 
         return (

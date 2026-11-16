@@ -98,6 +98,7 @@ const SalesPerson = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -118,6 +119,7 @@ const SalesPerson = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -176,6 +178,7 @@ const SalesPerson = () => {
       setProjectPartnerList(list);
       setShowAssignProjectPartnerForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -221,6 +224,7 @@ const SalesPerson = () => {
         await fetchData();
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -241,6 +245,7 @@ const SalesPerson = () => {
       setNewSalesPerson(data);
       setShowSalesForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -259,6 +264,7 @@ const SalesPerson = () => {
       setPartner(data);
       setShowSalesPerson(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -284,6 +290,7 @@ const SalesPerson = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -314,6 +321,7 @@ const SalesPerson = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -343,6 +351,7 @@ const SalesPerson = () => {
 
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -366,6 +375,7 @@ const SalesPerson = () => {
       const data = await response.json();
       setFollowUpList(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -403,6 +413,7 @@ const SalesPerson = () => {
       setFollowUp("");
       setFollowUpText("");
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -443,6 +454,7 @@ const SalesPerson = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

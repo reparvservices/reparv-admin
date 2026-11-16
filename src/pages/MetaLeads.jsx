@@ -222,6 +222,7 @@ export default function MetaLeads() {
         setDatas(sorted);
       }
     } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -243,6 +244,7 @@ export default function MetaLeads() {
         setDatas((p) => p.filter((i) => i.id !== deleteModal.id));
       else alert(result.message || "Delete failed");
     } catch (e) {
+      alert(e?.message || "Something went wrong. Please try again.");
     } finally {
       setDeleteModal(null);
       setLoading(false);

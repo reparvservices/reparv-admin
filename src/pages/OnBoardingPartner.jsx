@@ -77,6 +77,7 @@ const OnBoardingPartner = () => {
       const data = await response.json();
       setStates(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -94,6 +95,7 @@ const OnBoardingPartner = () => {
       const data = await response.json();
       setCities(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -161,6 +163,7 @@ const OnBoardingPartner = () => {
         await fetchData();
       }
     } catch (err) {
+      alert(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -181,6 +184,7 @@ const OnBoardingPartner = () => {
       setNewPartner(data);
       setShowPartnerForm(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -199,6 +203,7 @@ const OnBoardingPartner = () => {
       setPartner(data);
       setShowPartner(true);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -225,6 +230,7 @@ const OnBoardingPartner = () => {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -251,6 +257,7 @@ const OnBoardingPartner = () => {
       }
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -282,6 +289,7 @@ const OnBoardingPartner = () => {
       setShowPaymentIdForm(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -301,6 +309,7 @@ const OnBoardingPartner = () => {
       const data = await response.json();
       setFollowUpList(data);
     } catch (err) {
+      console.error(err);
     }
   };
 
@@ -333,6 +342,7 @@ const OnBoardingPartner = () => {
       setFollowUp("");
       setFollowUpText("");
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -373,6 +383,7 @@ const OnBoardingPartner = () => {
       setGiveAccess(false);
       fetchData();
     } catch (error) {
+      alert(error?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
