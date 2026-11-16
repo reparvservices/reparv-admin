@@ -75,12 +75,13 @@ export default function Dashboard() {
         setError(err.message || "Could not load dashboard data.");
         if (!silent) setSummary(null);
       } finally {
-        if (!mountedRef.current) return;
-        if (!silent) {
-          setLocalLoading(false);
-          setLoading(false);
-        } else {
-          setRefreshing(false);
+        if (mountedRef.current) {
+          if (!silent) {
+            setLocalLoading(false);
+            setLoading(false);
+          } else {
+            setRefreshing(false);
+          }
         }
       }
     },

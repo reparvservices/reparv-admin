@@ -210,7 +210,6 @@ const Ticketing = () => {
       if (data.updated && data.status === label) {
         // Check if update happened
         alert("Status Changed Successfully to " + label);
-      } else {
       }
     } catch (err) {
     } finally {

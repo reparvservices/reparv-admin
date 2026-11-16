@@ -329,7 +329,7 @@ const PropertyAuthority = () => {
               <button
                type="button"
                 onClick={() => {
-                  setShowRoleForm(false);
+                  setShowAuthorityForm(false);
                   setNewAuthority({
                   id: "",
                   authorityName: "",

@@ -1196,8 +1196,8 @@ const Products = ({ selectedTable, setSelectedTable }) => {
           </div>
           <div className="grid grid-cols-1 gap-4">
             {stockList?.length > 0 ? (
-              stockList?.map((stock) => (
-                <div className="w-full p-3 border rounded-xl bg-white shadow-sm space-y-2">
+              stockList?.map((stock, stockIndex) => (
+                <div key={stock?.id ?? stockIndex} className="w-full p-3 border rounded-xl bg-white shadow-sm space-y-2">
                   <div className="w-full flex items-center justify-start gap-2 px-4 py-1 border rounded-md">
                     <h2 className="text-sm font-semibold ">LOT Number : </h2>
                     <span className="bg-[#EAFBF1] text-[#0BB501] text-[12px] font-semibold px-1 py-0.5 rounded">

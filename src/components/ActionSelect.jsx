@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 const ActionSelect = ({
   viewRoute,
   statusAction,
+  approveAction,
   editAction,
   deleteAction,
 }) => {
@@ -20,11 +21,11 @@ const ActionSelect = ({
         break;
 
       case "status":
-        statusAction();
+        statusAction?.();
         break;
 
       case "approve":
-        approveAction();
+        approveAction?.();
         break;
 
       case "upload":
@@ -34,11 +35,11 @@ const ActionSelect = ({
 
       case "update":
         setAction("update"); // Optional: Set global state for action
-        editAction();
+        editAction?.();
         break;
 
       case "delete":
-        deleteAction(); // Call the function passed from Employee table
+        deleteAction?.(); // Call the function passed from Employee table
     }
   };
 

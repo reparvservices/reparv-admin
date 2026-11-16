@@ -1208,9 +1208,7 @@ const DigitalBroker = () => {
               <input
                 type="hidden"
                 value={newEnquiry.enquirersid || ""}
-                onChange={(e) => {
-                  setPartnerId(e.target.value);
-                }}
+                readOnly
               />
               <div className="w-full ">
                 <label className="block text-sm leading-4 text-[#00000066] font-medium">

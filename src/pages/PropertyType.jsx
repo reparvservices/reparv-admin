@@ -97,8 +97,6 @@ const PropertyType = () => {
       cell: (row) => (
         <ActionSelect
           // statusAction={() =>status(row.salespersonsid)}
-          editAction={() => edit(row.salespersonsid)} // Dynamic edit route
-          deleteAction={() => del(row.salespersonsid)} // Delete function
         />
       ),
     },

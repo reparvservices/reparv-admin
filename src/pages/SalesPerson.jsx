@@ -348,40 +348,6 @@ const SalesPerson = () => {
     }
   };
 
-  // Update Payment ID
-  const updatePaymentIdOld = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await fetch(
-        `${URI}/admin/salespersons/update/paymentid/${salesPersonId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payment),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
-      }
-
-      alert(`Success: ${data.message}`);
-      setSalesPersonId(null);
-      setShowPaymentIdForm(false);
-      fetchData();
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Fetch Follow Up List
   const fetchFollowUpList = async (id) => {

@@ -91,9 +91,10 @@ const ProjectPartner = () => {
           setTotal(0);
         }
       } finally {
-        if (!mountedRef.current) return;
-        setListLoading(false);
-        setRefreshing(false);
+        if (mountedRef.current) {
+          setListLoading(false);
+          setRefreshing(false);
+        }
       }
     },
     [URI, page, perPage, debouncedSearch, partnerPaymentStatus, range],
