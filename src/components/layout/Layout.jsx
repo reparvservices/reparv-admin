@@ -17,7 +17,7 @@ import { RiAdvertisementFill } from "react-icons/ri";
 import { FaUsers } from "react-icons/fa";
 import { BiSolidDiamond } from "react-icons/bi";
 import { FaTicket } from "react-icons/fa6";
-import { FaPhotoVideo, FaShoppingBag } from "react-icons/fa";
+import { FaPhotoVideo, FaShoppingBag, FaHome } from "react-icons/fa";
 
 const menuItems = [
   {
@@ -36,6 +36,12 @@ const menuItems = [
     to: "/brand-accessories",
     icon: <FaShoppingBag size={21} />,
     label: "Brand Accessories",
+  },
+
+  {
+    to: "/venues",
+    icon: <FaHome size={21} />,
+    label: "Venue Booking",
   },
 
   // Leads Dropdown

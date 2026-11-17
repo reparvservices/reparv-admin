@@ -16,6 +16,7 @@ const Calender = lazy(() => import("./pages/Calender.jsx"));
 const Customers = lazy(() => import("./pages/Customers.jsx"));
 const Ticketing = lazy(() => import("./pages/Ticketing.jsx"));
 const BrandAccessories = lazy(() => import("./pages/BrandAccessories.jsx"));
+const Venues = lazy(() => import("./pages/Venues.jsx"));
 const MarketingContent = lazy(() => import("./pages/MarketingContent.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Employee = lazy(() => import("./pages/Employee.jsx"));
@@ -148,6 +149,7 @@ const App = () => {
           <Route path="/property-authorities" element={<PropertyAuthority />} />
           <Route path="/tickets" element={<Ticketing />} />
           <Route path="/brand-accessories" element={<BrandAccessories />} />
+          <Route path="/venues" element={<Venues />} />
           <Route path="/slider" element={<Slider />} />
           <Route path="/testimonial" element={<Testimonial />} />
           <Route
