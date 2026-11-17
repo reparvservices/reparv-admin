@@ -393,7 +393,7 @@ const PropertiesFlatAndPlotInfo = () => {
     },
     {
       name: "Status",
-      cell: (row, index) => (
+      cell: (row) => (
         <span
           onClick={() => {
             //view(row.propertyinfoid);
@@ -515,7 +515,7 @@ const PropertiesFlatAndPlotInfo = () => {
     },
     {
       name: "Status",
-      cell: (row, index) => (
+      cell: (row) => (
         <span
           onClick={() => {
             //view(row.propertyinfoid);
@@ -589,7 +589,7 @@ const PropertiesFlatAndPlotInfo = () => {
   ];
 
   const ActionDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action, id) => {
       switch (action) {

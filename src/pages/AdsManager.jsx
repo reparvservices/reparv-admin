@@ -554,7 +554,7 @@ const AdsManager = () => {
     },
     {
       name: "Property ID",
-      cell: (row, index) => (
+      cell: (row) => (
         <span
           onClick={() => {
             view(row.id);
@@ -575,7 +575,7 @@ const AdsManager = () => {
     },
     {
       name: "Ads Status",
-      cell: (row, index) => (
+      cell: (row) => (
         <span
           onClick={() => {
             view(row.id);
@@ -668,7 +668,7 @@ const AdsManager = () => {
   ];
 
   const ActionDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action, id, slug) => {
       switch (action) {

@@ -145,7 +145,7 @@ const Map = () => {
     },
     {
       name: "Property Name",
-      cell: (row, index) => (
+      cell: (row) => (
         <div className="relative group flex items-center w-full">
           {/* Property Name */}
           <span

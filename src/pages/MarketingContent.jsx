@@ -197,7 +197,7 @@ const MarketingContent = () => {
   const contentTypeSummary = getContentType(filteredData);
 
   const ActionDropdown = ({ content }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action, id, url) => {
       switch (action) {

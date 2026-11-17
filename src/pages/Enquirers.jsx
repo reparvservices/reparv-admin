@@ -49,7 +49,7 @@ const Enquirers = () => {
   const [file, setFile] = useState(null);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
-  const [property, setProperty] = useState({});
+  const [property] = useState({});
   const [enquiry, setEnquiry] = useState({});
   const [enquiryStatus, setEnquiryStatus] = useState("");
   const [salesPersonList, setSalesPersonList] = useState([]);
@@ -1093,7 +1093,7 @@ const Enquirers = () => {
   });
 
   const ActionDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action, id) => {
       switch (action) {

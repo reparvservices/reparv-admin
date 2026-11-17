@@ -231,7 +231,7 @@ const CalendarScheduler = () => {
                 </p>
               )}
 
-              {dailyMeetings?.map((meeting, index) => (
+              {dailyMeetings?.map((meeting) => (
                 <div
                   key={meeting.followupid}
                   className="flex justify-between items-start p-4 border-b"

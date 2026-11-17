@@ -138,7 +138,7 @@ const Subscribers = () => {
     },
     {
       name: "Status",
-      cell: (row, index) => (
+      cell: (row) => (
         <div className="group flex items-center w-full">
           {/* Serial Number Box */}
           <span
@@ -168,7 +168,7 @@ const Subscribers = () => {
   ];
 
   const ActionDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action, id) => {
       switch (action) {

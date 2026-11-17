@@ -10,7 +10,7 @@ const ActionSelect = ({
   editAction,
   deleteAction,
 }) => {
-  const [selectedAction, setSelectedAction] = useState("");
+  const [selectedAction] = useState("");
   const { setShowEplDetailsForm, setAction, setShowUploadImagesForm} = useAuth();
   const navigate = useNavigate();
 

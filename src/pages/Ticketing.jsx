@@ -436,7 +436,7 @@ const Ticketing = () => {
     },
     {
       name: "Ticket No",
-      cell: (row, index) => (
+      cell: (row) => (
         <span
           onClick={() => {
             viewTicket(row.ticketid);
@@ -530,7 +530,7 @@ const Ticketing = () => {
   });
 
   const ActionDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action, id) => {
       switch (action) {
@@ -579,7 +579,7 @@ const Ticketing = () => {
   };
 
   const StatusDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action, id) => {
       switch (action) {

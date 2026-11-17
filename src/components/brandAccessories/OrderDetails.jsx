@@ -253,7 +253,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
     { name: "Date & Time", selector: (row) => row.orderCreatedAt, width: "200px" },
     {
       name: "Order ID",
-      cell: (row, index) => (
+      cell: (row) => (
         <span
           className={`min-w-6 flex items-center justify-center px-2 py-1 rounded-md cursor-pointer ${
             row.orderStatus === "New"
@@ -336,7 +336,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
   });
 
   const ActionDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action, id) => {
       switch (action) {

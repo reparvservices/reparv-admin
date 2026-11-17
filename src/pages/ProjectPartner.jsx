@@ -452,7 +452,7 @@ const ProjectPartner = () => {
   ];
 
   const ActionDropdown = ({ row }) => {
-    const [selectedAction, setSelectedAction] = useState("");
+    const [selectedAction] = useState("");
 
     const handleActionSelect = (action) => {
       if (action === "view") viewPartner(row.id);
