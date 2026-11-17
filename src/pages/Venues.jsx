@@ -152,7 +152,7 @@ const Venues = () => {
                       <div className="text-xs text-gray-500">Partner #{l.owner_id}</div>
                       {l.reject_reason && <div className="text-xs text-red-600">Rejected: {l.reject_reason}</div>}
                     </td>
-                    <td className="p-3 capitalize">{l.type}</td>
+                    <td className="p-3 capitalize">{l.type === "other" && l.custom_type ? l.custom_type : l.type}</td>
                     <td className="p-3">{l.city}</td>
                     <td className="p-3">{rupees(l.base_price)} / {l.price_model}</td>
                     <td className="p-3">{l.capacity}</td>
