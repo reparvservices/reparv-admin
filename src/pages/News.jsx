@@ -15,6 +15,7 @@ import DownloadCSV from "../components/DownloadCSV";
 import { getImageURI } from "../utils/helper";
 import { FaEye, FaHeart, FaShareAlt } from "react-icons/fa";
 import { formatNumber } from "../utils/formatNumber";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const News = () => {
   const {
@@ -226,7 +227,7 @@ const News = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this News status?"))
+    if (!(await confirmDialog("Are you sure you want to change this News status?")))
       return;
 
     try {
@@ -303,7 +304,7 @@ const News = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this News?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this News?"))) return;
 
     try {
       setLoading(true);

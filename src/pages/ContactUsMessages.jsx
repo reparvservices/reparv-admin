@@ -4,6 +4,7 @@ import { CiSearch } from "react-icons/ci";
 import { useAuth } from "../store/auth";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const ContactUsMessages = () => {
   const { URI, setLoading } = useAuth();
@@ -33,7 +34,7 @@ const ContactUsMessages = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure to delete this Message ?")) return;
+    if (!(await confirmDialog("Are you sure to delete this Message ?"))) return;
     try {
       const response = await fetch(URI + `/admin/contact-us/${id}`, {
         method: "DELETE",
@@ -59,7 +60,7 @@ const ContactUsMessages = () => {
   const status = async (row) => {
     const next =
       STATUS_FLOW[(STATUS_FLOW.indexOf(row.status) + 1) % STATUS_FLOW.length];
-    if (!window.confirm(`Change status to "${next}"?`)) return;
+    if (!(await confirmDialog(`Change status to "${next}"?`))) return;
 
     try {
       const response = await fetch(URI + `/admin/contact-us/${row.id}/status`, {

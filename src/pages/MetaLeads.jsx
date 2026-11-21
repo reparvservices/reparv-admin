@@ -12,7 +12,7 @@ import { HiOutlineLocationMarker } from "react-icons/hi";
 import DataTable from "react-data-table-component";
 
 const URI = (
-  import.meta.env.VITE_API_BASE_URL || "https://aws-api.reparv.in"
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"
 ).replace(/\/+$/, "");
 
 /* ─── helpers ─── */

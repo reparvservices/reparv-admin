@@ -13,6 +13,7 @@ import { MdDone } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
 import FormatPrice from "../components/FormatPrice";
 import DeleteButton from "../components/DeleteButton";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const PropertiesFlatAndPlotInfo = () => {
   const { propertyid } = useParams();
@@ -217,7 +218,7 @@ const PropertiesFlatAndPlotInfo = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure to delete this entry?")) return;
+    if (!(await confirmDialog("Are you sure to delete this entry?"))) return;
     try {
       const response = await fetch(
         URI + `/admin/property/additional-info/delete/${id}`,
@@ -241,7 +242,7 @@ const PropertiesFlatAndPlotInfo = () => {
 
   // Delete record
   const deleteAllData = async () => {
-    if (!window.confirm("Are you sure to delete All Data?")) return;
+    if (!(await confirmDialog("Are you sure to delete All Data?"))) return;
     try {
       const response = await fetch(
         URI +
@@ -266,7 +267,7 @@ const PropertiesFlatAndPlotInfo = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure to change this status?")) return;
+    if (!(await confirmDialog("Are you sure to change this status?"))) return;
 
     try {
       const response = await fetch(
@@ -290,7 +291,7 @@ const PropertiesFlatAndPlotInfo = () => {
 
   // change status into reserve
   const reserved = async (id) => {
-    if (!window.confirm(`Are you sure to reserve this ${category}?`)) return;
+    if (!(await confirmDialog(`Are you sure to reserve this ${category}?`))) return;
 
     try {
       const response = await fetch(

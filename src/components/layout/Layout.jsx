@@ -19,11 +19,58 @@ import { BiSolidDiamond } from "react-icons/bi";
 import { FaTicket } from "react-icons/fa6";
 import { FaPhotoVideo, FaShoppingBag, FaHome } from "react-icons/fa";
 
+// Sidebar order: Dashboard, Users, Properties, then the day-to-day work.
+// Entries that aren't used right now are commented out (not deleted): uncomment to bring them back.
+// Their pages and routes still work if opened by URL.
 const menuItems = [
   {
     label: "Dashboard",
     icon: <MdDashboard size={21} />,
     to: "/dashboard",
+  },
+
+  // Users: Partners, Employees, Guest Users and Customers in one page
+  {
+    label: "Users",
+    icon: <FaUsers size={21} />,
+    to: "/users",
+  },
+
+  // Properties (Venue Booking is a property type too)
+  {
+    label: "Properties",
+    icon: <PiBuildingsFill size={21} />,
+    to: "/properties",
+  },
+
+  // Leads: the enquiry lists. AI / Meta / Digital Broker / Whatsapp Chat are hidden for now.
+  {
+    label: "Leads",
+    icon: <IoIosListBox size={21} />,
+    dropdown: [
+      { label: "Enquirers", to: "/enquirers" },
+      { label: "Call Enquirers", to: "/call-enquirers" },
+      { label: "Whatsapp Enquirers", to: "/whatsapp-enquirers" },
+      // { label: "Whatsapp Chat", to: "/whatsapp-chat" },
+      // { label: "Digital Broker", to: "/digital-broker" },
+      // { label: "Meta Leads", to: "/meta-leads" },
+      // { label: "AI Leads", to: "/ai-leads" },
+      // { label: "AI Conversations", to: "/ai-conversations" },
+    ],
+  },
+
+  // Partners take a subscription for their website
+  {
+    label: "Subscription Plans",
+    icon: <BiSolidDiamond size={21} />,
+    dropdown: [
+      { label: "Subscription Pricing", to: "/subscription-pricing" },
+      { label: "Listing Fees", to: "/listing-fees" },
+      { label: "Subscription Features", to: "/subscription-features" },
+      { label: "User Subscriptions", to: "/user-subscriptions" },
+      { label: "GST Bills", to: "/gst-bills" },
+      { label: "Subscription Analytics", to: "/subscription-analytics" },
+    ],
   },
 
   {
@@ -32,87 +79,7 @@ const menuItems = [
     label: "Tickets",
   },
 
-  {
-    to: "/brand-accessories",
-    icon: <FaShoppingBag size={21} />,
-    label: "Brand Accessories",
-  },
-
-  {
-    to: "/venues",
-    icon: <FaHome size={21} />,
-    label: "Venue Booking",
-  },
-
-  // Leads Dropdown
-  {
-    label: "Leads",
-    icon: <IoIosListBox size={21} />,
-    dropdown: [
-      { label: "Enquirers", to: "/enquirers" },
-      { label: "Call Enquirers", to: "/call-enquirers" },
-      { label: "Whatsapp Enquirers", to: "/whatsapp-enquirers" },
-      { label: "Whatsapp Chat", to: "/whatsapp-chat" },
-      { label: "Digital Broker", to: "/digital-broker" },
-      { label: "Meta Leads", to: "/meta-leads" },
-      { label: "AI Leads", to: "/ai-leads" },
-      { label: "AI Conversations", to: "/ai-conversations" },
-    ],
-  },
-
-  // Customers
-  {
-    label: "Visitors",
-    icon: <HiUsers size={21} />,
-    dropdown: [
-      { label: "Customers", to: "/customers" },
-      { label: "Messages", to: "/contact-us-messages" },
-      { label: "Users Loan Eligibility", to: "/users-loan-eligibility" },
-    ],
-  },
-
-  // Project Dropdown
-  {
-    label: "Projects",
-    icon: <PiBuildingsFill size={21} />,
-    dropdown: [
-      { label: "Properties", to: "/properties" },
-      { label: "Authorities", to: "/property-authorities" },
-      { label: "Builders", to: "/builders" },
-      { label: "Map", to: "/map" },
-    ],
-  },
-
-  // Users: Partners, Employees and Users in one page
-  {
-    label: "Users",
-    icon: <FaUsers size={21} />,
-    to: "/users",
-  },
-
-  {
-    label: "Promotions",
-    icon: <RiAdvertisementFill size={21} />,
-    dropdown: [
-      { label: "Ads Manager", to: "/ads-manager" },
-      { label: "Advertisements", to: "/advertisements" },
-    ],
-  },
-
-  // Subscription Plan Dopdown
-  {
-    label: "Subscription Plans",
-    icon: <BiSolidDiamond size={21} />,
-    dropdown: [
-      { label: "Subscription Pricing", to: "/subscription-pricing" },
-      { label: "Subscription Features", to: "/subscription-features" },
-      { label: "User Subscriptions", to: "/user-subscriptions" },
-      { label: "GST Bills", to: "/gst-bills" },
-      { label: "Subscription Analytics", to: "/subscription-analytics" },
-    ],
-  },
-
-  // Manage Reparv Dopdown
+  // Website content
   {
     label: "Manage Reparv",
     icon: <FaPhotoVideo size={21} />,
@@ -127,6 +94,40 @@ const menuItems = [
       { label: "Marketing Content", to: "/marketing-content" },
     ],
   },
+
+  // ---- Hidden for now ----
+
+  // Visitors: Customers and Messages are tabs on the Users page
+  // {
+  //   label: "Visitors",
+  //   icon: <HiUsers size={21} />,
+  //   dropdown: [
+  //     { label: "Customers", to: "/customers" },
+  //     { label: "Messages", to: "/contact-us-messages" },
+  //     { label: "Users Loan Eligibility", to: "/users-loan-eligibility" },
+  //   ],
+  // },
+
+  // Projects extras (Properties is now its own entry above)
+  // { label: "Authorities", to: "/property-authorities" },
+  // { label: "Builders", to: "/builders" },
+  // { label: "Map", to: "/map" },
+
+  // Promotions
+  // {
+  //   label: "Promotions",
+  //   icon: <RiAdvertisementFill size={21} />,
+  //   dropdown: [
+  //     { label: "Ads Manager", to: "/ads-manager" },
+  //     { label: "Advertisements", to: "/advertisements" },
+  //   ],
+  // },
+
+  // Brand Accessories
+  // { to: "/brand-accessories", icon: <FaShoppingBag size={21} />, label: "Brand Accessories" },
+
+  // Venue Booking is a property type now: manage it from Properties
+  // { to: "/venues", icon: <FaHome size={21} />, label: "Venue Booking" },
 ];
 
 function Layout() {

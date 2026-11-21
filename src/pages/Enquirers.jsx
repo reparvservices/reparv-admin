@@ -17,6 +17,7 @@ import Select from "react-select";
 import DownloadCSV from "../components/DownloadCSV";
 import EnquiryFilter from "../components/EnquiryFilter";
 import { getImageURI } from "../utils/helper";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Enquirers = () => {
   const {
@@ -452,9 +453,9 @@ const Enquirers = () => {
     }
 
     if (
-      !window.confirm(
+      !(await confirmDialog(
         "Are you sure you want to change into this Enquiry status?",
-      )
+      ))
     ) {
       return;
     }
@@ -489,10 +490,10 @@ const Enquirers = () => {
   const assignSalesPerson = async (e) => {
     e.preventDefault();
     if (
-      !window.confirm(
+      !(await confirmDialog(
         "Are you sure you want to assign Enquiry to " +
           salesPersonAssign.salesperson,
-      )
+      ))
     )
       return;
 
@@ -645,7 +646,7 @@ const Enquirers = () => {
 
   // Delete Enquiry
   const deleteEnquiry = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Enquiry ?"))
+    if (!(await confirmDialog("Are you sure you want to delete this Enquiry ?")))
       return;
     try {
       setLoading(true);

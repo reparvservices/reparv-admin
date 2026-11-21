@@ -17,6 +17,7 @@ import { MdDone } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
 import Select from "react-select";
 import PaymentUpdateModal from "../components/PaymentUpdateModal";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const SalesPerson = () => {
   const {
@@ -270,7 +271,7 @@ const SalesPerson = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Sales Person?"))
+    if (!(await confirmDialog("Are you sure you want to delete this Sales Person?")))
       return;
 
     try {
@@ -299,9 +300,9 @@ const SalesPerson = () => {
   // change status record
   const status = async (id) => {
     if (
-      !window.confirm(
+      !(await confirmDialog(
         "Are you sure you want to change this Sales person status?",
-      )
+      ))
     )
       return;
 
@@ -423,9 +424,9 @@ const SalesPerson = () => {
   const assignLogin = async (e) => {
     e.preventDefault();
     if (
-      !window.confirm(
+      !(await confirmDialog(
         "Are you sure you want to assign login to this Sales Person?",
-      )
+      ))
     )
       return;
 

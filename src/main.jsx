@@ -7,6 +7,7 @@ import { AuthProvider } from "./store/auth.jsx";
 import { AppDialogProvider } from "./contexts/AppDialogContext.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { notifySessionExpired } from "./lib/apiClient.js";
+import { DialogHost, installDialogs } from "./components/ui/Dialogs.jsx";
 
 axios.defaults.withCredentials = true;
 axios.interceptors.response.use(
@@ -20,8 +21,12 @@ axios.interceptors.response.use(
 );
 
 // test comment
+// Browser alert() becomes a styled toast everywhere; confirm/prompt use confirmDialog/promptDialog
+installDialogs();
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
+    <DialogHost />
     <BrowserRouter>
       <AuthProvider>
         <AppDialogProvider>

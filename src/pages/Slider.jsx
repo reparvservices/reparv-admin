@@ -8,6 +8,7 @@ import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../components/Loader";
 import { getImageURI } from "../utils/helper";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Slider = () => {
   const {
@@ -142,7 +143,7 @@ const Slider = () => {
 
   // Delete Image
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Slider Image?"))
+    if (!(await confirmDialog("Are you sure you want to delete this Slider Image?")))
       return;
 
     try {
@@ -168,7 +169,7 @@ const Slider = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this image status?"))
+    if (!(await confirmDialog("Are you sure you want to change this image status?")))
       return;
 
     try {

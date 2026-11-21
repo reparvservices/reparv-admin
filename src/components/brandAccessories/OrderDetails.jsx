@@ -15,6 +15,7 @@ import TableFilter from "./TableFilter";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import OrderFilter from "./OrderFilter";
 import FormatPrice from "../FormatPrice";
+import { confirmDialog } from "../ui/Dialogs.jsx";
 
 const OrderDetails = ({ selectedTable, setSelectedTable }) => {
   const {
@@ -114,7 +115,7 @@ const OrderDetails = ({ selectedTable, setSelectedTable }) => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Order ?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this Order ?"))) return;
 
     try {
       setLoading(true);

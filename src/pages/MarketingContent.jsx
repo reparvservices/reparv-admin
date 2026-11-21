@@ -12,6 +12,7 @@ import { PiDotsThreeCircleVerticalFill } from "react-icons/pi";
 import propertyPicture from "../assets/propertyPicture.svg";
 import ContentFilter from "../components/ContentFilter";
 import { getImageURI } from "../utils/helper";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const MarketingContent = () => {
   const {
@@ -124,7 +125,7 @@ const MarketingContent = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this content ?"))
+    if (!(await confirmDialog("Are you sure you want to delete this content ?")))
       return;
     try {
       const response = await fetch(

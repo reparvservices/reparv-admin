@@ -15,6 +15,7 @@ import Select from "react-select";
 import FilterBar from "../components/adsManager/FilterBar";
 import { FaRegCopy } from "react-icons/fa";
 import { FaExternalLinkAlt } from "react-icons/fa";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const AdsManager = () => {
   const {
@@ -282,7 +283,7 @@ const AdsManager = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure to change this Ads Manager status?"))
+    if (!(await confirmDialog("Are you sure to change this Ads Manager status?")))
       return;
 
     try {
@@ -307,7 +308,7 @@ const AdsManager = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure to delete this Ads Manager?")) return;
+    if (!(await confirmDialog("Are you sure to delete this Ads Manager?"))) return;
 
     try {
       setLoading(true);
@@ -390,7 +391,7 @@ const AdsManager = () => {
 
   // change status record
   const changeAdsStatus = async (id) => {
-    if (!window.confirm("Are you sure to change this Ads status?")) return;
+    if (!(await confirmDialog("Are you sure to change this Ads status?"))) return;
 
     try {
       const response = await fetch(

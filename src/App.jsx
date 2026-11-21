@@ -1,6 +1,6 @@
 import "./App.css";
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import PublicRoute from "./components/auth/PublicRoute.jsx";
@@ -15,7 +15,8 @@ const Map = lazy(() => import("./pages/Map.jsx"));
 const Calender = lazy(() => import("./pages/Calender.jsx"));
 const Customers = lazy(() => import("./pages/Customers.jsx"));
 const Ticketing = lazy(() => import("./pages/Ticketing.jsx"));
-const BrandAccessories = lazy(() => import("./pages/BrandAccessories.jsx"));
+// Brand Accessories hidden for now
+// const BrandAccessories = lazy(() => import("./pages/BrandAccessories.jsx"));
 const Venues = lazy(() => import("./pages/Venues.jsx"));
 const MarketingContent = lazy(() => import("./pages/MarketingContent.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
@@ -29,10 +30,12 @@ const ProjectPartnerProfile = lazy(
   () => import("./pages/ProjectPartnerProfile.jsx"),
 );
 const PartnerLeads = lazy(() => import("./pages/PartnerLeads.jsx"));
-const TerritoryPartner = lazy(() => import("./pages/TerritoryPartner.jsx"));
+// Territory Partner panel hidden for now
+// const TerritoryPartner = lazy(() => import("./pages/TerritoryPartner.jsx"));
 const GuestUser = lazy(() => import("./pages/guestUser.jsx"));
 const Users = lazy(() => import("./pages/Users.jsx"));
 const Subscription = lazy(() => import("./pages/Subscription.jsx"));
+const ListingFees = lazy(() => import("./pages/ListingFees.jsx"));
 const UserSubscriptions = lazy(() => import("./pages/UserSubscriptions.jsx"));
 const GstBills = lazy(() => import("./pages/GstBills.jsx"));
 const SubscriptionAnalytics = lazy(
@@ -40,6 +43,8 @@ const SubscriptionAnalytics = lazy(
 );
 const Properties = lazy(() => import("./pages/Properties.jsx"));
 const PropertyDetails = lazy(() => import("./pages/PropertyDetails.jsx"));
+const VenueDetailPage = lazy(() => import("./pages/VenueDetailPage.jsx"));
+const VenueEditPage = lazy(() => import("./pages/VenueEditPage.jsx"));
 const Role = lazy(() => import("./pages/Role.jsx"));
 const Department = lazy(() => import("./pages/Department.jsx"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage.jsx"));
@@ -116,6 +121,8 @@ const App = () => {
           <Route path="/properties" element={<Properties />} />
           <Route path="/properties/add" element={<PropertyFormPage />} />
           <Route path="/properties/edit/:id" element={<PropertyFormPage />} />
+          <Route path="/properties/venue/:id" element={<VenueDetailPage />} />
+          <Route path="/properties/venue/:id/edit" element={<VenueEditPage />} />
           <Route path="/properties/:id" element={<PropertyDetails />} />
           <Route
             path="/property/additional-info/:propertyid"
@@ -138,18 +145,20 @@ const App = () => {
             element={<ProjectPartnerProfile />}
           />
           <Route path="/partner-leads" element={<PartnerLeads />} />
-          <Route path="/territorypartner" element={<TerritoryPartner />} />
+          {/* Territory Partner route hidden for now: <Route path="/territorypartner" element={<TerritoryPartner />} /> */}
           <Route path="/messages" element={<Messages />} />
           <Route path="/contact-us-messages" element={<ContactUsMessages />} />
           <Route path="/scheduled-requests" element={<ScheduledRequests />} />
           <Route path="/subscription-pricing" element={<Subscription />} />
+          <Route path="/listing-fees" element={<ListingFees />} />
           <Route path="/employees" element={<Employee />} />
           <Route path="/role" element={<Role />} />
           <Route path="/department" element={<Department />} />
           <Route path="/property-authorities" element={<PropertyAuthority />} />
           <Route path="/tickets" element={<Ticketing />} />
-          <Route path="/brand-accessories" element={<BrandAccessories />} />
-          <Route path="/venues" element={<Venues />} />
+          {/* Brand Accessories hidden for now: <Route path="/brand-accessories" element={<BrandAccessories />} /> */}
+          {/* Venue Booking is a property type now: the old page opens Properties */}
+          <Route path="/venues" element={<Navigate to="/properties" replace />} />
           <Route path="/slider" element={<Slider />} />
           <Route path="/testimonial" element={<Testimonial />} />
           <Route

@@ -8,6 +8,7 @@ import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
 import Loader from "../components/Loader";
 import { getImageURI } from "../utils/helper";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Testimonial = () => {
   const { showFeedbackForm, setShowFeedbackForm, URI, setLoading } = useAuth();
@@ -127,7 +128,7 @@ const Testimonial = () => {
 
   // Delete Image
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Feedback?"))
+    if (!(await confirmDialog("Are you sure you want to delete this Feedback?")))
       return;
     try {
       const response = await fetch(URI + `/admin/testimonial/delete/${id}`, {
@@ -153,9 +154,9 @@ const Testimonial = () => {
   // change status record
   const status = async (id) => {
     if (
-      !window.confirm(
+      !(await confirmDialog(
         "Are you sure you want to change this testimonial status?"
-      )
+      ))
     )
       return;
 

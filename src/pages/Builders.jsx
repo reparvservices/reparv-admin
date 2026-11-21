@@ -14,6 +14,7 @@ import { RxCross2 } from "react-icons/rx";
 import { MdDone } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
 import TagsInput from "../components/builder/TagsInput";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Builders = () => {
   const {
@@ -183,7 +184,7 @@ const Builders = () => {
 
   //Delete record
   const del = async (builderid) => {
-    if (!window.confirm("Are you sure you want to delete this builder?"))
+    if (!(await confirmDialog("Are you sure you want to delete this builder?")))
       return;
     try {
       const response = await fetch(
@@ -214,7 +215,7 @@ const Builders = () => {
 
   // change status record
   const status = async (builderid) => {
-    if (!window.confirm("Are you sure you want to change this builder status?"))
+    if (!(await confirmDialog("Are you sure you want to change this builder status?")))
       return;
 
     try {
@@ -244,7 +245,7 @@ const Builders = () => {
   const assignLogin = async (e) => {
     e.preventDefault();
     if (
-      !window.confirm("Are you sure you want to assign login to this builder?")
+      !(await confirmDialog("Are you sure you want to assign login to this builder?"))
     )
       return;
 

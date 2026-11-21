@@ -16,6 +16,7 @@ import DownloadCSV from "../components/DownloadCSV";
 import ListPageLayout from "../components/ui/ListPageLayout";
 import DataTableProgress from "../components/ui/DataTableProgress";
 import { FiUsers } from "react-icons/fi";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const GuestUser = () => {
   const {
@@ -166,7 +167,7 @@ const GuestUser = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this User?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this User?"))) return;
 
     try {
       setLoading(true);
@@ -194,7 +195,7 @@ const GuestUser = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this User status?"))
+    if (!(await confirmDialog("Are you sure you want to change this User status?")))
       return;
 
     try {
@@ -220,7 +221,7 @@ const GuestUser = () => {
   // Assign login record
   const assignLogin = async (e) => {
     e.preventDefault();
-    if (!window.confirm("Are you sure you want to assign login to this User ?"))
+    if (!(await confirmDialog("Are you sure you want to assign login to this User ?")))
       return;
 
     try {

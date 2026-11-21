@@ -1,5 +1,7 @@
-import { parse } from "date-fns";
+import { parse, format } from "date-fns";
 import { useState, useEffect } from "react";
+import { venueApi } from "../lib/venueApi";
+import { kindOfCategory, VENUE_KIND } from "../utils/propertyListing";
 import { CiSearch } from "react-icons/ci";
 import { useAuth } from "../store/auth";
 import CustomDateRangePicker from "../components/CustomDateRangePicker";
@@ -32,12 +34,73 @@ import {
 } from "react-icons/fa";
 import { formatNumber } from "../utils/formatNumber";
 
-const PROPERTY_LISTERS = ["Reparv Employee", "Project Partner", "Guest User"];
+const PROPERTY_LISTERS = ["All", "Reparv Employee", "Project Partner", "Guest User"];
+// "All" loads every lister below and merges them, newest first
+const LISTERS_IN_ALL = ["Reparv Employee", "Project Partner", "Guest User"];
+
+/** Created time as a number for sorting (list rows carry it as "dd MMM yyyy | hh:mm a") */
+const createdTime = (item) => {
+  if (item._ts) return item._ts;
+  const parsed = item.created_at ? parse(item.created_at, "dd MMM yyyy | hh:mm a", new Date()) : null;
+  const t = parsed ? parsed.getTime() : NaN;
+  return Number.isNaN(t) ? 0 : t;
+};
 
 const isPartnerSelected = (partner) =>
   PROPERTY_LISTERS.includes(partner) || partner === "Select Property Lister";
 
 const LIST_STATE_KEY = "admin.properties.list";
+
+// Property types (Venue Booking is one of them)
+const TYPE_FILTERS = [
+  { key: "", label: "All types" },
+  { key: "Residential", label: "Residential" },
+  { key: "Commercial", label: "Commercial" },
+  { key: "Agriculture", label: "Agriculture / Land" },
+  { key: VENUE_KIND, label: "Venue Booking" },
+];
+
+// Venue listing status → the approval labels properties use (draft / paused have none)
+const VENUE_APPROVE = { live: "Approved", pending: "Not Approved", rejected: "Rejected" };
+
+/** A venue listing shaped like a property row, so it shares the table and its filters */
+const venueToRow = (v) => {
+  const type = v.type === "other" && v.custom_type ? v.custom_type : v.type;
+  let created = "";
+  try {
+    created = v.created_at ? format(new Date(v.created_at), "dd MMM yyyy | hh:mm a") : "";
+  } catch {
+    created = "";
+  }
+  return {
+    propertyid: v.id,
+    _isVenue: true,
+    _venueStatus: v.status,
+    propertyName: v.title,
+    propertyCategory: type ? type[0].toUpperCase() + type.slice(1) : "Venue",
+    // The property table reads photos as JSON text; a venue's photos arrive as a list
+    frontView: typeof v.images === "string" ? v.images : JSON.stringify(v.images || []),
+    created_at: created,
+    _ts: v.created_at ? new Date(v.created_at).getTime() : 0,
+    totalOfferPrice: v.base_price,
+    city: v.city,
+    state: v.state,
+    approve: VENUE_APPROVE[v.status] || "",
+    status: v.status === "live" ? "Active" : "Inactive",
+    rejectreason: v.reject_reason,
+    fullname: v.owner_name,
+    contact: v.owner_contact,
+    partnerCity: v.owner_city,
+    views: 0,
+    likes: 0,
+    calls: 0,
+    whatsapp: 0,
+    shares: 0,
+  };
+};
+
+const kindOf = (item) =>
+  item._isVenue ? VENUE_KIND : item.propertyKind || kindOfCategory(item.propertyCategory) || "Residential";
 
 // Remember the lister / search so "Back" from a property page returns to the same list
 const readListState = () => {
@@ -55,6 +118,7 @@ const Properties = () => {
   const [datas, setDatas] = useState([]);
   const [searchTerm, setSearchTerm] = useState(() => readListState().searchTerm || "");
   const [seoActive, setSeoActive] = useState(false);
+  const [typeFilter, setTypeFilter] = useState("");
 
   const [selectedPartner, setSelectedPartner] = useState(
     () => readListState().selectedPartner || "Select Property Lister",
@@ -72,8 +136,12 @@ const Properties = () => {
     }
   }, [selectedPartner, searchTerm]);
 
-  const openProperty = (propertyid, tab) =>
-    navigate(`/properties/${propertyid}${tab ? `?tab=${tab}` : ""}`);
+  const openProperty = (propertyid, tab, row) =>
+    navigate(
+      row?._isVenue
+        ? `/properties/venue/${propertyid}`
+        : `/properties/${propertyid}${tab ? `?tab=${tab}` : ""}`,
+    );
 
   //Fetch Data
   const fetchData = async ({ silent = false } = {}) => {
@@ -93,19 +161,50 @@ const Properties = () => {
     setListError("");
 
     try {
-      const response = await fetch(
-        `${URI}/admin/properties/get/${encodeURIComponent(selectedPartner)}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
+      const listers = selectedPartner === "All" ? LISTERS_IN_ALL : [selectedPartner];
+      const results = await Promise.allSettled(
+        listers.map(async (lister) => {
+          const response = await fetch(
+            `${URI}/admin/properties/get/${encodeURIComponent(lister)}`,
+            {
+              method: "GET",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            },
+          );
+          if (!response.ok) throw new Error("Failed to fetch properties.");
+          const data = await response.json();
+          return Array.isArray(data) ? data : [];
+        }),
       );
-      if (!response.ok) throw new Error("Failed to fetch properties.");
-      const data = await response.json();
-      setDatas(Array.isArray(data) ? data : []);
+      // One lister failing must not hide the others, but every one failing is an error
+      if (results.every((r) => r.status === "rejected")) throw results[0].reason;
+      const seen = new Set();
+      const list = results
+        .filter((r) => r.status === "fulfilled")
+        .flatMap((r) => r.value)
+        .filter((p) => !seen.has(p.propertyid) && seen.add(p.propertyid));
+
+      // Venue Booking listings: Project Partner -> partners' venues, Guest User -> website users' venues
+      const venueOwnerRoles = {
+        All: ["project", "customer"],
+        "Project Partner": ["project"],
+        "Guest User": ["customer"],
+      }[selectedPartner];
+      let venueRows = [];
+      if (venueOwnerRoles) {
+        try {
+          venueRows = (await venueApi(URI).list())
+            .filter((v) => venueOwnerRoles.includes(v.owner_role))
+            .map(venueToRow);
+        } catch (venueErr) {
+          console.warn("Venue listings unavailable:", venueErr?.message);
+        }
+      }
+      // Newest first across properties and venues
+      setDatas([...list, ...venueRows].sort((a, b) => createdTime(b) - createdTime(a)));
     } catch (err) {
       setListError(err?.message || "Failed to load properties.");
       setDatas([]);
@@ -199,6 +298,9 @@ const Properties = () => {
     const matchesProperty =
       !propertyFilter || getPropertyApprovedStatus() === propertyFilter;
 
+    /* Property type filter (Residential / Commercial / Agriculture / Venue Booking) */
+    const matchesType = !typeFilter || kindOf(item) === typeFilter;
+
     /* SEO filter */
     const isSeoMissing =
       !item.seoSlug?.trim() ||
@@ -209,7 +311,7 @@ const Properties = () => {
     const matchesSeo = seoActive ? isSeoMissing : true;
 
     /* Final decision */
-    return matchesSearch && matchesDate && matchesProperty && matchesSeo;
+    return matchesSearch && matchesDate && matchesProperty && matchesType && matchesSeo;
   });
 
   const customStyles = {
@@ -338,6 +440,11 @@ const Properties = () => {
         <span className="flex items-center gap-1.5 font-semibold text-gray-900 hover:text-[#076300] hover:underline">
           {row.hotDeal === "Active" && <FaFire className="text-red-600 shrink-0" />}
           {row.propertyName}
+          {row._isVenue && (
+            <span className="ml-1 rounded-full bg-[#E9F2FF] px-2 py-0.5 text-[10px] font-semibold text-[#0057D9] no-underline">
+              Venue Booking
+            </span>
+          )}
         </span>
       ),
       sortable: true,
@@ -382,11 +489,11 @@ const Properties = () => {
     },
     {
       name: "Top Picks",
-      cell: (row) => (
+      cell: (row) => row._isVenue ? <span className="text-gray-400">—</span> : (
         <span
           onClick={(e) => {
             e.stopPropagation();
-            openProperty(row.propertyid, "promotion");
+            openProperty(row.propertyid, "promotion", row);
           }}
           title="Manage Top Picks"
           className={`px-2 py-1 rounded-md cursor-pointer hover:ring-1 hover:ring-gray-300 ${
@@ -444,14 +551,16 @@ const Properties = () => {
                 : "bg-[#E9F2FF] text-[#0068FF]"
           }`}
         >
-          {row.approve}
+          {row._isVenue
+            ? (row._venueStatus || "").replace(/^./, (c) => c.toUpperCase())
+            : row.approve}
         </span>
       ),
       minWidth: "150px",
     },
     {
       name: "Reparv Assured",
-      cell: (row) => (
+      cell: (row) => row._isVenue ? <span className="text-gray-400">—</span> : (
         <span
           className={`px-2 py-1 rounded-md ${
             row.reparvAssured === "Active"
@@ -473,6 +582,7 @@ const Properties = () => {
       name: "Actions",
       cell: (row) => (
         <div className="flex items-center gap-2">
+          {!row._isVenue && (
           <button
             type="button"
             onClick={(e) => {
@@ -487,11 +597,12 @@ const Properties = () => {
           >
             <FaWhatsapp size={16} />
           </button>
+          )}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              openProperty(row.propertyid);
+              openProperty(row.propertyid, undefined, row);
             }}
             className="inline-flex items-center gap-1.5 rounded-lg border border-[#076300] px-3 py-1.5 text-xs font-semibold text-[#076300] hover:bg-[#EAFBF1] transition-colors"
           >
@@ -649,6 +760,30 @@ const Properties = () => {
                   ))}
                 </select>
               </div>
+
+              <label className="text-xs font-medium text-gray-500 shrink-0 sm:ml-2">
+                Property type
+              </label>
+              <div className="relative w-full sm:max-w-[220px]">
+                <div className="flex gap-2 items-center justify-between bg-white border border-gray-200 text-sm font-semibold text-gray-900 rounded-xl py-2.5 px-3 shadow-sm focus-within:ring-2 focus-within:ring-[#076300]/25 focus-within:border-[#076300]/40">
+                  <span className="truncate">
+                    {TYPE_FILTERS.find((t) => t.key === typeFilter)?.label || "All types"}
+                  </span>
+                  <RiArrowDropDownLine className="w-6 h-6 text-gray-400 shrink-0" />
+                </div>
+                <select
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  value={typeFilter}
+                  aria-label="Filter by property type"
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                >
+                  {TYPE_FILTERS.map((t) => (
+                    <option key={t.key} value={t.key}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {listError && isPartnerSelected(selectedPartner) ? (
@@ -742,9 +877,12 @@ const Properties = () => {
                   pointerOnHover
                   onRowClicked={(row, e) => {
                     if (e?.metaKey || e?.ctrlKey) {
-                      window.open(`/properties/${row.propertyid}`, "_blank");
+                      window.open(
+                        row._isVenue ? `/properties/venue/${row.propertyid}` : `/properties/${row.propertyid}`,
+                        "_blank",
+                      );
                     } else {
-                      openProperty(row.propertyid);
+                      openProperty(row.propertyid, undefined, row);
                     }
                   }}
                   pagination

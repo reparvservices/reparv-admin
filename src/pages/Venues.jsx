@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../store/auth";
+import { promptDialog } from "../components/ui/Dialogs.jsx";
 
 const STATUS_STYLE = {
   draft: "bg-gray-100 text-gray-700",
@@ -67,11 +68,11 @@ const Venues = () => {
   const decide = async (listing, action) => {
     let body = { action };
     if (action === "approve") {
-      const c = window.prompt("Reparv commission % for this listing (0-50)", String(listing.commission_percent ?? 10));
+      const c = (await promptDialog("Reparv commission % for this listing (0-50)", String(listing.commission_percent ?? 10)));
       if (c === null) return;
       body.commission_percent = Number(c);
     } else {
-      const reason = window.prompt("Reason for rejecting (shown to the owner)");
+      const reason = (await promptDialog("Reason for rejecting (shown to the owner)"));
       if (!reason) return;
       body.reason = reason;
     }
@@ -84,9 +85,9 @@ const Venues = () => {
   };
 
   const cancel = async (booking) => {
-    const reason = window.prompt(
+    const reason = (await promptDialog(
       `Cancel ${booking.booking_ref}? The customer is refunded ₹${booking.amount_paid} in full.\nReason:`,
-    );
+    ));
     if (!reason) return;
     try {
       const data = await call(`/admin/venues/bookings/${booking.id}/cancel`, { method: "POST", body: JSON.stringify({ reason }) });

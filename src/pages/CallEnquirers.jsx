@@ -4,6 +4,7 @@ import { CiSearch } from "react-icons/ci";
 import { useAuth } from "../store/auth";
 import DataTable from "react-data-table-component";
 import { FiMoreVertical } from "react-icons/fi";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const CallEnquirers = () => {
   const { URI, setLoading } = useAuth();
@@ -33,7 +34,7 @@ const CallEnquirers = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure to delete this Enquiry ?")) return;
+    if (!(await confirmDialog("Are you sure to delete this Enquiry ?"))) return;
     try {
       const response = await fetch(URI + `/admin/call-enquirers/delete/${id}`, {
         method: "DELETE",
@@ -55,7 +56,7 @@ const CallEnquirers = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure to change status?")) return;
+    if (!(await confirmDialog("Are you sure to change status?"))) return;
 
     try {
       const response = await fetch(URI + `/admin/call-enquirers/status/${id}`, {

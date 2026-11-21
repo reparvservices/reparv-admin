@@ -16,6 +16,7 @@ import { getImageURI } from "../utils/helper";
 
 import { FaEye, FaHeart, FaShareAlt } from "react-icons/fa";
 import { formatNumber } from "../utils/formatNumber";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Blogs = () => {
   const {
@@ -208,7 +209,7 @@ const Blogs = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this Blog status?"))
+    if (!(await confirmDialog("Are you sure you want to change this Blog status?")))
       return;
 
     try {
@@ -285,7 +286,7 @@ const Blogs = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Blog?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this Blog?"))) return;
 
     try {
       setLoading(true);

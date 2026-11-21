@@ -13,6 +13,7 @@ import Loader from "../components/Loader";
 import LazyCKEditor from "../components/LazyCKEditor";
 import DownloadCSV from "../components/DownloadCSV";
 import { getImageURI } from "../utils/helper";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Trends = () => {
   const {
@@ -147,7 +148,7 @@ const Trends = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this Trend status?"))
+    if (!(await confirmDialog("Are you sure you want to change this Trend status?")))
       return;
 
     try {
@@ -224,7 +225,7 @@ const Trends = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Trend?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this Trend?"))) return;
 
     try {
       setLoading(true);

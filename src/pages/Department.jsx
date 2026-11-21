@@ -11,6 +11,7 @@ import DataTable from "react-data-table-component";
 import Loader from "../components/Loader";
 import ListPageLayout from "../components/ui/ListPageLayout";
 import { FiLayers } from "react-icons/fi";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Department = () => {
   const { showDepartmentForm, setShowDepartmentForm, action, URI, setLoading } =
@@ -100,7 +101,7 @@ const Department = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this department?"))
+    if (!(await confirmDialog("Are you sure you want to delete this department?")))
       return;
 
     try {
@@ -125,7 +126,7 @@ const Department = () => {
   // change status record
   const status = async (id) => {
     if (
-      !window.confirm("Are you sure you want to change this department status?")
+      !(await confirmDialog("Are you sure you want to change this department status?"))
     )
       return;
 

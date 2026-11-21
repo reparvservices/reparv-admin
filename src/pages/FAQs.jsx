@@ -8,6 +8,7 @@ import AddButton from "../components/AddButton";
 import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import Loader from "../components/Loader";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const FAQs = () => {
   const { showFAQForm, setShowFAQForm, action, URI, setLoading } = useAuth();
@@ -97,7 +98,7 @@ const FAQs = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this FAQ?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this FAQ?"))) return;
 
     try {
       const response = await fetch(URI + `/admin/faqs/delete/${id}`, {
@@ -120,7 +121,7 @@ const FAQs = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this FAQ status?"))
+    if (!(await confirmDialog("Are you sure you want to change this FAQ status?")))
       return;
 
     try {

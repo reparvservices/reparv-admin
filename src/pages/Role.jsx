@@ -11,6 +11,7 @@ import DataTable from "react-data-table-component";
 import Loader from "../components/Loader";
 import ListPageLayout from "../components/ui/ListPageLayout";
 import { FiShield } from "react-icons/fi";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Role = () => {
   const { showRoleForm, setShowRoleForm, action, URI, setLoading } = useAuth();
@@ -95,7 +96,7 @@ const Role = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this role?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this role?"))) return;
     try {
       const response = await fetch(URI + `/admin/roles/delete/${id}`, {
         method: "DELETE",
@@ -117,7 +118,7 @@ const Role = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this role status?"))
+    if (!(await confirmDialog("Are you sure you want to change this role status?")))
       return;
 
     try {

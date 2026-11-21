@@ -11,6 +11,7 @@ import DownloadCSV from "../components/DownloadCSV";
 import FormatPrice from "../components/FormatPrice";
 import UsersLoanEligibilityFilter from "../components/usersLoanEligibility/UsersLoanEligibilityFilter";
 import { useNavigate } from "react-router-dom";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const UsersLoanEligibility = () => {
   const navigate = useNavigate();
@@ -78,7 +79,7 @@ const UsersLoanEligibility = () => {
 
   // change status record
   const changeStatus = async (id) => {
-    if (!window.confirm("Are you sure you want to change this status?"))
+    if (!(await confirmDialog("Are you sure you want to change this status?")))
       return;
 
     try {
@@ -136,7 +137,7 @@ const UsersLoanEligibility = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this entry?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this entry?"))) return;
 
     try {
       const response = await fetch(URI + `/admin/emi/delete/${id}`, {

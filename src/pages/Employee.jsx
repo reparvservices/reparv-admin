@@ -16,6 +16,7 @@ import DownloadCSV from "../components/DownloadCSV";
 import FormatPrice from "../components/FormatPrice";
 import ListPageLayout from "../components/ui/ListPageLayout";
 import { FaUserTie } from "react-icons/fa";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Employee = () => {
   const {
@@ -294,7 +295,7 @@ const Employee = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this employee?"))
+    if (!(await confirmDialog("Are you sure you want to delete this employee?")))
       return;
 
     try {
@@ -321,7 +322,7 @@ const Employee = () => {
   // change status record
   const status = async (id) => {
     if (
-      !window.confirm("Are you sure you want to change this employee status?")
+      !(await confirmDialog("Are you sure you want to change this employee status?"))
     )
       return;
 
@@ -379,7 +380,7 @@ const Employee = () => {
   const assignLogin = async (e) => {
     e.preventDefault();
     if (
-      !window.confirm("Are you sure you want to assign login to this employee?")
+      !(await confirmDialog("Are you sure you want to assign login to this employee?"))
     )
       return;
 

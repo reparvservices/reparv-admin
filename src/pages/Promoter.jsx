@@ -15,6 +15,7 @@ import PartnerFilter from "../components/PartnerFilter";
 import { RxCross2 } from "react-icons/rx";
 import { MdDone } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Promoter = () => {
   const {
@@ -210,7 +211,7 @@ const Promoter = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Promoter?"))
+    if (!(await confirmDialog("Are you sure you want to delete this Promoter?")))
       return;
 
     try {
@@ -239,7 +240,7 @@ const Promoter = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure to change this Promoter status?")) return;
+    if (!(await confirmDialog("Are you sure to change this Promoter status?"))) return;
 
     try {
       const response = await fetch(URI + `/admin/promoter/status/${id}`, {
@@ -356,7 +357,7 @@ const Promoter = () => {
   // Assign login record
   const assignLogin = async (e) => {
     e.preventDefault();
-    if (!window.confirm("Are you sure to assign login to this Promoter ?"))
+    if (!(await confirmDialog("Are you sure to assign login to this Promoter ?")))
       return;
 
     try {

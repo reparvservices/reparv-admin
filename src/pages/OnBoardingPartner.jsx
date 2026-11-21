@@ -15,6 +15,7 @@ import PartnerFilter from "../components/PartnerFilter";
 import { RxCross2 } from "react-icons/rx";
 import { MdDone } from "react-icons/md";
 import DownloadCSV from "../components/DownloadCSV";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const OnBoardingPartner = () => {
   const {
@@ -209,7 +210,7 @@ const OnBoardingPartner = () => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Partner?"))
+    if (!(await confirmDialog("Are you sure you want to delete this Partner?")))
       return;
 
     try {
@@ -238,7 +239,7 @@ const OnBoardingPartner = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this Partner status?"))
+    if (!(await confirmDialog("Are you sure you want to change this Partner status?")))
       return;
 
     try {
@@ -352,9 +353,9 @@ const OnBoardingPartner = () => {
   const assignLogin = async (e) => {
     e.preventDefault();
     if (
-      !window.confirm(
+      !(await confirmDialog(
         "Are you sure you want to assign login to this onBoarding Partner ?"
-      )
+      ))
     )
       return;
 

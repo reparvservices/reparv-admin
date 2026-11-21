@@ -12,6 +12,7 @@ import { IoMdClose } from "react-icons/io";
 import Loader from "../components/Loader";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import DownloadCSV from "../components/DownloadCSV";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const Ticketing = () => {
   const {
@@ -315,7 +316,7 @@ const Ticketing = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this ticket?"))) return;
 
     try {
       const response = await fetch(URI + `/admin/tickets/delete/${id}`, {

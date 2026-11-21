@@ -103,11 +103,19 @@ export function FieldSelect({ icon, value, onChange, children, required }) {
   );
 }
 
+/** The options plus any stored value that is not one of them (older listings), so it stays visible and can be changed. */
+function withStored(options, stored) {
+  const list = Array.isArray(stored) ? stored : stored ? [stored] : [];
+  const known = new Set(options.map((o) => (typeof o === "string" ? o : o.value)));
+  const extra = list.filter((v) => typeof v === "string" && v.trim() !== "" && !known.has(v));
+  return extra.length ? [...options, ...extra] : options;
+}
+
 /* ─── Pill button selector (single) ───────────────────────────── */
 export function PillSelect({ options, value, onChange }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {options.map((opt) => {
+      {withStored(options, value).map((opt) => {
         const val = typeof opt === "string" ? opt : opt.value;
         const label = typeof opt === "string" ? opt : opt.label;
         const active = value === val;
@@ -138,7 +146,7 @@ export function PillMultiSelect({ options, value = [], onChange }) {
   };
   return (
     <div className="flex flex-wrap gap-2">
-      {options.map((opt) => {
+      {withStored(options, value).map((opt) => {
         const val = typeof opt === "string" ? opt : opt.value;
         const label = typeof opt === "string" ? opt : opt.label;
         const active = value.includes(val);

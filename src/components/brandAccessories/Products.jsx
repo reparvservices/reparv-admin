@@ -12,6 +12,7 @@ import Loader from "../Loader";
 import DownloadCSV from "../DownloadCSV";
 import FormatPrice from "../FormatPrice";
 import TableFilter from "./TableFilter";
+import { confirmDialog } from "../ui/Dialogs.jsx";
 
 const Products = ({ selectedTable, setSelectedTable }) => {
   const {
@@ -299,7 +300,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
   // Change Status
   const changeStatus = async (id) => {
     if (
-      !window.confirm("Are you sure to change this Product Status?")
+      !(await confirmDialog("Are you sure to change this Product Status?"))
     )
       return;
 
@@ -322,7 +323,7 @@ const Products = ({ selectedTable, setSelectedTable }) => {
 
   //Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Product?"))
+    if (!(await confirmDialog("Are you sure you want to delete this Product?")))
       return;
 
     try {

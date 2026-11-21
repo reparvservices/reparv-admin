@@ -6,6 +6,7 @@ import { useAuth } from "../store/auth";
 import { IoMdClose } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import Loader from "../components/Loader";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const statusClasses = {
   scheduled: "bg-blue-100 text-blue-600",
@@ -95,7 +96,7 @@ const CalendarScheduler = () => {
 
   // ---------------- Delete Note ----------------
   const deleteNote = async (noteId) => {
-    if (!window.confirm("Are you sure to delete this Note?")) return;
+    if (!(await confirmDialog("Are you sure to delete this Note?"))) return;
     try {
       const response = await fetch(
         `${URI}/admin/calender/note/delete/${noteId}`,

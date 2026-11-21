@@ -7,6 +7,7 @@ import AddButton from "../components/AddButton";
 import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import Loader from "../components/Loader";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const PropertyAuthority = () => {
   const { showAuthorityForm, setShowAuthorityForm, action, URI, setLoading } =
@@ -99,7 +100,7 @@ const PropertyAuthority = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this authority?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this authority?"))) return;
     try {
       const response = await fetch(URI + `/admin/authorities/delete/${id}`, {
         method: "DELETE",
@@ -121,7 +122,7 @@ const PropertyAuthority = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this Authority status?"))
+    if (!(await confirmDialog("Are you sure you want to change this Authority status?")))
       return;
 
     try {

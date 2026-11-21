@@ -5,6 +5,7 @@ import { IoMdClose } from "react-icons/io";
 import { FiMoreVertical } from "react-icons/fi";
 import { useAuth } from "../store/auth";
 import AddButton from "../components/AddButton";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 // Real-estate advertisements (furniture, interiors, home loans, ...) shown on
 // the website home page below "Verified Rental Properties".
@@ -213,7 +214,7 @@ const Advertisements = () => {
   };
 
   const toggleStatus = async (id) => {
-    if (!window.confirm("Change this advertisement's status?")) return;
+    if (!(await confirmDialog("Change this advertisement's status?"))) return;
     try {
       const response = await fetch(`${URI}/admin/advertisements/status/${id}`, {
         method: "PUT",
@@ -228,7 +229,7 @@ const Advertisements = () => {
   };
 
   const del = async (id) => {
-    if (!window.confirm("Delete this advertisement? This cannot be undone."))
+    if (!(await confirmDialog("Delete this advertisement? This cannot be undone.")))
       return;
     try {
       const response = await fetch(`${URI}/admin/advertisements/delete/${id}`, {

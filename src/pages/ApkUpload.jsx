@@ -7,6 +7,7 @@ import { IoMdClose } from "react-icons/io";
 import DataTable from "react-data-table-component";
 import Loader from "../components/Loader";
 import { MdOutlineWidthFull } from "react-icons/md";
+import { confirmDialog } from "../components/ui/Dialogs.jsx";
 
 const ApkUpload = () => {
   const { showApkUploadForm, setShowApkUploadForm, action, URI, setLoading } =
@@ -104,7 +105,7 @@ const ApkUpload = () => {
 
   // Delete record
   const del = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this apk ?")) return;
+    if (!(await confirmDialog("Are you sure you want to delete this apk ?"))) return;
     try {
       const response = await fetch(URI + `/admin/apk/delete/${id}`, {
         method: "DELETE",
@@ -126,7 +127,7 @@ const ApkUpload = () => {
 
   // change status record
   const status = async (id) => {
-    if (!window.confirm("Are you sure you want to change this apk status?"))
+    if (!(await confirmDialog("Are you sure you want to change this apk status?")))
       return;
 
     try {
